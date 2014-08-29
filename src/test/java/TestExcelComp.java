@@ -1,0 +1,343 @@
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+
+import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile;
+import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput;
+import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput;
+import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetReferencedCellInput;
+
+
+public class TestExcelComp {
+
+	/**
+	 * @param args
+	 * @throws ParseException 
+	 */
+	public static void main(String[] args) throws Exception {
+		//testReferencedCells();
+		testNamedCells();
+	}
+	
+	public static void testOutputStyled() {
+		SpreadsheetOutput out = new SpreadsheetOutput();
+		try {
+			out.createEmptyXLSWorkbook();
+			out.initializeWorkbook();
+			out.initializeSheet();
+			out.addStyle("odd", "Arial", "10", "", "8", "49", "left", false);
+			out.addStyle("even", "Arial", "10", "", "9", "12", "left", false);
+			out.setOddRowStyleName("odd");
+			out.setEvenRowStyleName("even");
+			out.setOutputFile("/Users/jan/test/excel/styled_excel.xls");
+			for (int r = 0; r < 9; r++) {
+				Object[] row = new Object[1];
+				for (int c = 0; c < 1; c++) {
+					row[c] = "value:" + r + "-" + c;
+				}
+				out.writeRow(row);
+			}
+			out.writeWorkbook();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void printHSSFColors() {
+		Map<Integer, HSSFColor> map = HSSFColor.getIndexHash();
+		TreeSet<String> set = new TreeSet<String>();
+		for (Map.Entry<Integer, HSSFColor> entry : map.entrySet()) {
+			int index = entry.getKey();
+			String className = entry.getValue().getClass().getName();
+			int pos = className.indexOf("$");
+			String colorName = className.substring(pos + 1);
+			String item = colorName + " index="+index+" class:" + className;
+			set.add(item);
+		}
+		for (String s : set) {
+			System.out.println(s);
+		}
+	}
+	
+	public static void test2() throws Exception {
+		SpreadsheetInput e = new SpreadsheetInput();
+		try {
+			e.setInputFile("/home/jlolling/Documents/cimt/projects/vhv/Sonderthemen_20121018.xlsx");
+			e.initializeWorkbook();
+			e.useSheet(0);
+			e.setRowStartIndex(3);
+			while (e.readNextRow()) {
+				Double s = e.getDoubleCellValue(0, true, false);
+				System.out.println(s);
+				System.out.println("|");
+				String b = e.getStringCellValue(1, true, false, false);
+				System.out.println(b);
+				System.out.println("|");
+				Date d = e.getDateCellValue(7, true, false, "dd.MM.yyyy");
+				System.out.println(d);
+				System.out.println("|");
+				String d1 = e.getStringCellValue(6, true, false, false);
+				System.out.println(d1);
+				System.out.println("-------");
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public static void test3() throws Exception {
+		SpreadsheetInput e = new SpreadsheetInput();
+		try {
+			e.setInputFile("/home/jlolling/test/excel/macro_test.xlsm");
+			e.initializeWorkbook();
+			e.useSheet(1);
+			e.setRowStartIndex(5);
+			e.setDataColumnPosition(0, "C");
+			e.setDataColumnPosition(1, "D");
+			e.setDataColumnPosition(2, "E");
+			e.setDataColumnPosition(3, "F");
+			e.setDataColumnPosition(4, "G");
+			e.setDataColumnPosition(5, "H");
+			e.setDataColumnPosition(6, "I");
+			e.setDataColumnPosition(7, "J");
+			int rowIndex = 0;
+			while (e.readNextRow()) {
+				try {
+					Object v0 = e.getIntegerCellValue(0, true, false);
+					System.out.print(v0);
+					System.out.print("|");
+				} catch (Exception e1) {
+					System.err.println("rowIndex=" + rowIndex + " column 0");
+					e1.printStackTrace();
+				}
+				
+//				Object v1 = e.getStringCellValue(1, true, false, false);
+//				System.out.print(v1);
+//				System.out.print("|");
+//				Object v2 = e.getIntegerCellValue(2, true, false);
+//				System.out.print(v2);
+//				System.out.print("|");
+//				Object v3 = e.getIntegerCellValue(3, true, false);
+//				System.out.print(v3);
+//				System.out.println("|");
+				Object v4 = e.getDateCellValue(4, true, false, "dd.MM.yyyy");
+				System.out.print(v4);
+				System.out.print("|");
+				Object v5 = e.getDoubleCellValue(5, true, false);
+				System.out.print(v5);
+				System.out.print("|");
+				Object v6 = e.getDoubleCellValue(6, true, false);
+				System.out.print(v6);
+				System.out.print("|");
+				Object v7 = e.getStringCellValue(7, true, false, false);
+				System.out.print(v7);
+				System.out.print("|");
+				Object v8 = e.getStringCellValue(8, true, false, false);
+				System.out.println(v8);
+				System.out.println("-------");
+				rowIndex++;
+			}
+			e.setOutputFile("/home/jlolling/test/excel/macro_test_result.xlsm");
+			e.writeWorkbook();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public static void test1() throws ParseException {
+		SpreadsheetInput e = new SpreadsheetInput();
+		try {
+			e.setInputFile("/home/jlolling/test/excel/excel_output_file.xls");
+			e.initializeWorkbook();
+			e.useSheet(0);
+			e.setRowStartIndex(1);
+			e.setDataColumnPosition(0, "A");
+			e.setDataColumnPosition(1, "B");
+			e.setDataColumnPosition(2, "D");
+			e.setDataColumnPosition(3, "E");
+			while (e.readNextRow()) {
+				String v = e.getFormularCellValue(3, true);
+				Double d = e.getDoubleCellValue(3, true, false);
+				System.out.println("F=" + v + " d=" + d);
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.println("lastRowNum=" + e.getLastRowNum());
+	}
+	
+	public static void test5() throws ParseException {
+		SpreadsheetInput e = new SpreadsheetInput();
+		try {
+			e.setInputFile("/Users/jan/test/excel/header_columns.xls");
+			e.initializeWorkbook();
+			e.useSheet(0);
+			e.setRowStartIndex(1);
+			e.setHeaderRowIndex(0);
+			e.setHeaderName(0, "F0", false);
+			e.setHeaderName(1, "F1", false);
+			e.setHeaderName(2, "F2", true);
+			e.setHeaderName(3, "F3", true);
+			e.configColumnPositions();
+			while (e.readNextRow()) {
+				String f0 = e.getStringCellValue(0, false, true, false);
+				Double f1 = e.getDoubleCellValue(1, true, false);
+				String f2 = e.getStringCellValue(2, true, true, false);
+				String f3 = e.getStringCellValue(3, true, true, false);
+				System.out.println("F0=" + f0 + " f1=" + f1 + " f2=" + f2 + " f3=" + f3);
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.println("lastRowNum=" + e.getLastRowNum());
+	}
+
+	public static void testMassiveOutput() throws Exception {
+		SpreadsheetOutput out = new SpreadsheetOutput();
+		//out.setCreateStreamingXMLWorkbook(true);
+		out.createEmptyXLSWorkbook();
+		out.initializeWorkbook();
+		out.initializeSheet();
+		out.freezeAt(0, 1);
+		for (int r = 0; r < 9; r++) {
+			Object[] row = new Object[20];
+			for (int c = 0; c < 2; c++) {
+				row[c] = "!value:" + r + "-" + c;
+			}
+			out.writeRow(row);
+		}
+		out.setOutputFile("/var/testdata/excel/smallfile.xls");
+		out.writeWorkbook();
+	}
+	
+	public static void testEmpty() throws Exception {
+		SpreadsheetOutput out = new SpreadsheetOutput();
+		out.createEmptyXLSXWorkbook();
+		out.initializeWorkbook();
+		out.initializeSheet();
+		System.out.println("is empty:" + out.isEmpty());
+	}
+
+	public static void testXLSEncrypted() throws Exception {
+		SpreadsheetInput e = new SpreadsheetInput();
+		e.setInputFile("/private/var/testdata/excel/encrypted.xls");
+		e.setPassword("lolli");
+		e.initializeWorkbook();
+		e.useSheet(0);
+		e.setRowStartIndex(0);
+		while (e.readNextRow()) {
+			System.out.println(e.getStringCellValue(0, true, true, false));
+		}
+	}
+
+	public static void testXLSCreateComment() throws Exception {
+		SpreadsheetOutput e = new SpreadsheetOutput();
+		e.createEmptyXLSWorkbook();
+		e.initializeWorkbook();
+		e.setTargetSheetName("with_comments");
+		e.initializeSheet();
+		e.writeReferencedCellValue(0, 1, "Jan", "Kommentar", null);
+		e.writeReferencedCellValue(1, 2, "Feb", "Kommentar", null);
+		e.writeReferencedCellValue(2, 0, 2, null, null);
+		e.writeReferencedCellValue(2, 1, 5, "toller Wert", null);
+		e.writeReferencedCellValue(2, 2, "=A{row}+B3", "Ergebnis", null);
+		e.setOutputFile("/private/var/testdata/excel/comments.xls");
+		e.writeWorkbook();
+	}
+
+	public static void testXLSXEncrypted() throws Exception {
+		SpreadsheetInput e = new SpreadsheetInput();
+		e.setInputFile("/private/var/testdata/excel/encrypted.xlsx");
+		e.setPassword("lolli");
+		e.initializeWorkbook();
+		e.useSheet(0);
+		e.setRowStartIndex(0);
+		while (e.readNextRow()) {
+			System.out.println(e.getStringCellValue(0, true, true, false));
+		}
+	}
+
+	public static void testNamedCells() throws Exception {
+		SpreadsheetOutput e = new SpreadsheetOutput();
+		e.setInputFile("/private/var/testdata/excel/named_cell_tests/template.xlsx");
+		e.initializeWorkbook();
+		String name = "p11telefo";
+		if (e.writeNamedCellValue(name, 1234) == false) {
+			throw new Exception("cell " + name + " cannot found");
+		}
+		e.setOutputFile("/private/var/testdata/excel/named_cell_tests/named_cells_written.xlsx");
+		e.writeWorkbook();
+	}
+
+	public static void testIfErrorFunction() throws Exception {
+		SpreadsheetInput e = new SpreadsheetInput();
+		SpreadsheetInput.registerFunction("IFERROR", "org.apache.poi.ss.formula.atp.IfError");
+		e.setInputFile("/private/var/testdata/excel/irerror_test.xlsx");
+		e.initializeWorkbook();
+		e.useSheet(0);
+		e.setRowStartIndex(0);
+		while (e.readNextRow()) {
+			System.out.println(e.getDoubleCellValue(0, true, false));
+		}
+	}
+
+	public static void testReferencedCells() throws Exception {
+		SpreadsheetReferencedCellInput e = new SpreadsheetReferencedCellInput();
+		e.setInputFile("/private/var/testdata/excel/excel_sample_with_comments.xlsx");
+		e.initializeWorkbook();
+		if (e.readNextCell("Sheet1!B4", null, null, null)) {
+			Cell cell = e.getCurrentCell();
+			CellStyle style = cell.getCellStyle();
+			System.out.println(style.getIndex());
+			System.out.println(SpreadsheetReferencedCellInput.getColorString(style.getFillForegroundColorColor()));
+			XSSFColor color = (XSSFColor) style.getFillBackgroundColorColor();
+			System.out.println(color.getCTColor().isSetIndexed());
+			System.out.println(color.getCTColor().getIndexed());
+			System.out.println(HSSFColor.getIndexHash().get(color.getCTColor().getIndexed()));
+			System.out.println(SpreadsheetReferencedCellInput.getColorString(color));
+
+		} else {
+			System.err.println("Cell not found");
+		}
+	}
+	
+	private static final Pattern CELL_REF_PATTERN = Pattern.compile("\\$?([A-Za-z]+)\\$?([0-9]+)");
+	
+	public static void testNamedCellToRange() {
+		SpreadsheetFile sf = new SpreadsheetFile();
+		String cellFormula = /*"'sheet'!$A$1"*/ "'sheet'!$A$1:$C$4";
+	    String[] refParts = cellFormula.split("!");
+	    if (refParts.length == 2) {
+		    String nameSheet = refParts[0].replace('\'',' ').trim();
+		    if (nameSheet == null || nameSheet.isEmpty()) {
+		    	return ;
+		    }
+	    	String cellRef = refParts[1];
+		    Matcher m = CELL_REF_PATTERN.matcher(cellRef);
+		    if (m.matches()) {
+		    	// only allow names to single cells
+		    	CellReference cellReference = new CellReference(cellRef);
+			    int numRow = cellReference.getRow();
+			    int numCol = cellReference.getCol();
+			    System.out.println(numRow + ":" + numCol);
+		    } else {
+		    	System.err.println("Range cell ref not allowed");
+		    }
+	    } else {
+	    	throw new IllegalStateException("Invalid cell reference:" + cellFormula);
+	    }
+	}
+
+}

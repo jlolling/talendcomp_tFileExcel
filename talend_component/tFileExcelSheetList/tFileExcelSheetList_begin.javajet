@@ -1,0 +1,91 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		org.talend.core.model.utils.NodeUtil
+		java.util.List
+		java.util.ArrayList
+    	java.util.Map
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
+	String outgoingConnName = null;
+	List<? extends IConnection> outConns = NodeUtil.getOutgoingConnections(node, IConnectionCategory.DATA);
+	if (outConns != null && outConns.isEmpty() == false) {
+	    IConnection outConn = outConns.get(0);
+	    outgoingConnName = outConn.getName();
+	}
+	boolean allSheets = "true".equals(ElementParameterParser.getValue(node, "__ALL_SHEETS__"));
+	List<Map<String, String>> sheetSelection = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__SHEET_FILTERS__");
+	if (sheetSelection == null) {
+		// create dummy
+		sheetSelection = new ArrayList<Map<String, String>>();
+	}
+%>
+
+    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetList <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetList();
+    <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
+	int countSheets_<%=cid%> = <%=cid%>.countSheets();
+	int <%=cid%>_sheetIndex = 0;
+	String <%=cid%>_sheetName = null;
+	int <%=cid%>_countRows = 0;
+	int nb_line_<%=cid%> = 0;
+
+	class Filter_<%=cid%> {
+		
+		private java.util.List<java.util.regex.Pattern> patternList = new java.util.ArrayList<java.util.regex.Pattern>();
+
+		public Filter_<%=cid%>() {
+<%  for (int i = 0, n = sheetSelection.size(); i < n; i++) {
+			java.util.Map<String, String> entry = sheetSelection.get(i);
+			String filter = entry.get("FILTER"); %>
+			patternList.add(java.util.regex.Pattern.compile(<%=filter%>));
+<%  } %>
+		}
+
+		public boolean matches(String name) {
+			if (patternList.size() == 0) {
+				return true;			
+			} else {
+				boolean matches = false;
+				for (java.util.regex.Pattern pattern : patternList) {
+					java.util.regex.Matcher matcher = pattern.matcher(name);
+					matches = matcher.matches();
+					if (matches) {
+						break;
+					}
+				}
+				return matches;
+			}
+		}
+		
+	}
+	Filter_<%=cid%> sheetFilter_<%=cid%> = new Filter_<%=cid%>();
+	globalMap.put("<%=cid%>_COUNT_SHEETS", countSheets_<%=cid%>);
+	for ( ; <%=cid%>_sheetIndex < countSheets_<%=cid%>; <%=cid%>_sheetIndex++) {
+		<%=cid%>_sheetName = <%=cid%>.getSheetName(<%=cid%>_sheetIndex);
+		<%=cid%>_countRows = <%=cid%>.getCountSheetRows(<%=cid%>_sheetIndex);
+		if (sheetFilter_<%=cid%>.matches(<%=cid%>_sheetName) == false) {
+			continue; // skip over the sheet
+		}
+		globalMap.put("<%=cid%>_SHEET_INDEX", <%=cid%>_sheetIndex);
+		globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>_sheetName);
+		globalMap.put("<%=cid%>_SHEET_ROW_COUNT", <%=cid%>_countRows);
+<%  if (outgoingConnName != null) { %>		
+		<%=outgoingConnName%>.COUNT_SHEETS = countSheets_<%=cid%>;
+		<%=outgoingConnName%>.SHEET_INDEX = <%=cid%>_sheetIndex;
+		<%=outgoingConnName%>.SHEET_NAME = <%=cid%>_sheetName;
+		<%=outgoingConnName%>.SHEET_ROW_COUNT = <%=cid%>_countRows;
+<%  } %>
+        nb_line_<%=cid%>++;

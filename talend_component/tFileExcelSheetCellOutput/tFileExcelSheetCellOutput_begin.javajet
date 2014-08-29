@@ -1,0 +1,32 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
+    String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
+    String dateFormat = ElementParameterParser.getValue(node, "__DEFAULT_DATE_FORMAT__");
+    boolean createSheetAsCopy = "true".equals(ElementParameterParser.getValue(node, "__CREATE_SHEET_AS_COPY__"));
+    String sourceSheetName = ElementParameterParser.getValue(node, "__SOURCE_SHEET_NAME__");
+%>
+    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
+    <%=cid%>.setDateFormatPattern(<%=dateFormat%>);
+    <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
+<%  if (sheetName != null && sheetName.isEmpty() == false) {
+        if (createSheetAsCopy) { %>
+    // clone sheet
+    <%=cid%>.createCopy(<%=sourceSheetName%>, <%=sheetName%>);
+<%      } %>
+    <%=cid%>.setTargetSheetName(<%=sheetName%>);
+<%  } %>
+	<%=cid%>.initializeSheet();
+	// row counter
+    int nb_line_<%=cid%> = 0;
+    int nb_cells_<%=cid%> = 0;
+    

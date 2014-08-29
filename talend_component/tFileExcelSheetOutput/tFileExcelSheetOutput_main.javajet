@@ -1,0 +1,57 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List
+		java.util.ArrayList
+    	java.util.Map
+    " 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    IConnection conn = null;
+    if (node.getIncomingConnections().size() > 0) {
+    	conn = node.getIncomingConnections().get(0);
+    }
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if (metadatas != null && metadatas.size() > 0) {
+    	IMetadataTable metadata = metadatas.get(0);
+    	if (metadata != null) {
+    		listColumns = metadata.getListColumns();
+		}
+	}
+	boolean writeColumns = "true".equals(ElementParameterParser.getValue(node, "__WRITE_IN_COLUMNS__"));
+%>
+    // fill schema data into the object array
+    Object[] dataset_<%=cid%> = new Object[<%=listColumns.size()%>];
+<%  int columnIndex = 0;
+    if (conn != null) {
+        for (IMetadataColumn col : listColumns) { %>
+    dataset_<%=cid%>[<%=columnIndex%>] = <%=conn.getName()%>.<%=col.getLabel()%>;
+<%          columnIndex++;
+        } %>
+    // write dataset
+    try {
+<%  if (writeColumns) { %>
+    	<%=cid%>.writeColumn(dataset_<%=cid%>);
+<%  } else { %>
+    	<%=cid%>.writeRow(dataset_<%=cid%>);
+<%  } %>
+    	nb_line_<%=cid%>++;
+    } catch (Exception e) {
+    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Error in line " + nb_line_<%=cid%> + ":" + e.getMessage());
+    	throw e;
+    }
+<%  } else { %>
+	// no schema defined!
+<%  } %>

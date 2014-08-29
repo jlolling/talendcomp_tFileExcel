@@ -1,0 +1,38 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+      org.talend.core.model.utils.NodeUtil
+		java.util.List
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    IConnection connIn = null;
+    List<? extends IConnection> inConns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+    if (inConns != null && inConns.size() > 0) {
+        connIn = inConns.get(0);
+    }
+%>
+<%  if (connIn != null) { %>
+    try {
+		// address target cell
+		<%=cid%>.setCommentAuthor(<%=connIn.getName()%>.CELL_COMMENT_AUTHOR);
+		<%=cid%>.writeReferencedCellValue(
+					<%=connIn.getName()%>.CELL_REF, 
+					<%=connIn.getName()%>.SHEET_NAME_OR_INDEX, 
+					<%=connIn.getName()%>.CELL_ROW, 
+					<%=connIn.getName()%>.CELL_COL,
+					<%=connIn.getName()%>.CELL_VALUE_OBJECT,
+					<%=connIn.getName()%>.CELL_COMMENT);
+    } catch (Exception e) {
+    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Write cell failed:" + e.getMessage());
+    	throw e;
+    }
+<%  } %>
+    nb_line_<%=cid%>++;
+    

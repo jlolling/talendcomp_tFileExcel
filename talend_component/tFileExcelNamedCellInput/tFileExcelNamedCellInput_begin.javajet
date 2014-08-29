@@ -1,0 +1,53 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		org.talend.core.model.utils.NodeUtil
+		java.util.List
+    	java.util.Map
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
+	String outgoingConnName = null;
+	List<? extends IConnection> outConns = NodeUtil.getOutgoingConnections(node, IConnectionCategory.DATA);
+	if (outConns != null && outConns.isEmpty() == false) {
+	    IConnection outConn = outConns.get(0);
+	    outgoingConnName = outConn.getName();
+	}
+%>
+    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetNamedCellInput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetNamedCellInput();
+    <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
+    <%=cid%>.retrieveNamedCellCount(); // count the named cells
+	 // row counter
+    int nb_cells_<%=cid%> = 0;
+    while (<%=cid%>.readNextNamedCell()) {
+<%   if (outgoingConnName != null) { %>		
+		<%=outgoingConnName%>.CELL_NAME = <%=cid%>.getCellName();
+		<%=outgoingConnName%>.CELL_VALUE = <%=cid%>.getCellValue();
+		<%=outgoingConnName%>.CELL_CLASS_NAME = <%=cid%>.getValueClass();
+		<%=outgoingConnName%>.CELL_REF = <%=cid%>.getCellExcelReference();
+		<%=outgoingConnName%>.CELL_ROW = <%=cid%>.getCellRowIndex();
+		<%=outgoingConnName%>.CELL_COL = <%=cid%>.getCellColumnIndex();
+		<%=outgoingConnName%>.CELL_INDEX = <%=cid%>.getCurrentCellIndex();
+		<%=outgoingConnName%>.SHEET_NAME = <%=cid%>.getCellSheetName();
+<%   } %>
+		globalMap.put("<%=cid%>_CELL_NAME", <%=cid%>.getCellName());
+		globalMap.put("<%=cid%>_CELL_VALUE", <%=cid%>.getCellValue());
+		globalMap.put("<%=cid%>_CELL_CLASS_NAME", <%=cid%>.getValueClass());
+		globalMap.put("<%=cid%>_CELL_REF", <%=cid%>.getCellExcelReference());
+		globalMap.put("<%=cid%>_CELL_ROW", <%=cid%>.getCellRowIndex());
+		globalMap.put("<%=cid%>_CELL_COL", <%=cid%>.getCellColumnIndex());
+		globalMap.put("<%=cid%>_CELL_INDEX", <%=cid%>.getCurrentCellIndex());
+		globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getCellSheetName());
+    

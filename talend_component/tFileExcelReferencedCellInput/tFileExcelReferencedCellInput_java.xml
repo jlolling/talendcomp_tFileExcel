@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<COMPONENT>
+	<HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL"
+		DATA_AUTO_PROPAGATE="false" SCHEMA_AUTO_PROPAGATE="false" HAS_CONDITIONAL_OUTPUTS="false" PLATEFORM="ALL"
+		RELEASE_DATE="20140512A" SERIAL="" STARTABLE="false" STATUS="PROD"
+		VERSION="6.0">
+		<SIGNATURE />
+	</HEADER>
+	<FAMILIES>
+		<FAMILY>File/Spreadsheet</FAMILY>
+	</FAMILIES>
+	<DOCUMENTATION>
+		<URL>
+		</URL>
+	</DOCUMENTATION>
+	<CONNECTORS>
+		<CONNECTOR CTYPE="FLOW" MAX_INPUT="1" MAX_OUTPUT="1" />
+		<CONNECTOR CTYPE="ITERATE" MAX_INPUT="1" MAX_OUTPUT="1" />
+		<CONNECTOR CTYPE="SUBJOB_OK" MAX_INPUT="1" />
+		<CONNECTOR CTYPE="SUBJOB_ERROR" MAX_INPUT="1" />
+		<CONNECTOR CTYPE="COMPONENT_OK" />
+		<CONNECTOR CTYPE="COMPONENT_ERROR" />
+		<CONNECTOR CTYPE="RUN_IF" />
+	</CONNECTORS>
+	<PARAMETERS>
+		<PARAMETER NAME="WORKBOOK" FIELD="COMPONENT_LIST"
+			FILTER="tFileExcelWorkbookOpen" NUM_ROW="2" REQUIRED="true" />
+		<PARAMETER NAME="SCHEMA" FIELD="SCHEMA_TYPE" REQUIRED="true" NUM_ROW="5">
+			<TABLE READONLY="false">
+				<COLUMN NAME="IN_CELL_REF" TYPE="id_String" LENGTH="64"
+					READONLY="true" CUSTOM="true" COMMENT="Cell reference (optional with sheet)" />
+				<COLUMN NAME="IN_SHEET_NAME_OR_INDEX" TYPE="id_Object" LENGTH="32"
+					READONLY="true" CUSTOM="true" COMMENT="Sheet name or index (0-based) will be used if not given in Excel cell reference" />
+				<COLUMN NAME="IN_CELL_ROW" TYPE="id_Integer" LENGTH="10"
+					READONLY="true" CUSTOM="true" COMMENT="Row index (1-based) will be used if Excel cell reference is empty" />
+				<COLUMN NAME="IN_CELL_COL" TYPE="id_Object" LENGTH="4"
+					READONLY="true" CUSTOM="true" COMMENT="Column as index (0-based) or name (A-based) will be used if Excel cell reference is empty" />
+				<COLUMN NAME="OUT_CELL_VALUE_OBJECT" TYPE="id_Object"
+					READONLY="true" CUSTOM="true" COMMENT="Cell value as Object" />
+				<COLUMN NAME="OUT_CELL_VALUE_STRING" TYPE="id_String" LENGTH="255"
+					READONLY="true" CUSTOM="true" COMMENT="Cell value as String" />
+				<COLUMN NAME="OUT_CELL_VALUE_DOUBLE" TYPE="id_Double" LENGTH="22"
+					READONLY="true" CUSTOM="true" COMMENT="Cell value as Double (if it is a number)" />
+				<COLUMN NAME="OUT_CELL_VALUE_DATE" TYPE="id_Date" LENGTH="10" PATTERN="&quot;yyyy-MM-dd HH:mm:ss&quot;"
+					READONLY="true" CUSTOM="true" COMMENT="Cell value as Date (if it is a date)"/>
+				<COLUMN NAME="OUT_CELL_VALUE_BOOLEAN" TYPE="id_Boolean"
+					READONLY="true" CUSTOM="true" COMMENT="Cell value as Boolean (if it is a boolean)" />
+				<COLUMN NAME="OUT_CELL_FORMULA" TYPE="id_String" LENGTH="255"
+					READONLY="true" CUSTOM="true" COMMENT="Cell formula" />
+				<COLUMN NAME="OUT_CELL_TYPE" TYPE="id_String" LENGTH="255"
+					READONLY="true" CUSTOM="true" COMMENT="Cell type as Java class name" />
+				<COLUMN NAME="OUT_CELL_COMMENT" TYPE="id_String"
+					READONLY="true" CUSTOM="true" LENGTH="255" COMMENT="Cell comment text" />
+				<COLUMN NAME="OUT_CELL_COMMENT_AUTHOR" TYPE="id_String"
+					READONLY="true" CUSTOM="true" LENGTH="255" COMMENT="Cell comment author"/>
+				<COLUMN NAME="OUT_CELL_BG_COLOR" TYPE="id_String"
+					READONLY="true" CUSTOM="true" LENGTH="16" COMMENT="Cell background color as r:g:b"/>
+				<COLUMN NAME="OUT_CELL_FG_COLOR" TYPE="id_String"
+					READONLY="true" CUSTOM="true" LENGTH="16" COMMENT="Cell foreground color as r:g:b"/>
+			</TABLE>
+		</PARAMETER>
+		<PARAMETER FIELD="CHECK" NAME="IGNORE_MISSING_CELLS" NUM_ROW="10" REQUIRED="true">
+			<DEFAULT>false</DEFAULT>
+		</PARAMETER>
+	</PARAMETERS>
+	<ADVANCED_PARAMETERS>
+	</ADVANCED_PARAMETERS>
+	<CODEGENERATION>
+	</CODEGENERATION>
+	<RETURNS>
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_VALUE_OBJECT" TYPE="id_Object" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_VALUE_STRING" TYPE="id_String" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_VALUE_DOUBLE" TYPE="id_Double" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_VALUE_DATE" TYPE="id_Date" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_VALUE_BOOLEAN" TYPE="id_Boolean" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_FORMULA" TYPE="id_String" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_TYPE" TYPE="id_String" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_COMMENT" TYPE="id_String" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_COMMENT_AUTHOR" TYPE="id_String" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_BG_COLOR" TYPE="id_String" />
+		<RETURN AVAILABILITY="FLOW" NAME="OUT_CELL_FG_COLOR" TYPE="id_String" />
+		<RETURN AVAILABILITY="FLOW" NAME="NB_LINE" TYPE="id_Integer" />
+	</RETURNS>
+</COMPONENT>
