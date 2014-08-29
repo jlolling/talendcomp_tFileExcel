@@ -1,0 +1,127 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List
+    	java.util.Map
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    String file = ElementParameterParser.getValue(node, "__FILENAME__");
+    String spreadsheetType = ElementParameterParser.getValue(node, "__SPREADSHEET_TYPE__");
+    boolean createEmptyWorkbook = "true".equals(ElementParameterParser.getValue(node, "__CREATE_EMPTY_WORKBOOK__"));
+    boolean createStreamingWorkbook = "true".equals(ElementParameterParser.getValue(node, "__CREATE_STREAMING_WORKBOOK__"));
+    boolean dieIfFileNotExists = "true".equals(ElementParameterParser.getValue(node, "__DIE_IF_FILE_NOT_EXISTS__"));
+    boolean decrypt = "true".equals(ElementParameterParser.getValue(node, "__DECRYPT_FILE__"));
+    String password = ElementParameterParser.getValue(node, "__PASSWORD__");
+	List<Map<String, String>> functionList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__FUNCTION_ADDONS__");
+	if (functionList != null) {
+		for (Map<String, String> entry : functionList) {
+			String fName = entry.get("FUNC_NAME");
+			String fClass = entry.get("FUNC_CLASS"); %>
+			de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile.registerFunction(<%=fName%>, <%=fClass%>);
+<%		}
+	}
+    boolean registerBackportFunctions = "true".equals(ElementParameterParser.getValue(node, "__REGISTER_BACKPORT_FUNCTIONS__"));
+%>
+	de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile();
+<%  if (registerBackportFunctions) { %>
+    // register additional backported functions like IFERROR
+    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile.registerBackportFunctions();
+<%  } %>	
+	<%=cid%>.setCreateStreamingXMLWorkbook(<%=createStreamingWorkbook%>);
+<%  if (createEmptyWorkbook) {%>
+	try {
+<%		if ("XLS".equals(spreadsheetType)) {%>
+        // create empty XLS workbook
+		<%=cid%>.createEmptyXLSWorkbook();
+<%		} else if ("XLSX".equals(spreadsheetType)) {%>
+        // create empty XLSX workbook
+		<%=cid%>.createEmptyXLSXWorkbook();
+<%      } else {%>
+			throw new Exception("Unknown spreadsheet type: <%=spreadsheetType%>");
+<%      }%>
+		<%=cid%>.initializeWorkbook();
+	} catch (Exception e) {
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+		throw e;
+	}
+<%  } else {%>
+	try {
+	    // read a excel file as template
+	    // this file file will not used as output file
+		<%=cid%>.setInputFile(<%=file%>);
+<%  if (decrypt && createStreamingWorkbook == false) {%>
+		<%=cid%>.setPassword(<%=password%>);
+<%  } %>
+		<%=cid%>.initializeWorkbook();
+	} catch (Exception e) {
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+		throw e;
+	}
+<%  }
+    /*
+	List<Map<String, String>> styleList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__CELL_STYLES__");
+	if (styleList != null && styleList.isEmpty() == false) {
+		for (Map<String, String> style : styleList) {
+			String styleName = style.get("NAME");
+			if (styleName == null || styleName.isEmpty()) {
+				styleName = "null";
+			} else if (styleName.startsWith("\"") == false) {
+				styleName = "\"" + styleName + "\"";
+			}
+			String fontFamily = style.get("FONT_NAME");
+			if (fontFamily == null || fontFamily.isEmpty()) {
+				fontFamily = "null";
+			} else if (fontFamily.startsWith("\"") == false) {
+				fontFamily = "\"" + fontFamily + "\"";
+			}
+			String fontHeight = style.get("FONT_HEIGHT");
+			if (fontHeight == null || fontHeight.isEmpty()) {
+				fontHeight = "null";
+			} else if (fontHeight.startsWith("\"") == false) {
+				fontHeight = "\"" + fontHeight + "\"";
+			}
+			String fontDeco = style.get("FONT_DECO");
+			if (fontDeco == null || fontDeco.isEmpty()) {
+				fontDeco = "null";
+			} else {
+				fontDeco = "\"" + fontDeco + "\"";
+			}
+			String fontColor = style.get("FONT_COLOR");
+			if (fontColor == null) {
+				fontColor = "null";
+			} else {
+				fontColor = "\"" + fontColor + "\"";
+			}
+			String textAlign = style.get("TEXT_ALIGN");
+			if (textAlign == null) {
+				textAlign = "null";
+			} else {
+				textAlign = "\"" + textAlign + "\"";
+			}
+			String cellColor = style.get("CELL_COLOR");
+			if (cellColor == null) {
+				cellColor = "null";
+			} else {
+				cellColor = "\"" + cellColor + "\"";
+			}
+%>
+	<%=cid%>.addStyle(<%=styleName%>, <%=fontFamily%>, <%=fontHeight%>, <%=fontDeco%>, <%=fontColor%>, <%=cellColor%>, <%=textAlign%>);
+<%		}
+	}
+	*/
+%>
+	
+	globalMap.put("workbook_<%=cid%>", <%=cid%>.getWorkbook());
+	globalMap.put("<%=cid%>_COUNT_SHEETS", <%=cid%>.getWorkbook().getNumberOfSheets());

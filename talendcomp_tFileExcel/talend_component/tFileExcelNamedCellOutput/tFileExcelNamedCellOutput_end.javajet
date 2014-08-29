@@ -1,0 +1,45 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		java.util.List
+    	java.util.Map
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    List<Map<String, String>> cellConfigList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__CELL_CONFIG__");
+    for (Map<String, String> cellConfig : cellConfigList) {
+    	String name = cellConfig.get("CELL_NAME");
+    	String value = cellConfig.get("CELL_VALUE");
+    	boolean doNotWriteNull = "true".equals(cellConfig.get("DO_NOT_WRITE_NULL"));
+    	boolean ignoreMissingCell = "true".equals(cellConfig.get("IGNORE_MISSING_CELL"));
+		if (name != null && name.isEmpty() == false) { %>
+		
+    // cell name: <%=name%>, don't write null: <%=doNotWriteNull%>, missing cell will be ignored: <%=ignoreMissingCell%>
+<%			if (doNotWriteNull) { %>
+	if (nc_<%=cid%>.isNotNull((<%=value%>))) {
+<%          } %>
+	    try {
+			boolean cellExists = <%=cid%>.writeNamedCellValue(<%=name%>, <%=value%>);
+<%			if (ignoreMissingCell == false) { %>
+			if (cellExists == false) {
+				throw new Exception("Cell with name:" + <%=name%> + " is missing!");
+			}
+<%          } %>
+	    } catch (Exception e) {
+	    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Write value for cell:" + <%=name%> + " failed:" + e.getMessage());
+	    	throw e;
+	    }
+<%			if (doNotWriteNull) { %>
+	}
+    nb_cells_<%=cid%>++;
+<%          } %>
+<%      } %>
+<%  } %>
+	globalMap.put("<%=cid%>_NB_CELLS", nb_cells_<%=cid%>);
+
+    

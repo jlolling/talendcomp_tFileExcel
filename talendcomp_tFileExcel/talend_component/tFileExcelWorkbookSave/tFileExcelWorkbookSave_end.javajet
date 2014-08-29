@@ -1,0 +1,53 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List
+    	java.util.Map
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    String openCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
+    String file = ElementParameterParser.getValue(node, "__FILENAME__");
+    boolean evaluateFomulas = "true".equals(ElementParameterParser.getValue(node, "__EVALUATE_ALL_FORMULAS__"));
+    boolean createDirs = "true".equals(ElementParameterParser.getValue(node, "__CREATE_DIRS__"));
+%>
+	de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile();
+    // set the workbook
+	<%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openCompName%>"));
+<%  if (evaluateFomulas) { %>
+	<%=cid%>.evaluateAllFormulars();	
+<%  } %>	
+	// delete template sheets if needed
+<%  List<Map<String, String>> mappingList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__TEMPLATE_SHEETS__");
+    for (Map<String, String> entry : mappingList) {
+		String name = entry.get("SHEET");
+		if (name != null && name.trim().isEmpty() == false) { %>
+    <%=cid%>.deleteSheet(<%=name%>);
+<%		}
+	} %>
+    // persist workbook
+	try {
+		<%=cid%>.setOutputFile(<%=file%>);
+<%  if (createDirs) {%>
+		<%=cid%>.createDirs();
+<%  }%>
+		globalMap.put("<%=cid%>_COUNT_SHEETS", <%=cid%>.getWorkbook().getNumberOfSheets());
+		<%=cid%>.writeWorkbook();
+		// release the memory
+		globalMap.put("<%=cid%>_FILENAME", <%=cid%>.getOutputFile());
+		globalMap.remove("workbook_<%=openCompName%>");
+	} catch (Exception e) {
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+		throw e;
+	}

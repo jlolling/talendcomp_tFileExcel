@@ -1,0 +1,29 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.IConnection
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.process.ElementParameterParser 
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    boolean removeLastEmptyRows = "true".equals(ElementParameterParser.getValue(node, "__REMOVE_LAST_EMPTY_ROWS__"));
+    boolean reuseCF = "true".equals(ElementParameterParser.getValue(node, "__REUSE_CF__"));
+    boolean extendTables = "true".equals(ElementParameterParser.getValue(node, "__EXTEND_TABLE_CELL_RANGE__"));
+%>
+<%  if (removeLastEmptyRows) { %>
+	 <%=cid%>.deleteFollowingRows();
+<%  } %>
+    <%=cid%>.setupColumnSize();
+    <%=cid%>.closeLastGroup();
+<%  if (reuseCF) { %>
+	<%=cid%>.extendCellRangesForConditionalFormattings();
+<%  } %>
+<%  if (extendTables) { %>
+	<%=cid%>.extendCellRangeForTable();
+<%  } %>
+    globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>);
+    globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.getSheetLastRowIndex());

@@ -1,0 +1,115 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+        org.talend.core.model.utils.NodeUtil
+        java.util.List
+        java.util.Set
+        java.util.TreeSet
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    IConnection connIn = null;
+    List<? extends IConnection> inConns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+    if (inConns != null && inConns.size() > 0) {
+        connIn = inConns.get(0);
+    }
+	List<IMetadataColumn> listInColumns = new java.util.ArrayList<IMetadataColumn>(); // dummy
+	IMetadataTable inMetadata = (connIn != null ? connIn.getMetadataTable() : null);
+	if (inMetadata != null) {
+		listInColumns = inMetadata.getListColumns();
+	}
+    IConnection connOut = null;
+    List<? extends IConnection> outConns = NodeUtil.getOutgoingConnections(node, IConnectionCategory.DATA);
+    if (outConns != null && outConns.size() > 0) {
+    	connOut = outConns.get(0);
+    }
+	List<IMetadataColumn> listOutColumns = new java.util.ArrayList<IMetadataColumn>(); // dummy
+	IMetadataTable outMetadata = (connOut != null ? connOut.getMetadataTable() : null);
+	if (outMetadata != null) {
+		listOutColumns = outMetadata.getListColumns();
+	}
+    boolean ignoreMissingCells = "true".equals(ElementParameterParser.getValue(node, "__IGNORE_MISSING_CELLS__"));
+    Set<String> predefinedOutputColumns = new TreeSet<String>();
+    predefinedOutputColumns.add("OUT_CELL_VALUE_OBJECT");
+    predefinedOutputColumns.add("OUT_CELL_VALUE_STRING");
+    predefinedOutputColumns.add("OUT_CELL_VALUE_DOUBLE");
+    predefinedOutputColumns.add("OUT_CELL_VALUE_DATE");
+    predefinedOutputColumns.add("OUT_CELL_VALUE_BOOLEAN");
+    predefinedOutputColumns.add("OUT_CELL_TYPE");
+    predefinedOutputColumns.add("OUT_CELL_COMMENT");
+    predefinedOutputColumns.add("OUT_CELL_COMMENT_AUTHOR");
+    predefinedOutputColumns.add("OUT_CELL_BG_COLOR");
+    predefinedOutputColumns.add("OUT_CELL_FG_COLOR");
+%>
+<%  if (connIn != null) { %>
+    try {
+		// address target cell
+<%      if (ignoreMissingCells) { %>
+		<%=cid%>.readNextCell(
+					<%=connIn.getName()%>.IN_CELL_REF, 
+					<%=connIn.getName()%>.IN_SHEET_NAME_OR_INDEX, 
+					<%=connIn.getName()%>.IN_CELL_ROW, 
+					<%=connIn.getName()%>.IN_CELL_COL);
+<%      } else { %>
+		if (<%=cid%>.readNextCell(
+					<%=connIn.getName()%>.IN_CELL_REF, 
+					<%=connIn.getName()%>.IN_SHEET_NAME_OR_INDEX, 
+					<%=connIn.getName()%>.IN_CELL_ROW, 
+					<%=connIn.getName()%>.IN_CELL_COL) == false) {
+			throw new Exception("Cell does not exists: ref=" + 
+				<%=connIn.getName()%>.IN_CELL_REF + 
+				" sheet=" + <%=connIn.getName()%>.IN_SHEET_NAME_OR_INDEX + 
+				" row=" + <%=connIn.getName()%>.IN_CELL_ROW +
+				" col=" + <%=connIn.getName()%>.IN_CELL_COL);
+		}
+<%      }
+        if (connOut != null) {
+        	for (IMetadataColumn inCol : listInColumns) {
+        	    for (IMetadataColumn outCol : listOutColumns) {
+        		    if (inCol.getLabel().equals(outCol.getLabel()) && predefinedOutputColumns.contains(inCol.getLabel()) == false) { %>
+		<%=connOut.getName()%>.<%=outCol.getLabel()%> = <%=connIn.getName()%>.<%=inCol.getLabel()%>;
+<%      				break;
+					}
+				}
+			}
+		}
+    } // if (connIn != null....
+    if (connOut != null) { %>
+		 // get cell info and values
+		<%=connOut.getName()%>.OUT_CELL_VALUE_OBJECT = <%=cid%>.getCurrentCellValueObject();
+		<%=connOut.getName()%>.OUT_CELL_VALUE_STRING = <%=cid%>.getCurrentCellValueString();
+		<%=connOut.getName()%>.OUT_CELL_VALUE_DOUBLE = <%=cid%>.getCurrentCellValueNumber();
+		<%=connOut.getName()%>.OUT_CELL_VALUE_DATE = <%=cid%>.getCurrentCellValueDate();
+		<%=connOut.getName()%>.OUT_CELL_VALUE_BOOLEAN = <%=cid%>.getCurrentCellValueBool();
+		<%=connOut.getName()%>.OUT_CELL_TYPE = <%=cid%>.getCurrentCellValueClassName();
+		<%=connOut.getName()%>.OUT_CELL_COMMENT = <%=cid%>.getCurrentCellComment();
+		<%=connOut.getName()%>.OUT_CELL_COMMENT_AUTHOR = <%=cid%>.getCurrentCellCommentAuthor();
+		<%=connOut.getName()%>.OUT_CELL_BG_COLOR = <%=cid%>.getCurrentCellBgColor();
+		<%=connOut.getName()%>.OUT_CELL_FG_COLOR = <%=cid%>.getCurrentCellFgColor();
+<%  } // if (connOut != null.... %>
+		globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>);
+		globalMap.put("<%=cid%>_OUT_CELL_VALUE_OBJECT", <%=cid%>.getCurrentCellValueObject());
+		globalMap.put("<%=cid%>_OUT_CELL_VALUE_STRING", <%=cid%>.getCurrentCellValueString());
+		globalMap.put("<%=cid%>_OUT_CELL_VALUE_DOUBLE", <%=cid%>.getCurrentCellValueNumber());
+		globalMap.put("<%=cid%>_OUT_CELL_VALUE_DATE", <%=cid%>.getCurrentCellValueDate());
+		globalMap.put("<%=cid%>_OUT_CELL_VALUE_BOOLEAN", <%=cid%>.getCurrentCellValueBool());
+		globalMap.put("<%=cid%>_OUT_CELL_TYPE", <%=cid%>.getCurrentCellValueClassName());
+		globalMap.put("<%=cid%>_OUT_CELL_COMMENT", <%=cid%>.getCurrentCellComment());
+		globalMap.put("<%=cid%>_OUT_CELL_COMMENT_AUTHOR", <%=cid%>.getCurrentCellCommentAuthor());
+		globalMap.put("<%=cid%>_OUT_CELL_BG_COLOR", <%=cid%>.getCurrentCellBgColor());
+		globalMap.put("<%=cid%>_OUT_CELL_FG_COLOR", <%=cid%>.getCurrentCellFgColor());
+    } catch (Exception e) {
+    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Read cell failed:" + e.getMessage());
+    	throw e;
+    }
+    nb_line_<%=cid%>++;
+    

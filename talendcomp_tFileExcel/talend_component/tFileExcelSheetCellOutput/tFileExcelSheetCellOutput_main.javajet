@@ -1,0 +1,78 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+        org.talend.core.model.utils.NodeUtil
+		java.util.List
+		java.util.ArrayList
+    	java.util.Map
+    	java.util.HashMap
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    IConnection conn = null;
+    List<? extends IConnection> inConns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+    if (inConns != null && inConns.size() > 0) {
+    	conn = inConns.get(0);
+    }
+	List<IMetadataColumn> listColumns = new java.util.ArrayList<IMetadataColumn>(); // dummy
+	IMetadataTable metadata = (conn != null ? conn.getMetadataTable() : null);
+	if (metadata != null) {
+		listColumns = metadata.getListColumns();
+	}
+%>
+<%  if (conn != null) {
+		boolean hasColumns = false;
+		String colRow = null;
+		String colCol = null;
+		String colValue = null;
+		boolean nullable = true;
+		String colComment = null;
+		String colDoNoWriteNull = null;
+		int columnIndex = 0;
+        for (IMetadataColumn col : listColumns) {
+        	switch (columnIndex) {
+        	case 0: colRow = col.getLabel(); break;
+        	case 1: colCol = col.getLabel(); break;
+        	case 2: {
+        		nullable = col.isNullable();
+        		colValue = col.getLabel(); 
+        		break;
+        	}
+        	case 3: colComment = col.getLabel(); break;
+        	case 4: colDoNoWriteNull = col.getLabel(); break;
+        	}
+        	columnIndex++;
+        	hasColumns = true;
+        }
+		if (hasColumns) { %>
+    // write input flow
+    nb_line_<%=cid%>++;
+<%  if (nullable) { %>
+	if (Boolean.TRUE.equals(<%=conn.getName()%>.<%=colDoNoWriteNull%>) == false || <%=conn.getName()%>.<%=colValue%> != null) {
+<%  } %>     
+	    try {
+			if (<%=cid%>.writeReferencedCellValue(<%=conn.getName()%>.<%=colRow%>, <%=conn.getName()%>.<%=colCol%>, <%=conn.getName()%>.<%=colValue%>, <%=conn.getName()%>.<%=colComment%>, null)) {
+			    nb_cells_<%=cid%>++;
+			}
+	    } catch (Exception e) {
+	    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Write cell:" + <%=conn.getName()%>.<%=colRow%> + ":" + <%=conn.getName()%>.<%=colCol%> + " failed:" + e.getMessage());
+	    	throw e;
+	    }
+<%  if (nullable) { %>
+	}
+<%  } %>     
+<%      } %>
+<%  } %>
+
+    

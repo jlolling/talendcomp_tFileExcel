@@ -1,0 +1,223 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		org.talend.core.model.metadata.types.JavaType
+		java.util.List
+		java.util.ArrayList
+    	java.util.Map
+    	java.util.HashMap
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    String debug = ElementParameterParser.getValue(node, "__DEBUG__");
+    String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
+    String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
+    boolean createSheetAsCopy = "true".equals(ElementParameterParser.getValue(node, "__CREATE_SHEET_AS_COPY__"));
+    String sourceSheetName = ElementParameterParser.getValue(node, "__SOURCE_SHEET_NAME__");
+    boolean appendRows = "true".equals(ElementParameterParser.getValue(node, "__APPEND_ROWS__"));
+    boolean includeHeader = "true".equals(ElementParameterParser.getValue(node, "__INCLUDE_HEADER__"));
+    String rowStartIndexStr = ElementParameterParser.getValue(node, "__ROW_START_INDEX__");
+    String allowWriteNull = ElementParameterParser.getValue(node, "__WRITE_NULL__");
+    String freezeRowStr = ElementParameterParser.getValue(node, "__FREEZE_ROW__");
+    String freezeColStr = ElementParameterParser.getValue(node, "__FREEZE_COL__");
+    boolean useIndividualColumnPositions = "true".equals(ElementParameterParser.getValue(node, "__USE_COLUMN_POSITIONING__"));
+    String columnStartPosStr = ElementParameterParser.getValue(node, "__COLUMN_START_INDEX__");
+    Map<Integer, String> fieldMap = new HashMap<Integer, String>();
+    int columnIndex = 0;
+	 if (useIndividualColumnPositions) {
+       List<Map<String, String>> mappingList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+	 	 for (Map<String, String> entry : mappingList) {
+			String name = entry.get("POSITION");
+			if (name != null && name.trim().isEmpty() == false) {
+				fieldMap.put(columnIndex, name.trim());
+			}
+			columnIndex++;
+		}
+	}
+    IConnection conn = null;
+    if (node.getIncomingConnections().size() > 0) {
+    	conn = node.getIncomingConnections().get(0);
+    }
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if (metadatas != null && metadatas.size() > 0) {
+    	IMetadataTable metadata = metadatas.get(0);
+    	if (metadata != null) {
+    		listColumns = metadata.getListColumns();
+		}
+	}
+    List<Map<String, String>> formatList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+    Map<Integer, String> formatMap = new HashMap<Integer, String>();
+	columnIndex = 0;
+	for (Map<String, String> entry : formatList) {
+		String format = entry.get("FORMAT");
+		if (format != null && format.isEmpty() == false) {
+			formatMap.put(columnIndex, format);
+		}
+		columnIndex++;
+	}	
+   List<Map<String, String>> headerList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+   Map<Integer, String> headerMap = new HashMap<Integer, String>();
+	columnIndex = 0;
+	for (Map<String, String> entry : headerList) {
+		String header = entry.get("HEADER");
+		if (header != null && header.isEmpty() == false) {
+			headerMap.put(columnIndex, header);
+		}
+		columnIndex++;
+	}
+	String reuseStyle = ElementParameterParser.getValue(node, "__REUSE_STYLE__");
+	String reuseStyleAlternating = ElementParameterParser.getValue(node, "__REUSE_STYLE_ALTERNATING__");
+	String reuseFirstRowHeight = ElementParameterParser.getValue(node, "__REUSE_FIRST_ROW_HEIGHT__");
+	boolean writeColumns = "true".equals(ElementParameterParser.getValue(node, "__WRITE_IN_COLUMNS__"));
+	String groupColumns = ElementParameterParser.getValue(node, "__GROUP_COLS__");
+	if (writeColumns) appendRows = false;
+%>
+    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
+    <%=cid%>.setDebug(<%=debug%>);
+    <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
+<%  if (sheetName != null && sheetName.isEmpty() == false) {
+        if (createSheetAsCopy) { %>
+    // clone sheet
+    <%=cid%>.createCopy(<%=sourceSheetName%>, <%=sheetName%>);
+<%      } %>
+    <%=cid%>.setTargetSheetName(<%=sheetName%>);
+<%  } %>
+	<%=cid%>.initializeSheet();
+<%  if (appendRows) { %>
+	 {
+	    <%=cid%>.setRowStartIndex(<%=cid%>.getSheet().getLastRowNum() + 1);
+	 }
+<%  } else if (rowStartIndexStr != null && rowStartIndexStr.isEmpty() == false) { %>
+	<%=cid%>.setRowStartIndex(<%=rowStartIndexStr%> - 1);
+<%  } %>
+<%  if (includeHeader) { %>
+	<%=cid%>.setFirstRowIsHeader(true);
+<%  } else { %>
+	<%=cid%>.setFirstRowIsHeader(false);
+<%  }  %>
+    // configure cell positions
+<%  if (useIndividualColumnPositions) {
+        String sheetColumn = null;
+        for (Map.Entry<Integer, String> entry : fieldMap.entrySet()) {
+            Integer schemaColumnIndex = entry.getKey();
+            sheetColumn = entry.getValue();
+            if (sheetColumn != null && sheetColumn.isEmpty() == false) { %>
+    <%=cid%>.setDataColumnPosition(<%=schemaColumnIndex%>, <%=sheetColumn%>);
+<%          }
+        }
+    } else if (columnStartPosStr != null && columnStartPosStr.isEmpty() == false) { %>
+	<%=cid%>.setColumnStart(<%=columnStartPosStr%>);
+<%  }
+    if (writeColumns == false) { %>
+	<%=cid%>.setReuseExistingStyles(<%=reuseStyle%>);
+	<%=cid%>.setReuseFirstRowHeight(<%=reuseFirstRowHeight%>);
+<%  	if ("true".equals(reuseStyle)) { %>
+	<%=cid%>.setReuseExistingStylesAlternating(<%=reuseStyleAlternating%>);
+<%  	} %>
+<%  } %>
+    // configure cell formats
+<%	if ("true".equals(reuseStyle) == false) {
+	    for (Map.Entry<Integer, String> entry : formatMap.entrySet()) { 
+		    String columnFormat = null;
+        	Integer schemaColumnIndex = entry.getKey();
+        	columnFormat = entry.getValue();
+        	String talendType = null;
+        	Integer precision = null;
+        	if (listColumns != null) { 
+	        	IMetadataColumn mc = listColumns.get(schemaColumnIndex);
+	        	precision = mc.getPrecision();
+   	        	talendType = mc.getTalendType().substring(3);
+ 		    	if (columnFormat == null || columnFormat.isEmpty()) {
+               		columnFormat = mc.getPattern();
+            	}
+        	} %>
+    // columnIndex: <%=schemaColumnIndex%>, format: <%=columnFormat%>, talendType: <%=talendType%>
+<%			if (columnFormat != null &&  columnFormat.isEmpty() == false) {
+				if ("Date".equalsIgnoreCase(talendType) || "Timestamp".equalsIgnoreCase(talendType)) { %>
+    <%=cid%>.setDataFormat(<%=schemaColumnIndex%>, <%=columnFormat%>);
+<%				} else if ("Double".equals(talendType) || "Float".equals(talendType) || "BigDecimal".equals(talendType) || "Integer".equals(talendType) || "Long".equals(talendType) || "Short".equals(talendType) || "String".equals(talendType)) { %>
+    <%=cid%>.setDataFormat(<%=schemaColumnIndex%>, <%=columnFormat%>);
+<%          	}
+        	} else if (precision != null) {
+            	if ("Double".equals(talendType) || "Float".equals(talendType) || "BigDecimal".equals(talendType) || "Integer".equals(talendType) || "Long".equals(talendType) || "Short".equals(talendType) || "String".equals(talendType)) { %>
+    <%=cid%>.setNumberPrecision(<%=schemaColumnIndex%>, <%=precision%>);
+<%          	}
+        	}
+        } // for
+    }  // if (reuseStyle == false)
+    if (freezeRowStr != null && freezeRowStr.isEmpty() == false && freezeColStr != null && freezeColStr.isEmpty() == false) { %>
+    // freeze pane
+    <%=cid%>.freezeAt(<%=freezeColStr%>, <%=freezeRowStr%>);
+<%  } %>
+    <%=cid%>.setWriteNullValues(<%=allowWriteNull%>);
+    // configure auto size columns and group rows by and comments
+<%  List<Map<String, String>> columnConfigList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+	columnIndex = 0;
+	for (Map<String, String> entry : columnConfigList) {
+		boolean autoSize = "true".equals(entry.get("IS_AUTO_SIZE"));
+		boolean groupBy = "true".equals(entry.get("GROUP_ROW"));
+		boolean comment = "true".equals(entry.get("IS_COMMENT"));
+		boolean link = "true".equals(entry.get("IS_HYPERLINK")); %>
+	// config column <%=columnIndex%>
+<%		if (autoSize) { %>
+	<%=cid%>.setAutoSizeColumn(<%=columnIndex%>);
+<%		}
+		if (groupBy) { %>
+	<%=cid%>.groupRowsByColumn(<%=columnIndex%>);
+<%      }
+		if (comment) { %>
+	<%=cid%>.setColumnValueAsComment(<%=columnIndex%>);
+<%		}
+		if (link) { %>
+	<%=cid%>.setColumnValueAsLink(<%=columnIndex%>);
+<%		}
+		columnIndex++;
+	} %>
+<%  if (groupColumns != null && groupColumns.trim().isEmpty() == false) { %>
+	// configure column groups
+	<%=cid%>.addColumnGroup(<%=groupColumns%>);
+<%  } %>
+<%  if (includeHeader && conn != null && listColumns != null && headerMap != null) { %>
+    // fill schema names into the header object array
+    Object[] header_<%=cid%> = new Object[<%=listColumns.size()%>];
+<%      columnIndex = 0;
+        if (conn != null) {
+            String header = null;
+            for (IMetadataColumn col : listColumns) { 
+                 header = headerMap.get(columnIndex); 
+                 if (header == null || header.isEmpty()) {
+                 	header = "\"" + col.getLabel() + "\"";
+                 }%>
+    header_<%=cid%>[<%=columnIndex%>] = <%=header%>;
+<%          columnIndex++;
+            } %>
+    // write header
+    try {
+<%  if (writeColumns) { %>
+    	<%=cid%>.writeColumn(header_<%=cid%>);
+<%  } else { %>
+    	<%=cid%>.writeRow(header_<%=cid%>);
+<%  } %>
+    } catch (Exception e) {
+    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Error in header:" + e.getMessage());
+    	throw e;
+    }
+<%      } else { %>
+	// no schema defined!
+<%      } %>
+<%	} // include header %>	
+	// row counter
+    int nb_line_<%=cid%> = 0;
+
+    
