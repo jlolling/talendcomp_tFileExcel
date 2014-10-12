@@ -21,9 +21,9 @@ package org.apache.poi.ss.examples;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import de.cimt.talendcomp.tfileexcelpoi.ExcelCellReference;
 import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput;
 
 import java.io.File;
@@ -389,9 +389,9 @@ public class ConditionalFormats {
 			if (cf != null) {
 		        CellRangeAddress[] regions = {
 		                CellRangeAddress.valueOf(
-		                		ExcelCellReference.translateToExcelPos(0, 1, false, false) +
+		                		new CellReference(1, 0, false, false).formatAsString() +
 		                		":" +
-		                		ExcelCellReference.translateToExcelPos(0, 1000, false, false)
+		                		new CellReference(1000, 0, false, false).formatAsString()
 		                		)
 		                	
 		        };

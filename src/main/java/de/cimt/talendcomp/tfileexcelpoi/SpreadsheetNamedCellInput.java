@@ -3,6 +3,7 @@ package de.cimt.talendcomp.tfileexcelpoi;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Name;
+import org.apache.poi.ss.util.CellReference;
 
 
 public class SpreadsheetNamedCellInput extends SpreadsheetFile {
@@ -18,6 +19,9 @@ public class SpreadsheetNamedCellInput extends SpreadsheetFile {
 	}
 	
 	public boolean readNextNamedCell() {
+		if (workbook ==  null) {
+			throw new IllegalStateException("workbook is not initialized");
+		}
 		if (namedCellCount == 0) {
 			return false;
 		} else {
@@ -103,7 +107,8 @@ public class SpreadsheetNamedCellInput extends SpreadsheetFile {
 
 	public String getCellExcelReference() {
 		if (currentNamedCell != null) {
-			return ExcelCellReference.translateToExcelPos(currentNamedCell.getColumnIndex(), currentNamedCell.getRowIndex(), true, true);
+	    	CellReference reference = new CellReference(currentNamedCell.getRowIndex(), currentNamedCell.getColumnIndex(), true, true);
+	    	return reference.formatAsString();
 		} else {
 			return null;
 		}

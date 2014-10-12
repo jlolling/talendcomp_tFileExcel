@@ -88,7 +88,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	}
 
 	public void freezeAt(String columnName, int rowIndex) {
-		freezeAt(ExcelCellReference.parseCellColumnName(columnName), rowIndex);
+		freezeAt(CellReference.convertColStringToIndex(columnName), rowIndex);
 	}
 
 	public void setAutoSizeColumn(int columnIndex) {
@@ -257,7 +257,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 		int columnIndex = 0;
 		if (column instanceof String) {
-			columnIndex = ExcelCellReference.parseCellColumnName((String) column);
+			columnIndex = CellReference.convertColStringToIndex((String) column);
 		} else if (column instanceof Number) {
 			columnIndex = ((Number) column).intValue();
 		} else {
@@ -510,13 +510,13 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		if (fromColumn instanceof Number) {
 			fromColumnIndex = ((Number) fromColumn).intValue();
 		} else if (fromColumn instanceof String) {
-			fromColumnIndex = ExcelCellReference.parseCellColumnName((String) fromColumn);
+			fromColumnIndex = CellReference.convertColStringToIndex((String) fromColumn);
 		}
 		int toColumnIndex = 0;
 		if (toColumn instanceof Number) {
 			toColumnIndex = ((Number) toColumn).intValue();
 		} else if (toColumn instanceof String) {
-			toColumnIndex = ExcelCellReference.parseCellColumnName((String) toColumn);
+			toColumnIndex = CellReference.convertColStringToIndex((String) toColumn);
 		}
 		if (fromColumnIndex >= 0 && fromColumnIndex < toColumnIndex - 1) {
 			sheet.groupColumn(fromColumnIndex, toColumnIndex);
@@ -532,7 +532,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	public void groupRowsByColumn(String columnName) {
 		if (columnName != null && columnName.trim().isEmpty() == false) {
 			groupRowsByColumn = true;
-			int columnIndex = ExcelCellReference.parseCellColumnName(columnName);
+			int columnIndex = CellReference.convertColStringToIndex(columnName);
 			if (groupInfoMap.get(columnIndex) == null) {
 				GroupInfo gi = new GroupInfo();
 				groupInfoMap.put(columnIndex, gi);
@@ -843,9 +843,9 @@ public class SpreadsheetOutput extends SpreadsheetFile {
                 		}
             	        CellRangeAddress[] ranges = {
             	                CellRangeAddress.valueOf(
-            	                		ExcelCellReference.translateToExcelPos(cellIndex, firstDataRowIndex, false, false) +
+            	                		new CellReference(firstDataRowIndex, cellIndex, false, false).formatAsString() +
             	                		":" +
-            	                		ExcelCellReference.translateToExcelPos(cellIndex, getLastRowNum(), false, false)
+            	                		new CellReference(getLastRowNum(), cellIndex, false, false).formatAsString()
             	                		)
             	        };
                 		if (debug) {

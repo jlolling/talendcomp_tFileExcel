@@ -65,7 +65,7 @@ public class SpreadsheetFile {
 	protected Map<String, CellStyle> namedStyles = new HashMap<String, CellStyle>();
 	private DataFormatter dataFormatter = null;
 	protected boolean debug = false;
-	private static final Pattern CELL_REF_PATTERN = Pattern.compile("\\$?([A-Za-z]+)\\$?([0-9]+)");
+	private static final Pattern CELL_REF_PATTERN = Pattern.compile("\\$?([A-Za-z]+)\\$?([0-9]+)"); // max is XFD
 
 	protected DataFormatter getDataFormatter() {
 		if (dataFormatter == null) {
@@ -141,7 +141,7 @@ public class SpreadsheetFile {
 	 */
 	public void setDataColumnPosition(int schemaColumnIndex, String columnName) {
 		if (columnName != null) {
-			columnIndexes.put(schemaColumnIndex, ExcelCellReference.parseCellColumnName(columnName));
+			columnIndexes.put(schemaColumnIndex, CellReference.convertColStringToIndex(columnName));
 			individualColumnMappingUsed = true;
 		}
 	}
@@ -434,7 +434,7 @@ public class SpreadsheetFile {
 	}
 
 	public void setColumnStart(String columnName) {
-		this.columnStartIndex = ExcelCellReference.parseCellColumnName(columnName);
+		this.columnStartIndex = CellReference.convertColStringToIndex(columnName);
 	}
 
 	public int getRowStartIndex() {

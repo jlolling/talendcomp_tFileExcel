@@ -68,7 +68,7 @@ public class SpreadsheetReferencedCellInput extends SpreadsheetFile {
 		if (columnRef instanceof Number) {
 			columnIndex = ((Number) columnRef).intValue();
 		} else if (columnRef instanceof String) {
-			columnIndex = ExcelCellReference.parseCellColumnName((String) columnRef);
+			columnIndex = CellReference.convertColStringToIndex((String) columnRef);
 		} else {
 			throw new IllegalArgumentException("Cell column refeference must be an none empty String or a number");
 		}
