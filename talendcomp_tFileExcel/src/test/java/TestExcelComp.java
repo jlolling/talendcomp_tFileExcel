@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 
 import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile;
 import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput;
+import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetNamedCellInput;
 import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput;
 import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetReferencedCellInput;
 
@@ -271,14 +272,28 @@ public class TestExcelComp {
 
 	public static void testNamedCells() throws Exception {
 		SpreadsheetOutput e = new SpreadsheetOutput();
-		e.setInputFile("/private/var/testdata/excel/named_cell_tests/template.xlsx");
+		e.setInputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example.xlsx");
 		e.initializeWorkbook();
-		String name = "p11telefo";
+		String name = "name_xfd";
 		if (e.writeNamedCellValue(name, 1234) == false) {
-			throw new Exception("cell " + name + " cannot found");
+			throw new Exception("cell " + name + " cannot be found");
 		}
-		e.setOutputFile("/private/var/testdata/excel/named_cell_tests/named_cells_written.xlsx");
+		e.setOutputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example_result.xlsx");
 		e.writeWorkbook();
+		SpreadsheetNamedCellInput input = new SpreadsheetNamedCellInput();
+		input.setInputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example_result.xlsx");
+		input.initializeWorkbook();
+		input.retrieveNamedCellCount();
+		System.out.println("Number of names: " + input.getNumberOfNamedCells());
+		while (input.readNextNamedCell()) {
+			System.out.println("------------------------------------------");
+			System.out.println("Sheet:       " + input.getCellSheetName());
+			System.out.println("Cell name:   " + input.getCellName());
+			System.out.println("Cell address:" + input.getCellExcelReference());
+			System.out.println("Cell row:    " + input.getCellRowIndex());
+			System.out.println("Cell column: " + input.getCellColumnIndex());
+			System.out.println("Cell value:  " + input.getCellValue());
+		}
 	}
 
 	public static void testIfErrorFunction() throws Exception {
