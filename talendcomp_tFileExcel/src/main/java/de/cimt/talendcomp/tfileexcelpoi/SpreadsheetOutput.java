@@ -219,16 +219,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	}
 
 	private void setupReferencedSheet(String cellRefStr, Object sheetRef) throws Exception {
-		if (cellRefStr != null && cellRefStr.trim().isEmpty() == false) {
-			CellReference cellRef = new CellReference(cellRefStr.trim());
-			String sheetNameFromRef = cellRef.getSheetName();
-			if (sheetNameFromRef != null && sheetNameFromRef.trim().isEmpty() == false) {
-				sheet = workbook.getSheet(sheetNameFromRef);
-				if (sheet == null) {
-					sheet = workbook.createSheet(sheetNameFromRef);
-				}
-			}
-		} else if (sheetRef instanceof String) {
+		if (sheetRef instanceof String) {
 			sheet = workbook.getSheet((String) sheetRef);
 			if (sheet == null) {
 				sheet = workbook.createSheet((String) sheetRef);
@@ -237,6 +228,15 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			sheet = workbook.getSheetAt(((Number) sheetRef).intValue());
 			if (sheet == null) {
 				throw new Exception("Sheet with index: " + ((Number) sheetRef).intValue() + " does not exists and can only be created if a name will be provided");
+			}
+		} else if (cellRefStr != null && cellRefStr.trim().isEmpty() == false) {
+			CellReference cellRef = new CellReference(cellRefStr.trim());
+			String sheetNameFromRef = cellRef.getSheetName();
+			if (sheetNameFromRef != null && sheetNameFromRef.trim().isEmpty() == false) {
+				sheet = workbook.getSheet(sheetNameFromRef);
+				if (sheet == null) {
+					sheet = workbook.createSheet(sheetNameFromRef);
+				}
 			}
 		}
 	}
@@ -345,8 +345,11 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			}
 			if (isToWriteAsLink(dataColumnIndex)) {
 				// if this schema data column is dedicated as hyper link
-				setCellHyperLink(cell, s);
-				isPlainValue = false;
+				if (firstRowIsHeader == false || dataRowIndex > 0) {
+					// avoid set hyper-links for the header line
+					setCellHyperLink(cell, s);
+					isPlainValue = false;
+				}
 			}
 			if (isPlainValue) {
 				if (s.startsWith("=")) {
