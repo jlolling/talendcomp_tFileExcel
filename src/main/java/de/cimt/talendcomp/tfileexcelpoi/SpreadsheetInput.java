@@ -71,41 +71,39 @@ public class SpreadsheetInput extends SpreadsheetFile {
 					value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						if (useCachedValuesForFailedEvaluations) {
-							int cachedFormulaType = cell.getCachedFormulaResultType();
-							if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
-								if (returnURLInsteadOfName) {
-									Hyperlink link = cell.getHyperlink();
-									if (link != null) {
-										if (concatenateLabelUrl) {
-											String url = link.getAddress();
-											if (url == null) {
-												url = "";
-											}
-											String label = link.getLabel();
-											if (label == null) {
-												label = "";
-											}
-											value = label + "|" + url;
-										} else {
-											value = link.getAddress();
+						int cachedFormulaType = cell.getCachedFormulaResultType();
+						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+							if (returnURLInsteadOfName) {
+								Hyperlink link = cell.getHyperlink();
+								if (link != null) {
+									if (concatenateLabelUrl) {
+										String url = link.getAddress();
+										if (url == null) {
+											url = "";
 										}
+										String label = link.getLabel();
+										if (label == null) {
+											label = "";
+										}
+										value = label + "|" + url;
 									} else {
-										value = cell.getStringCellValue();
+										value = link.getAddress();
 									}
 								} else {
 									value = cell.getStringCellValue();
 								}
-							} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
-								if (DateUtil.isCellDateFormatted(cell)) {
-									Date d = cell.getDateCellValue();
-									value = defaultDateFormat.format(d);
-								} else {
-									value = numberFormat.format(cell.getNumericCellValue());
-								}
-							} else if (cachedFormulaType == Cell.CELL_TYPE_BOOLEAN) {
-								value = cell.getBooleanCellValue() ? "true" : "false";
+							} else {
+								value = cell.getStringCellValue();
 							}
+						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+							if (DateUtil.isCellDateFormatted(cell)) {
+								Date d = cell.getDateCellValue();
+								value = defaultDateFormat.format(d);
+							} else {
+								value = numberFormat.format(cell.getNumericCellValue());
+							}
+						} else if (cachedFormulaType == Cell.CELL_TYPE_BOOLEAN) {
+							value = cell.getBooleanCellValue() ? "true" : "false";
 						}
 					} else {
 						throw e;
