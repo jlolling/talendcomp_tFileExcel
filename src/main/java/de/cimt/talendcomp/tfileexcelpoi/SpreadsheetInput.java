@@ -37,6 +37,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean returnURLInsteadOfName = false;
 	private boolean concatenateLabelUrl = false;
 	private boolean findHeaderPosByRegex = false;
+	private boolean useCachedValuesForFailedEvaluations = false;
 	
 	public String getStringCellValue(int columnIndex, boolean nullable, boolean trim, boolean useLast) throws Exception {
 		String value = null;
@@ -62,11 +63,54 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private String getStringCellValue(Cell cell) {
+	private String getStringCellValue(Cell cell) throws Exception {
 		String value = null;
 		if (cell != null) {
 			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-				value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+				try {
+					value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+				} catch (Exception e) {
+					if (useCachedValuesForFailedEvaluations) {
+						if (useCachedValuesForFailedEvaluations) {
+							int cachedFormulaType = cell.getCachedFormulaResultType();
+							if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+								if (returnURLInsteadOfName) {
+									Hyperlink link = cell.getHyperlink();
+									if (link != null) {
+										if (concatenateLabelUrl) {
+											String url = link.getAddress();
+											if (url == null) {
+												url = "";
+											}
+											String label = link.getLabel();
+											if (label == null) {
+												label = "";
+											}
+											value = label + "|" + url;
+										} else {
+											value = link.getAddress();
+										}
+									} else {
+										value = cell.getStringCellValue();
+									}
+								} else {
+									value = cell.getStringCellValue();
+								}
+							} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+								if (DateUtil.isCellDateFormatted(cell)) {
+									Date d = cell.getDateCellValue();
+									value = defaultDateFormat.format(d);
+								} else {
+									value = numberFormat.format(cell.getNumericCellValue());
+								}
+							} else if (cachedFormulaType == Cell.CELL_TYPE_BOOLEAN) {
+								value = cell.getBooleanCellValue() ? "true" : "false";
+							}
+						}
+					} else {
+						throw e;
+					}
+				}
 			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 				if (returnURLInsteadOfName) {
 					Hyperlink link = cell.getHyperlink();
@@ -170,10 +214,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
 			return true;
 		} else if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-			String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
-			if (s == null || s.trim().isEmpty()) {
-				return true;
-			} else {
+			try {
+				String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+				if (s == null || s.trim().isEmpty()) {
+					return true;
+				} else {
+					return false;
+				}
+			} catch (Exception e) {
 				return false;
 			}
 		} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
@@ -231,10 +279,27 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		Double value = null;
 		if (cell != null) {
 			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-				String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
-				if (s != null && s.trim().isEmpty() == false) {
-					Number n = numberFormat.parse(s.trim());
-					value = n.doubleValue();
+				try {
+					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+					if (s != null && s.trim().isEmpty() == false) {
+						Number n = numberFormat.parse(s.trim());
+						value = n.doubleValue();
+					}
+				} catch (Exception e) {
+					if (useCachedValuesForFailedEvaluations) {
+						int cachedFormulaType = cell.getCachedFormulaResultType();
+						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+							String s = cell.getStringCellValue();
+							if (s != null && s.trim().isEmpty() == false) {
+								Number n = numberFormat.parse(s.trim());
+								value = n.doubleValue();
+							}
+						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+							value = cell.getNumericCellValue();
+						}
+					} else {
+						throw e;
+					}
 				}
 			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 				String s = cell.getStringCellValue();
@@ -301,6 +366,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		s = s.trim().toLowerCase();
 		if ("true".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
+		} else if ("false".equals(s)) {
+			return Boolean.FALSE;
 		} else if ("1".equals(s)) {
 			return Boolean.TRUE;
 		} else if ("0".equals(s)) {
@@ -327,6 +394,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			return Boolean.TRUE;
 		} else if ("x".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
+		} else if ("wahr".equalsIgnoreCase(s)) {
+			return Boolean.TRUE;
+		} else if ("falsch".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
+		} else if ("vrai".equalsIgnoreCase(s)) {
+			return Boolean.TRUE;
+		} else if ("fausse".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
 		} else if (s != null) {
 			return Boolean.FALSE;
 		} else {
@@ -371,8 +446,23 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		Boolean value = null;
 		if (cell != null) {
 			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-				String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
-				value = toBool(s);
+				try {
+					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+					value = toBool(s);
+				} catch (Exception e) {
+					if (useCachedValuesForFailedEvaluations) {
+						int cachedFormulaType = cell.getCachedFormulaResultType();
+						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+							String s = cell.getStringCellValue();
+							value = toBool(s);
+						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+							double s = cell.getNumericCellValue();
+							value = toBool(s);
+						} else if (cachedFormulaType == Cell.CELL_TYPE_BOOLEAN) {
+							value = cell.getBooleanCellValue();
+						}
+					}
+				}
 			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 				String s = cell.getStringCellValue();
 				value = toBool(s);
@@ -428,13 +518,27 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		Date value = null;
 		if (cell != null) {
 			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-				String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
-				return parseDate(s, pattern);
+				try {
+					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+					return parseDate(s, pattern);
+				} catch (Exception e) {
+					if (useCachedValuesForFailedEvaluations) {
+						int cachedFormulaType = cell.getCachedFormulaResultType();
+						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+							String s = cell.getStringCellValue();
+							value = parseDate(s, pattern);
+						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+							value = cell.getDateCellValue();
+						}
+					} else {
+						throw e;
+					}
+				}
 			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
 				value = cell.getDateCellValue();
 			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 				String s = cell.getStringCellValue();
-				return parseDate(s, pattern);
+				value = parseDate(s, pattern);
 			}
 		}
 		return value;
@@ -605,6 +709,15 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	public void setFindHeaderPosByRegex(boolean findHeaderPosByRegex) {
 		this.findHeaderPosByRegex = findHeaderPosByRegex;
+	}
+
+	public boolean isUseCachedValuesForFailedEvaluation() {
+		return useCachedValuesForFailedEvaluations;
+	}
+
+	public void setUseCachedValuesForFailedEvaluation(
+			boolean useCachedValuesForFailedEvaluations) {
+		this.useCachedValuesForFailedEvaluations = useCachedValuesForFailedEvaluations;
 	}
 		
 }
