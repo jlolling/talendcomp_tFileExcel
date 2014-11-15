@@ -35,6 +35,7 @@
     String numberFormatLocale = ElementParameterParser.getValue(node, "__NUMBERFORMAT_LOCALE__");
     String returnLink = ElementParameterParser.getValue(node, "__RETURN_LINK__");
     String concatenateLabelUrl = ElementParameterParser.getValue(node, "__ADD_LINK_TO_LABEL__");
+    String useCachedValues = ElementParameterParser.getValue(node, "__USE_CACHED_VALUE_FOR_FAILED_FORMULA_EVALUATION__");
     Map<Integer, String> fieldMap = new HashMap<Integer, String>();
     Map<Integer, String> headerNameMap = new HashMap<Integer, String>();
     Map<Integer, Boolean> readCommentMap = new HashMap<Integer, Boolean>();
@@ -119,6 +120,7 @@
 <%  } %>
 	<%=cid%>.setReturnURLInsteadOfName(<%=returnLink%>);
 	<%=cid%>.setConcatenateLabelUrl(<%=concatenateLabelUrl%>);
+	<%=cid%>.setUseCachedValuesForFailedEvaluation(<%=useCachedValues%>);
 	// row counter
     int nb_line_<%=cid%> = 0;
     while (<%=cid%>.readNextRow()) {
