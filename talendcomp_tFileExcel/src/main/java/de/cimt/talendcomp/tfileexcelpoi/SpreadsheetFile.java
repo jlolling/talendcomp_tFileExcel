@@ -401,6 +401,9 @@ public class SpreadsheetFile {
 		workbook.write(fout);
 		fout.flush();
 		fout.close();
+		if (workbook instanceof SXSSFWorkbook) {
+			((SXSSFWorkbook) workbook).dispose();
+		}
 		workbook = null;
 	}
 	

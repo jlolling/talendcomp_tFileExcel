@@ -26,7 +26,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	
 	private Map<Integer, Object> lastValueMap = new HashMap<Integer, Object>();
 	private SimpleDateFormat defaultDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-	private int lastRowIndex = 0;
+	private int maxRowIndex = 0;
+	private int currentRowIndex = 0;
 	private NumberFormat numberFormat = NumberFormat.getInstance();
 	private int headerRowIndex = 0;
 	private Map<String, Integer> namesFromHeaderRow = new HashMap<String, Integer>();
@@ -38,6 +39,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean concatenateLabelUrl = false;
 	private boolean findHeaderPosByRegex = false;
 	private boolean useCachedValuesForFailedEvaluations = false;
+	private boolean stopAtMissingRow = true;
 	
 	public String getStringCellValue(int columnIndex, boolean nullable, boolean trim, boolean useLast) throws Exception {
 		String value = null;
@@ -201,7 +203,11 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		if (missingColumns.contains(columnIndex)) {
 			return null;
 		} else {
-			return currentRow.getCell(getCellIndex(columnIndex));
+			if (currentRow != null) {
+				return currentRow.getCell(getCellIndex(columnIndex));
+			} else {
+				return null;
+			}
 		}
 	}
 
@@ -544,9 +550,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	
 	public boolean readNextRow() {
 		int rowIndex = rowStartIndex + currentDatasetNumber;
-		if (rowIndex > lastRowIndex) {
-			return false;
-		} else {
+		if (isCreateStreamingXMLWorkbook()) {
+			currentRowIndex = rowIndex;
 			currentRow = sheet.getRow(rowIndex);
 			if (currentRow != null) {
 				rowStartIndex++;
@@ -554,9 +559,24 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			} else {
 				return false;
 			}
+		} else {
+			if (rowIndex > maxRowIndex) {
+				return false;
+			} else {
+				currentRowIndex = rowIndex;
+				currentRow = sheet.getRow(rowIndex);
+				if (currentRow != null) {
+					rowStartIndex++;
+					return true;
+				} else if (stopAtMissingRow) {
+					return false;
+				} else {
+					rowStartIndex++;
+					return true;
+				}
+			}
 		}
 	}
-	
 	
 	public void setHeaderName(int columnIndex, String headerName, boolean ignoreMissing) {
 		if (headerName != null && headerName.trim().isEmpty() == false) {
@@ -640,7 +660,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		currentDatasetNumber = 0;
 		sheetLastRowIndex = 0;
 		lastValueMap = new HashMap<Integer, Object>();
-		lastRowIndex = sheet.getLastRowNum();
+		maxRowIndex = sheet.getLastRowNum();
 	}
 	
 	public void useSheet(Integer index) throws Exception {
@@ -657,7 +677,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		currentDatasetNumber = 0;
 		sheetLastRowIndex = 0;
 		lastValueMap = new HashMap<Integer, Object>();
-		lastRowIndex = sheet.getLastRowNum();
+		maxRowIndex = sheet.getLastRowNum();
 	}
 	
 	public void setDefaultDateFormat(String pattern) {
@@ -667,6 +687,10 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	}
 	
 	public void setNumberFormatLocale(String locale) {
+		setNumberFormatLocale(locale, true);
+	}
+	
+	public void setNumberFormatLocale(String locale, boolean useGrouping) {
 		int p = locale.indexOf('_');
 		String language = locale;
 		String country = "";
@@ -675,6 +699,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			country = locale.substring(p);
 		}
 		numberFormat = NumberFormat.getInstance(new Locale(language, country));
+		numberFormat.setGroupingUsed(useGrouping);
 	}
 
 	public int getHeaderRowIndex() {
@@ -717,5 +742,40 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			boolean useCachedValuesForFailedEvaluations) {
 		this.useCachedValuesForFailedEvaluations = useCachedValuesForFailedEvaluations;
 	}
-		
+
+	public void setStopAtMissingRow(boolean stopAtMissingRow) {
+		this.stopAtMissingRow = stopAtMissingRow;
+	}
+	
+	public boolean rowIsEmpty() {
+		if (currentRow == null) {
+			return true;
+		} else {
+			for (Cell cell : currentRow) {
+				if (cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
+	public boolean rowIsEmpty(int ... columns) {
+		if (currentRow == null) {
+			return true;
+		} else {
+			for (int i : columns) {
+				Cell cell = currentRow.getCell(i);
+				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
+	public int getCurrentRowIndex() {
+		return currentRowIndex;
+	}
+
 }

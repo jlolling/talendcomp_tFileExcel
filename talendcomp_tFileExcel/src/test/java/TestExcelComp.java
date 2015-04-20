@@ -27,7 +27,7 @@ public class TestExcelComp {
 	 */
 	public static void main(String[] args) throws Exception {
 		//testReferencedCells();
-		testNamedCells();
+		test2();
 	}
 	
 	public static void testOutputStyled() {
@@ -73,7 +73,7 @@ public class TestExcelComp {
 	public static void test2() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		try {
-			e.setInputFile("/home/jlolling/Documents/cimt/projects/vhv/Sonderthemen_20121018.xlsx");
+			e.setInputFile("/Volumes/Data/projects/vhv/Sonderthemen_20121018.xlsx");
 			e.initializeWorkbook();
 			e.useSheet(0);
 			e.setRowStartIndex(3);
@@ -158,7 +158,7 @@ public class TestExcelComp {
 	public static void test1() throws ParseException {
 		SpreadsheetInput e = new SpreadsheetInput();
 		try {
-			e.setInputFile("/home/jlolling/test/excel/excel_output_file.xls");
+			e.setInputFile("/var/testdata/test/excel/excel_output_file.xls");
 			e.initializeWorkbook();
 			e.useSheet(0);
 			e.setRowStartIndex(1);
