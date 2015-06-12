@@ -26,4 +26,4 @@
 	<%=cid%>.extendCellRangeForTable();
 <%  } %>
     globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>);
-    globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.getSheetLastRowIndex());
+    globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.getSheetLastRowIndex() + 1);

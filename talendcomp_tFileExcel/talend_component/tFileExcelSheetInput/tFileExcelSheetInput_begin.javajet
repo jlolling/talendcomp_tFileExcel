@@ -90,6 +90,7 @@
     de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
     <%=cid%>.useSheet(<%=sheetName%>);
+    globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName());
     <%=cid%>.setStopAtMissingRow(<%=stopAtEmptyRow%>);
 <%  if (rowStartIndexStr != null && rowStartIndexStr.isEmpty() == false) { %>
 	<%=cid%>.setRowStartIndex(<%=rowStartIndexStr%> - 1);
