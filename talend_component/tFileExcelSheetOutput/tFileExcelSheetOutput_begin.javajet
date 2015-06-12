@@ -5,10 +5,7 @@
 		org.talend.core.model.metadata.IMetadataTable 
 		org.talend.core.model.metadata.IMetadataColumn 
 		org.talend.core.model.process.IConnection
-		org.talend.core.model.process.IConnectionCategory
 		org.talend.designer.codegen.config.CodeGeneratorArgument
-		org.talend.core.model.metadata.types.JavaTypesManager
-		org.talend.core.model.metadata.types.JavaType
 		java.util.List
 		java.util.ArrayList
     	java.util.Map
@@ -92,6 +89,7 @@
     <%=cid%>.createCopy(<%=sourceSheetName%>, <%=sheetName%>);
 <%      } %>
     <%=cid%>.setTargetSheetName(<%=sheetName%>);
+    globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName()); 
 <%  } %>
 	<%=cid%>.initializeSheet();
 <%  if (appendRows) { %>
@@ -156,9 +154,19 @@
         	}
         } // for
     }  // if (reuseStyle == false)
-    if (freezeRowStr != null && freezeRowStr.isEmpty() == false && freezeColStr != null && freezeColStr.isEmpty() == false) { %>
-    // freeze pane
+    if (freezeRowStr != null && freezeRowStr.isEmpty() == false) {
+    	if (freezeColStr != null && freezeColStr.trim().isEmpty() == false) { %>
+    // freeze pane with given row and column
     <%=cid%>.freezeAt(<%=freezeColStr%>, <%=freezeRowStr%>);
+<%  	} else { %>
+    // freeze pane with given row without column
+    <%=cid%>.freezeAt("A", <%=freezeRowStr%>);
+<%  	} %>
+<%  } else {
+    	if (freezeColStr != null && freezeColStr.trim().isEmpty() == false) { %>
+    // freeze pane with given column without row
+    <%=cid%>.freezeAt(<%=freezeColStr%>, 1);
+<%  	} %>
 <%  } %>
     <%=cid%>.setWriteNullValues(<%=allowWriteNull%>);
     // configure auto size columns and group rows by and comments
