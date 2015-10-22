@@ -1536,12 +1536,18 @@ public class SXSSFSheet implements Sheet, Cloneable
     /**
      * Deletes the temporary file that backed this sheet on disk.
      * @return true if the file was deleted, false if it wasn't.
+     * @throws IOException 
      */
-    boolean dispose() {
+    boolean dispose() throws IOException {
         return _writer.dispose();
     }
 
     public int getColumnOutlineLevel(int columnIndex) {
         return _sh.getColumnOutlineLevel(columnIndex);
     }
+
+	@Override
+	public List<CellRangeAddress> getMergedRegions() {
+		return _sh.getMergedRegions();
+	}
 }

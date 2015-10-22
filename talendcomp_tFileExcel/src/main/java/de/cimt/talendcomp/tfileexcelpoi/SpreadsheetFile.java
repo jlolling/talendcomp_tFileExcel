@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +31,12 @@ import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
 import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.crypt.EncryptionMode;
+import org.apache.poi.poifs.crypt.Encryptor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.formula.functions.FreeRefFunction;
@@ -55,9 +60,9 @@ public class SpreadsheetFile {
 	
 	public static enum SpreadsheetTyp {XLS, XLSX};
 	protected SpreadsheetTyp currentType;
-	protected FileInputStream fin;
+	private File inputFile = null;
 	protected FileOutputStream fout;
-	protected File outputFile;
+	protected File outputFile = null;
 	protected Workbook workbook;
 	protected DataFormat format;
 	protected Sheet sheet;
@@ -75,7 +80,7 @@ public class SpreadsheetFile {
 	private static boolean functionsRegistered = false;
 	private boolean createStreamingXMLWorkbook = false;
 	private int rowAccessWindow = 100;
-	private String password;
+	private String readPassword;
 	private FormulaEvaluator formulaEvaluator;
 	protected Map<String, CellStyle> namedStyles = new HashMap<String, CellStyle>();
 	private DataFormatter dataFormatter = null;
@@ -218,24 +223,23 @@ public class SpreadsheetFile {
 	public void createDirs() throws Exception {
 		File dir = outputFile.getParentFile();
 		if (dir != null) {
-			dir.mkdirs();
+			ensureDirExists(outputFile);
 		} else {
-			throw new Exception("Output file: " + outputFile.getPath() + " has no absolute path!");
+			throw new Exception("Output file: " + outputFile.getPath() + " has not an absolute path!");
 		}
 	}
 	
 	public void createEmptyXLSWorkbook() throws IOException {
 		currentType = SpreadsheetTyp.XLS;
-		fin = null;
 	}
 	
 	public void createEmptyXLSXWorkbook() throws IOException {
 		currentType = SpreadsheetTyp.XLSX;
-		fin = null;
 	}
 
 	public void setInputFile(String inputFileName) throws Exception {
 		File inputFile = new File(inputFileName);
+		this.inputFile = inputFile;
 		SpreadsheetTyp type = getSpreadsheetType(inputFile.getName());
 		if (currentType != null) {
 			if (currentType != type) {
@@ -244,10 +248,9 @@ public class SpreadsheetFile {
 		} else {
 			currentType = type;
 		}
-		fin = new FileInputStream(inputFile);
 	}
 	
-	private SpreadsheetTyp getSpreadsheetType(String name) throws Exception {
+	private static SpreadsheetTyp getSpreadsheetType(String name) throws Exception {
 		SpreadsheetTyp type = null;
 		if (name.toLowerCase().endsWith(".xls")) {
 			type = SpreadsheetTyp.XLS;
@@ -260,44 +263,50 @@ public class SpreadsheetFile {
 	}
 	
 	public void initializeWorkbook() throws Exception {
-		if (fin != null) {
+		if (inputFile != null) {
 			// open existing files
 			if (currentType == SpreadsheetTyp.XLS) {
-				if (password != null) {
+				if (readPassword != null) {
 					try {
 						// switch on decryption
-						Biff8EncryptionKey.setCurrentUserPassword(password);
+						Biff8EncryptionKey.setCurrentUserPassword(readPassword);
+						FileInputStream fin = new FileInputStream(inputFile);
 						workbook = new HSSFWorkbook(fin);
+						fin.close();
 					} finally {
 						// switch off
 						Biff8EncryptionKey.setCurrentUserPassword(null);
-						password = null;
+						readPassword = null;
 					}
 				} else {
+					FileInputStream fin = new FileInputStream(inputFile);
 					workbook = new HSSFWorkbook(fin);
+					fin.close();
 				}
 			} else if (currentType == SpreadsheetTyp.XLSX) {
 				if (createStreamingXMLWorkbook) {
-					workbook = new SXSSFWorkbook(new XSSFWorkbook(fin), rowAccessWindow);
+					workbook = new SXSSFWorkbook(new XSSFWorkbook(inputFile), rowAccessWindow);
 				} else {
-					if (password != null) {
+					if (readPassword != null) {
+						FileInputStream fin = new FileInputStream(inputFile);
 						POIFSFileSystem filesystem = new POIFSFileSystem(fin);
 						EncryptionInfo info = new EncryptionInfo(filesystem);
 						Decryptor d = Decryptor.getInstance(info);
 						try {
-						    if (!d.verifyPassword(password)) {
+						    if (!d.verifyPassword(readPassword)) {
 						        throw new Exception("Unable to process: document is encrypted and given password does not match!");
 						    }
 						    // decrypt 
 						    InputStream dataStream = d.getDataStream(filesystem);
 						    // use open input stream
 							workbook = new XSSFWorkbook(dataStream);
+							dataStream.close();
 						} catch (GeneralSecurityException ex) {
 						    throw new Exception("Unable to process encrypted document", ex);
 						}
-						password = null;
+						readPassword = null;
 					} else {
-						workbook = new XSSFWorkbook(fin);
+						workbook = new XSSFWorkbook(inputFile);
 					}
 				}
 			}
@@ -412,11 +421,14 @@ public class SpreadsheetFile {
 	}
 
 	public void writeWorkbook() throws Exception {
-		fout = new FileOutputStream(outputFile);
         File pFile = outputFile.getParentFile();
         if (pFile != null && pFile.exists() == false) {
             pFile.mkdirs();
+            if (pFile.exists() == false) {
+            	throw new Exception("Unable to create directory: " + pFile.getAbsolutePath());
+            }
         }
+		fout = new FileOutputStream(outputFile);
 		workbook.write(fout);
 		fout.flush();
 		fout.close();
@@ -424,6 +436,60 @@ public class SpreadsheetFile {
 			((SXSSFWorkbook) workbook).dispose();
 		}
 		workbook = null;
+	}
+	
+	public static void ensureDirExists(File file) throws Exception {
+		File dir = file.getParentFile();
+		if (dir.exists() == false) {
+			dir.mkdirs();
+			if (dir.exists() == false) {
+				throw new Exception("Directory: " + dir.getAbsolutePath() + " does not exists and cannot be created!");
+			}
+		}
+	}
+	
+	public static void encrypt(String filePath, String password) throws Exception {
+		if (filePath == null || filePath.trim().isEmpty()) {
+			throw new Exception("File path to encrypt cannot be null or empty!");
+		}
+		if (getSpreadsheetType(filePath) == SpreadsheetTyp.XLSX) {
+			File f = new File(filePath);
+			File tempFile = new File(f.getParentFile(), f.getName() + ".temp");
+			f.renameTo(tempFile);
+			encryptFile(tempFile.getAbsolutePath(), filePath, password);
+			tempFile.delete();
+		} else {
+			System.err.println("Encryping the old OLE format is not supported!");
+		}
+	}
+	
+	private static void encryptFile(String inFilePath, String outFilePath, String password) throws Exception {
+		if (password == null || password.trim().isEmpty()) {
+			throw new Exception("Password cannot be null or empty!");
+		}
+		if (inFilePath == null || inFilePath.trim().isEmpty()) {
+			throw new Exception("Input file cannot be null or empty!");
+		}
+		File inFile = new File(inFilePath);
+		if (outFilePath == null || outFilePath.trim().isEmpty()) {
+			throw new Exception("Output file cannot be null or empty!");
+		}
+		File outFile = new File(outFilePath);
+		if (inFile.exists() == false) {
+			throw new Exception("Excel file to encrypt: " + inFile.getAbsolutePath() + " does not exists!");
+		}
+		ensureDirExists(outFile);
+        POIFSFileSystem fs = new POIFSFileSystem();
+        EncryptionInfo info = new EncryptionInfo(EncryptionMode.standard);
+        Encryptor enc = info.getEncryptor();
+        enc.confirmPassword(password);
+        OPCPackage opc = OPCPackage.open(inFile, PackageAccess.READ_WRITE);
+        OutputStream os = enc.getDataStream(fs);
+        opc.save(os);
+        opc.close();
+        FileOutputStream fos = new FileOutputStream(outFile);
+        fs.writeFilesystem(fos);
+        fos.close();
 	}
 	
 	public void deleteSheet(int sheetIndex) throws Exception {
@@ -529,7 +595,7 @@ public class SpreadsheetFile {
 	}
 	
 	public void setPassword(String password) {
-		this.password = password;
+		this.readPassword = password;
 	}
 	
 	protected Cell getNamedCell(String name) throws Exception {
