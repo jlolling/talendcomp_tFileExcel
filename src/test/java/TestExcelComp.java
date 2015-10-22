@@ -1,4 +1,5 @@
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class TestExcelComp {
 	 */
 	public static void main(String[] args) throws Exception {
 		//testReferencedCells();
-		test2();
+		testEncryptFile();
 	}
 	
 	public static void testOutputStyled() {
@@ -231,7 +232,7 @@ public class TestExcelComp {
 		System.out.println("is empty:" + out.isEmpty());
 	}
 
-	public static void testXLSEncrypted() throws Exception {
+	public static void testXLSDecrypted() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		e.setInputFile("/private/var/testdata/excel/encrypted.xls");
 		e.setPassword("lolli");
@@ -258,7 +259,13 @@ public class TestExcelComp {
 		e.writeWorkbook();
 	}
 
-	public static void testXLSXEncrypted() throws Exception {
+	public static void testEncryptFile() throws Exception {
+		SpreadsheetFile.encrypt(
+				"/Volumes/Data/Talend/testdata/excel/largefile.xlsx",
+				"geheim");
+	}
+	
+	public static void testXLSXDecrypted() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		e.setInputFile("/private/var/testdata/excel/encrypted.xlsx");
 		e.setPassword("lolli");

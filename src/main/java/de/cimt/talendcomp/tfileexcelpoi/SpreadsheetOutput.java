@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.usermodel.ConditionType;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -343,6 +345,9 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			Hyperlink link = creationHelper.createHyperlink(Hyperlink.LINK_FILE);
 			link.setAddress(url);
 			cell.setHyperlink(link);
+		}
+		if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+			cell.setCellValue(url);
 		}
 	}
 	
@@ -816,7 +821,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	
 	public boolean extendTable(XSSFTable table, int firstRow, int firstCol, int lastRow) throws Exception {
 		try {
-			AreaReference currentRef = new AreaReference(table.getCTTable().getRef());
+			AreaReference currentRef = null;
+			if (currentType == SpreadsheetTyp.XLS) {
+				currentRef = new AreaReference(table.getCTTable().getRef(), SpreadsheetVersion.EXCEL97);
+			} else {
+				currentRef = new AreaReference(table.getCTTable().getRef(), SpreadsheetVersion.EXCEL2007);
+			}
 			CellReference topLeft = currentRef.getFirstCell();
 			CellReference buttomRight = currentRef.getLastCell();
 			if (topLeft.getRow() <= firstRow && buttomRight.getRow() >= firstRow && topLeft.getCol() <= firstCol && buttomRight.getCol() >= firstCol) {
@@ -934,8 +944,8 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     private static String describeRule(ConditionalFormattingRule rule) {
     	StringBuilder sb = new StringBuilder();
 		sb.append("condition:");
-    	switch (rule.getConditionType()) {
-    	case ConditionalFormattingRule.CONDITION_TYPE_CELL_VALUE_IS:
+		ConditionType ct = rule.getConditionTypeType();
+    	if (ct.equals(ConditionType.CELL_VALUE_IS)) {
     		sb.append(" cell value is: ");
         	sb.append(" comparison:");
         	switch (rule.getComparisonOperation()) {
@@ -983,13 +993,11 @@ public class SpreadsheetOutput extends SpreadsheetFile {
         		sb.append("none");
             	break;
         	}
-    		break;
-    	case ConditionalFormattingRule.CONDITION_TYPE_FORMULA:
+    	} else if (ct.equals(ConditionType.FORMULA)) {
     		sb.append(" formula:");
         	sb.append(rule.getFormula1());
-    		break;
-    	default:
-        	sb.append(" type=" + rule.getConditionType());
+    	} else {
+        	sb.append(" type=" + rule.getConditionTypeType());
     	}
     	sb.append(" formattings:");
     	if (rule.getBorderFormatting() != null) {

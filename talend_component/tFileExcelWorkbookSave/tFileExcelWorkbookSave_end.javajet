@@ -15,6 +15,8 @@
     String file = ElementParameterParser.getValue(node, "__FILENAME__");
     boolean evaluateFomulas = "true".equals(ElementParameterParser.getValue(node, "__EVALUATE_ALL_FORMULAS__"));
     boolean createDirs = "true".equals(ElementParameterParser.getValue(node, "__CREATE_DIRS__"));
+    boolean encrypt = "true".equals(ElementParameterParser.getValue(node, "__ENCRYPT_FILE__"));
+    String password = ElementParameterParser.getValue(node, "__PASSWORD__");
 %>
 	de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile();
     // set the workbook
@@ -45,3 +47,9 @@
 		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
 		throw e;
 	}
+<% if (encrypt && password.trim().isEmpty() == false) { %>
+   // renames the original file into a temp file and rewrite it again as encrypted file
+   System.out.println("Encrypt file: " + <%=cid%>.getOutputFile());
+   de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile.encrypt(<%=cid%>.getOutputFile(), <%=password%>);
+   System.out.println("Done.");
+<% } %>

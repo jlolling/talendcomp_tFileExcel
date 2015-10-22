@@ -221,7 +221,7 @@ public class SpreadsheetReferencedCellInput extends SpreadsheetFile {
 				return null;
 			}
 		} else if (color instanceof XSSFColor) {
-			byte[] rgb = ((XSSFColor) color).getRgb();
+			byte[] rgb = ((XSSFColor) color).getRGB();
 			if (rgb != null) {
 				return (rgb[0] & 0xFF) + ":" + (rgb[1] & 0xFF) + ":" + (rgb[2] & 0xFF);
 			} else {
