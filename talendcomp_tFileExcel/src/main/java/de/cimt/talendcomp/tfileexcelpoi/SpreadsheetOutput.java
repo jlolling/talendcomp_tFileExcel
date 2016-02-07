@@ -67,7 +67,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private boolean reuseFirstRowHeight = false;
 	private short firstRowHeight = 800;
 	private boolean firstRowIsHeader = false;
-	private List<Integer> usedCellIndexes = new ArrayList<Integer>();
+	private List<Integer> usedCellColumnIndexes = new ArrayList<Integer>();
 	private int commentHeight = 3;
 	private int commentWidth = 3;
 	private String commentAuthor = null;
@@ -94,7 +94,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		listColumnsToWriteHyperlink.clear();
 		cellFormatMap.clear();
 		autoSizeColumns.clear();
-		usedCellIndexes.clear();
+		usedCellColumnIndexes.clear();
 		columnStyleMap.clear();
 		oddRowColumnStyleMap.clear();
 		evenRowColumnStyleMap.clear();
@@ -143,6 +143,25 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		currentDatasetNumber++;
 	}
 	
+	/**
+	 * shifts the existing rows in row down and creates a new empty row
+	 * @param index row index of the new empty inserted row 
+	 */
+	public void shiftRows(int index) {
+		sheet.shiftRows(index, sheet.getLastRowNum(), 1); // move the rows one down
+		sheet.createRow(index); // create a new empty row
+	}
+	
+	public void shiftCurrentRow() {
+		sheet.shiftRows(rowStartIndex + currentDatasetNumber, sheet.getLastRowNum(), 1); // move the rows one down
+		sheet.createRow(rowStartIndex + currentDatasetNumber); // create a new empty row
+	}
+	
+	/**
+	 * writes the data in the sheet and creates if necessary a new row.
+	 * @param dataset
+	 * @throws Exception
+	 */
 	public void writeRow(Object[] dataset) throws Exception {
 		dataRowCount = dataset.length;
 		if (sheet == null) {
@@ -199,8 +218,8 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					}
 				}
 			}
-			if (usedCellIndexes.contains(cellIndex) == false) {
-				usedCellIndexes.add(cellIndex);
+			if (usedCellColumnIndexes.contains(cellIndex) == false) {
+				usedCellColumnIndexes.add(cellIndex);
 			}
 			dataColumnIndex++;
 		}
@@ -762,6 +781,8 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	
 	private ConditionalFormatting currentCf = null;
 	private int currentCfIndex = -1;
+	private int maxRuleChunkSize = 3; // not higher than 3 because of Excel 2007
+
 	
     private void find(SheetConditionalFormatting scf, int row, int col) {
     	currentCf = null;
@@ -786,6 +807,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     }
     
 	public void extendCellRangeForTable() throws Exception {
+		info("Extending cell range for tables...");
 		if (sheet instanceof XSSFSheet) {
 			int firstDataRowIndex = firstRowIsHeader ? rowStartIndex + 1 : rowStartIndex;
 			List<XSSFTable> listTables =  ((XSSFSheet) sheet).getTables();
@@ -851,51 +873,66 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     public void extendCellRangesForConditionalFormattings() throws Exception {
     	try {
     		int firstDataRowIndex = firstRowIsHeader ? rowStartIndex + 1 : rowStartIndex;
-    		if (debug) {
-    			System.out.println("extendCellRangesForConditionalFormattings: use firstDataRowIndex=" + firstDataRowIndex);
-    		}
+        	info("Extending cell ranges for conditional formats. Use formats from row: " + firstDataRowIndex);
         	if (getLastRowNum() > 0 && getLastRowNum() > firstDataRowIndex) {
         		SheetConditionalFormatting scf = sheet.getSheetConditionalFormatting();
         		if (debug) {
-        			System.out.println("#### Conditional formattings before:");
-        			System.out.println(logoutSheetConditionalFormatting(scf));
+        			debug("#### Conditional formattings before:");
+        			debug(logoutSheetConditionalFormatting(scf));
         		}
-            	for (Integer cellIndex : usedCellIndexes) {
+        		ConditionalFormatting lastCf = null;
+            	for (Integer cellColumnIndex : usedCellColumnIndexes) {
             		if (debug) {
-            			System.out.println("extendCellRangesForConditionalFormattings: check format for cell index=" + cellIndex);
+            			debug("extendCellRangesForConditionalFormattings: check format for cell index=" + cellColumnIndex);
             		}
-            		find(scf, firstDataRowIndex, cellIndex);
-            		if (currentCf != null) {
+            		find(scf, firstDataRowIndex, cellColumnIndex); // currentCf and currentCfIndex will be set here
+            		if (currentCf != null && currentCf != lastCf) {
                 		if (debug) {
-                			System.out.println("extendCellRangesForConditionalFormattings: found format for cell index=" + cellIndex);
+                			debug("extendCellRangesForConditionalFormattings: found format for cell index=" + cellColumnIndex);
                 		}
-            	        CellRangeAddress[] ranges = {
-            	                CellRangeAddress.valueOf(
-            	                		new CellReference(firstDataRowIndex, cellIndex, false, false).formatAsString() +
-            	                		":" +
-            	                		new CellReference(getLastRowNum(), cellIndex, false, false).formatAsString()
-            	                		)
-            	        };
+                		lastCf = currentCf;
+                		CellRangeAddress[] ranges = currentCf.getFormattingRanges();
+                		for (int i = 0; i < ranges.length; i++) {
+                			CellRangeAddress address = ranges[i];
+                			CellRangeAddress extendedAddress = new CellRangeAddress(address.getFirstRow(), getLastRowNum(), address.getFirstColumn(), address.getLastColumn());
+                			ranges[i] = extendedAddress;
+                		}
                 		if (debug) {
-                			System.out.println("extendCellRangesForConditionalFormattings: extend range to=" + firstDataRowIndex + ":" + getLastRowNum() + " -> " + ranges[0].formatAsString());
+                			debug("extendCellRangesForConditionalFormattings: extend ranges to=" + firstDataRowIndex + ":" + getLastRowNum() + " -> " + getRangesAsString(ranges));
                 		}
-            			int numRules = currentCf.getNumberOfRules();
-            			for (int i = 0; i < numRules; i++) {
-            				ConditionalFormattingRule rule = currentCf.getRule(i);
+            			int numRulesTotal = currentCf.getNumberOfRules();
+            			if (numRulesTotal > 0) {
+            				int chunks = numRulesTotal / maxRuleChunkSize;
+            				int restChunkSize = numRulesTotal % maxRuleChunkSize;
+            				int currentSize = 0;
+            				for (int c = 0; c <= chunks; c++) {
+            					if (c < chunks) {
+            						// all not-last chunks have the max chunk size
+            						currentSize = maxRuleChunkSize;
+            					} else {
+            						// the last chunk contains the rest
+            						currentSize = restChunkSize;
+            					}
+            					ConditionalFormattingRule[] rules = new ConditionalFormattingRule[currentSize];
+                    			for (int i = 0; i < currentSize; i++) {
+                    				int ruleIndex = i + (maxRuleChunkSize * c); // current pointer within a chunk + chunk offset
+                    				rules[i] = currentCf.getRule(ruleIndex);
+                            		if (debug) {
+                            			debug("extendCellRangesForConditionalFormattings: add ranges: " + getRangesAsString(ranges) + " rule #" + ruleIndex + " =" + describeRule(rules[i]));
+                            		}
+                    			}
+                				scf.addConditionalFormatting(ranges, rules);
+            				}
                     		if (debug) {
-                    			System.out.println("extendCellRangesForConditionalFormattings: add range=" + ranges[0].formatAsString() + " rule=" + describeRule(rule));
+                    			debug("extendCellRangesForConditionalFormattings: remove template format at index:" + currentCfIndex);
                     		}
-            				scf.addConditionalFormatting(ranges, rule);
+            				scf.removeConditionalFormatting(currentCfIndex);
             			}
-                		if (debug) {
-                			System.out.println("extendCellRangesForConditionalFormattings: remove template format at index:" + currentCfIndex);
-                		}
-        				scf.removeConditionalFormatting(currentCfIndex);
             		}
             	}
         		if (debug) {
-        			System.out.println("#### Conditional formattings after:");
-        			System.out.println(logoutSheetConditionalFormatting(scf));
+        			debug("#### Conditional formattings after:");
+        			debug(logoutSheetConditionalFormatting(scf));
         		}
         	}
     	} catch (Exception t) {
@@ -907,9 +944,26 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     	}
     }
     
+    private String getRangesAsString(CellRangeAddress[] ranges) {
+    	if (ranges != null && ranges.length > 0) {
+    		StringBuilder sb = new StringBuilder();
+    		for (int i = 0; i < ranges.length; i++) {
+    			if (i > 0) {
+    				sb.append(";");
+    			}
+    			sb.append("[");
+    			sb.append(ranges[i].formatAsString());
+    			sb.append("]");
+    		}
+    		return sb.toString();
+    	}
+    	return "";
+    }
+    
     private String logoutSheetConditionalFormatting(SheetConditionalFormatting scf) {
     	StringBuilder sb = new StringBuilder();
     	int countCf = scf.getNumConditionalFormattings();
+    	sb.append("\n");
     	for (int f = 0; f < countCf; f++) {
     		sb.append(logoutConditionalFormat(scf.getConditionalFormattingAt(f)));
     		sb.append("\n");
@@ -919,24 +973,84 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     
     private String logoutConditionalFormat(ConditionalFormatting cf) {
     	StringBuilder sb = new StringBuilder();
-    	sb.append(" Ranges:");
+    	sb.append("Conditional Format:\n  Ranges:\n    ");
     	CellRangeAddress[] ranges = cf.getFormattingRanges();
     	if (ranges != null) {
     		for (int r = 0; r < ranges.length; r++) {
     			if (r > 0) {
-    				sb.append("; ");
+    				sb.append("\n    ");
     			}
     			sb.append(ranges[r].formatAsString());
     		}
     	}
-    	sb.append(" Rules:");
+    	sb.append("\n  Rules:\n    ");
     	int nbRules = cf.getNumberOfRules();
     	for (int r = 0; r < nbRules; r++) {
-			sb.append("#" + r + ":");
     		if (r > 0) {
-    			sb.append("; ");
+    			sb.append("\n    ");
     		}
+			sb.append("#" + r + ":");
     		sb.append(describeRule(cf.getRule(r)));
+    	}
+    	return sb.toString();
+    }
+    
+//    private static boolean isRowRangeRelatedCondition(ConditionalFormatting cf) {
+//		ConditionType ct = rule.getConditionTypeType();
+//		if (ct.equals(ConditionType.COLOR_SCALE)) {
+//			return true;
+//		}
+//    	
+//    	return false;    	
+//    }
+    
+    private static String describeRuleComparisonOperator(ConditionalFormattingRule rule) {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(" comparison:");
+    	switch (rule.getComparisonOperation()) {
+        case ComparisonOperator.LT: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" < ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.LE: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" <= ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.GT: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" > ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.GE: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" >= ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.EQUAL: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" = ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.NOT_EQUAL: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" != ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.BETWEEN: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" between ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.NOT_BETWEEN: 
+        	sb.append(rule.getFormula1());
+        	sb.append(" not between ");
+        	sb.append(rule.getFormula2());
+        	break;
+        case ComparisonOperator.NO_COMPARISON: 
+    		sb.append(" none ");
+        	break;
     	}
     	return sb.toString();
     }
@@ -947,67 +1061,34 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		ConditionType ct = rule.getConditionTypeType();
     	if (ct.equals(ConditionType.CELL_VALUE_IS)) {
     		sb.append(" cell value is: ");
-        	sb.append(" comparison:");
-        	switch (rule.getComparisonOperation()) {
-            case ComparisonOperator.LT: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" < ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.LE: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" <= ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.GT: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" > ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.GE: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" >= ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.EQUAL: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" = ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.NOT_EQUAL: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" != ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.BETWEEN: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" between ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.NOT_BETWEEN: 
-            	sb.append(rule.getFormula1());
-            	sb.append(" not between ");
-            	sb.append(rule.getFormula2());
-            	break;
-            case ComparisonOperator.NO_COMPARISON: 
-        		sb.append("none");
-            	break;
-        	}
+    		sb.append(describeRuleComparisonOperator(rule));
     	} else if (ct.equals(ConditionType.FORMULA)) {
-    		sb.append(" formula:");
+    		sb.append(" formula: ");
         	sb.append(rule.getFormula1());
+    	} else if (ct.equals(ConditionType.FILTER)) {
+    		sb.append(" filter: ");
+    		sb.append(describeRuleComparisonOperator(rule));
+    	} else if (ct.equals(ConditionType.ICON_SET)) {
+    		sb.append(" icon set: ");
+    		sb.append(rule.getMultiStateFormatting());
+    	} else if (ct.equals(ConditionType.COLOR_SCALE)) {
+    		sb.append(" color-scale: ");
+    		sb.append(rule.getColorScaleFormatting());
+    	} else if (ct.equals(ConditionType.DATA_BAR)) {
+    		sb.append(" data-bar: ");
+    		sb.append(rule.getDataBarFormatting());
     	} else {
         	sb.append(" type=" + rule.getConditionTypeType());
     	}
     	sb.append(" formattings:");
     	if (rule.getBorderFormatting() != null) {
-    		sb.append(" has border formats");
+    		sb.append(" [has border formats]");
     	}
     	if (rule.getFontFormatting() != null) {
-    		sb.append(" has font formattings");
+    		sb.append(" [has font formattings]");
     	}
     	if (rule.getPatternFormatting() != null) {
-    		sb.append(" has pattern formattings");
+    		sb.append(" [has pattern formattings]");
     	}
     	return sb.toString();
     }
@@ -1041,5 +1122,5 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			this.commentAuthor = commentAuthor;
 		}
 	}
-	    
+	
 }

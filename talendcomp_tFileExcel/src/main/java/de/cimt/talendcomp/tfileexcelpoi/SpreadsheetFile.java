@@ -229,11 +229,11 @@ public class SpreadsheetFile {
 		}
 	}
 	
-	public void createEmptyXLSWorkbook() throws IOException {
+	public void createEmptyXLSWorkbook() {
 		currentType = SpreadsheetTyp.XLS;
 	}
 	
-	public void createEmptyXLSXWorkbook() throws IOException {
+	public void createEmptyXLSXWorkbook() {
 		currentType = SpreadsheetTyp.XLSX;
 	}
 
@@ -538,6 +538,7 @@ public class SpreadsheetFile {
 			throw new IllegalArgumentException("Row start index starts 1"); // message for the Talend users!
 		}
 		this.rowStartIndex = rowStartIndex;
+		currentDatasetNumber = 0;
 	}
 	
     public static String ensureCorrectExcelSheetName(String desiredName) {
@@ -775,4 +776,19 @@ public class SpreadsheetFile {
 		this.debug = debug;
 	}
 
+	void info(String message) {
+		System.out.println("[INFO] " + message);
+	}
+	
+	void debug(String message) {
+		System.out.println("[DEBUG] " + message);
+	}
+	
+	void error(String message, Throwable t) {
+		System.err.println("[ERROR] " + message);
+		if (t != null) {
+			t.printStackTrace(System.err);
+		}
+	}
+	
 }

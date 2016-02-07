@@ -4,7 +4,7 @@
   <groupId>de.jlo.talendcomp</groupId>
   <artifactId>FileExcelPOI</artifactId>
   <name>Excel Output POI</name>
-  <version>6.11</version>
+  <version>6.13</version>
   <organization>
     <name>Jan Lolling</name>
     <url>http://www.jan-lolling.de</url>
