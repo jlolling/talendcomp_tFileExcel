@@ -42,7 +42,7 @@ public class TestSpreadsheetFile {
 		while (si.readNextRow()) {
 			rowNum++;
 		}
-		assertTrue("Not correct row num:" + rowNum, rowNum == 1001);
+		assertTrue("Not correct row num:" + rowNum, rowNum == 972001);
 	}
 	
 	@Test
@@ -65,6 +65,47 @@ public class TestSpreadsheetFile {
 			fail("use sheet failed: " + e.getMessage());
 		}
 		assertTrue("No rows found", si.getLastRowNum() > 0);
+	}
+	
+	@Test
+	public void testInsertRow() {
+		SpreadsheetOutput out = new SpreadsheetOutput();
+		try {
+			out.createEmptyXLSXWorkbook();
+			out.initializeWorkbook();
+			out.initializeSheet();
+			out.setOutputFile("/var/testdata/excel/excel_shift_test.xlsx");
+			out.freezeAt(0, 1);
+			for (int r = 0; r < 9; r++) {
+				Object[] row = new Object[20];
+				for (int c = 0; c < 2; c++) {
+					if (c == 0) {
+						row[c] = 100 + r;
+					} else {
+						row[c] = "=10+A{row}";
+					}
+				}
+				out.writeRow(row);
+			}
+			// now insert rows
+			out.setRowStartIndex(2);
+			for (int r = 2; r < 4; r++) {
+				Object[] row = new Object[20];
+				for (int c = 0; c < 2; c++) {
+					if (c == 0) {
+						row[c] = 400 + r;
+					} else {
+						row[c] = "=10+A{row}";
+					}
+				}
+				out.shiftCurrentRow();
+				out.writeRow(row);
+			}
+			out.writeWorkbook();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Initialise workbook failed: " + e.getMessage());
+		}
 	}
 
 }
