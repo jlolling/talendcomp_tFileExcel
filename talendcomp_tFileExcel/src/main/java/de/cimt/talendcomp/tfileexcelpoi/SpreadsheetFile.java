@@ -285,28 +285,66 @@ public class SpreadsheetFile {
 				}
 			} else if (currentType == SpreadsheetTyp.XLSX) {
 				if (createStreamingXMLWorkbook) {
-					workbook = new SXSSFWorkbook(new XSSFWorkbook(inputFile), rowAccessWindow);
+					FileInputStream fin = new FileInputStream(inputFile);
+					try {
+						workbook = new SXSSFWorkbook(new XSSFWorkbook(fin), rowAccessWindow);
+					} finally {
+						if (fin != null) {
+							try {
+								fin.close();
+							} catch (IOException ioe) {
+								// ignore
+							}
+						}
+					}
 				} else {
 					if (readPassword != null) {
 						FileInputStream fin = new FileInputStream(inputFile);
 						POIFSFileSystem filesystem = new POIFSFileSystem(fin);
 						EncryptionInfo info = new EncryptionInfo(filesystem);
 						Decryptor d = Decryptor.getInstance(info);
+						InputStream dataStream = null;
 						try {
 						    if (!d.verifyPassword(readPassword)) {
 						        throw new Exception("Unable to process: document is encrypted and given password does not match!");
 						    }
 						    // decrypt 
-						    InputStream dataStream = d.getDataStream(filesystem);
+						    dataStream = d.getDataStream(filesystem);
 						    // use open input stream
 							workbook = new XSSFWorkbook(dataStream);
 							dataStream.close();
 						} catch (GeneralSecurityException ex) {
 						    throw new Exception("Unable to process encrypted document", ex);
+						} finally {
+							if (dataStream != null) {
+								try {
+									dataStream.close();
+								} catch (IOException ioe) {
+									// ignore
+								}
+							}
+							if (fin != null) {
+								try {
+									fin.close();
+								} catch (IOException ioe) {
+									// ignore
+								}
+							}
 						}
 						readPassword = null;
 					} else {
-						workbook = new XSSFWorkbook(inputFile);
+						FileInputStream fin = new FileInputStream(inputFile);
+						try {
+							workbook = new XSSFWorkbook(fin);
+						} finally {
+							if (fin != null) {
+								try {
+									fin.close();
+								} catch (IOException ioe) {
+									// ignore
+								}
+							}
+						}
 					}
 				}
 			}
