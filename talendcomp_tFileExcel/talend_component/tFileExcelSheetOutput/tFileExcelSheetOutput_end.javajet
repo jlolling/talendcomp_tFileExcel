@@ -13,6 +13,7 @@
     boolean removeLastEmptyRows = "true".equals(ElementParameterParser.getValue(node, "__REMOVE_LAST_EMPTY_ROWS__"));
     boolean reuseCF = "true".equals(ElementParameterParser.getValue(node, "__REUSE_CF__"));
     boolean extendTables = "true".equals(ElementParameterParser.getValue(node, "__EXTEND_TABLE_CELL_RANGE__"));
+    boolean extendDataValidations = "true".equals(ElementParameterParser.getValue(node, "__EXTEND_DATA_VALIDATIONS__"));
 %>
 <%  if (removeLastEmptyRows) { %>
 	 <%=cid%>.deleteFollowingRows();
@@ -24,6 +25,9 @@
 <%  } %>
 <%  if (extendTables) { %>
 	<%=cid%>.extendCellRangeForTable();
+<%  } %>
+<%  if (extendDataValidations) { %>
+	<%=cid%>.createDataValidationsForAppendedRows();
 <%  } %>
     globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>);
     globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.getSheetLastRowIndex() + 1);

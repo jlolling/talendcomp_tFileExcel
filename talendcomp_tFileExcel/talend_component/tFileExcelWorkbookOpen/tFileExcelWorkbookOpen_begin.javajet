@@ -54,7 +54,7 @@
 	try {
 	    // read a excel file as template
 	    // this file file will not used as output file
-		<%=cid%>.setInputFile(<%=file%>);
+		<%=cid%>.setInputFile(<%=file%>, <%=dieIfFileNotExists%>);
 <%  if (decrypt && createStreamingWorkbook == false) {%>
 		<%=cid%>.setPassword(<%=password%>);
 <%  } %>

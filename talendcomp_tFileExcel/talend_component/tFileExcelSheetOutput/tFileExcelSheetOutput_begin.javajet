@@ -76,6 +76,7 @@
 	String reuseStyle = ElementParameterParser.getValue(node, "__REUSE_STYLE__");
 	String reuseStyleAlternating = ElementParameterParser.getValue(node, "__REUSE_STYLE_ALTERNATING__");
 	String reuseFirstRowHeight = ElementParameterParser.getValue(node, "__REUSE_FIRST_ROW_HEIGHT__");
+	String reuseStylesForAllCells = ElementParameterParser.getValue(node, "__REUSE_STYLES_FOR_ALL__");
 	boolean writeColumns = "true".equals(ElementParameterParser.getValue(node, "__WRITE_IN_COLUMNS__"));
 	String groupColumns = ElementParameterParser.getValue(node, "__GROUP_COLS__");
 	if (writeColumns) appendRows = false;
@@ -119,6 +120,7 @@
 <%  }
     if (writeColumns == false) { %>
 	<%=cid%>.setReuseExistingStyles(<%=reuseStyle%>);
+	<%=cid%>.setSetupCellStylesForAllColumns(<%=reuseStylesForAllCells%>);
 	<%=cid%>.setReuseFirstRowHeight(<%=reuseFirstRowHeight%>);
 <%  	if ("true".equals(reuseStyle)) { %>
 	<%=cid%>.setReuseExistingStylesAlternating(<%=reuseStyleAlternating%>);

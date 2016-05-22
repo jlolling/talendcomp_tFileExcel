@@ -28,10 +28,12 @@ public class TestExcelComp {
 	 */
 	public static void main(String[] args) throws Exception {
 		//testReferencedCells();
-		testEncryptFile();
+		testOutputStyled();
+//		testEncryptFile();
 	}
 	
 	public static void testOutputStyled() {
+		System.out.println("testOutputStyled - start");
 		SpreadsheetOutput out = new SpreadsheetOutput();
 		try {
 			out.createEmptyXLSWorkbook();
@@ -41,7 +43,7 @@ public class TestExcelComp {
 			out.addStyle("even", "Arial", "10", "", "9", "12", "left", false);
 			out.setOddRowStyleName("odd");
 			out.setEvenRowStyleName("even");
-			out.setOutputFile("/Users/jan/test/excel/styled_excel.xls");
+			out.setOutputFile("/var/testdata/excel/styled_excel.xls");
 			for (int r = 0; r < 9; r++) {
 				Object[] row = new Object[1];
 				for (int c = 0; c < 1; c++) {
@@ -53,6 +55,7 @@ public class TestExcelComp {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("testOutputStyled - end");
 	}
 	
 	public static void printHSSFColors() {
@@ -74,7 +77,7 @@ public class TestExcelComp {
 	public static void test2() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		try {
-			e.setInputFile("/Volumes/Data/projects/vhv/Sonderthemen_20121018.xlsx");
+			e.setInputFile("/Volumes/Data/projects/vhv/Sonderthemen_20121018.xlsx", true);
 			e.initializeWorkbook();
 			e.useSheet(0);
 			e.setRowStartIndex(3);
@@ -100,7 +103,7 @@ public class TestExcelComp {
 	public static void test3() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		try {
-			e.setInputFile("/home/jlolling/test/excel/macro_test.xlsm");
+			e.setInputFile("/home/jlolling/test/excel/macro_test.xlsm", true);
 			e.initializeWorkbook();
 			e.useSheet(1);
 			e.setRowStartIndex(5);
@@ -159,7 +162,7 @@ public class TestExcelComp {
 	public static void test1() throws ParseException {
 		SpreadsheetInput e = new SpreadsheetInput();
 		try {
-			e.setInputFile("/var/testdata/test/excel/excel_output_file.xls");
+			e.setInputFile("/var/testdata/test/excel/excel_output_file.xls", true);
 			e.initializeWorkbook();
 			e.useSheet(0);
 			e.setRowStartIndex(1);
@@ -182,7 +185,7 @@ public class TestExcelComp {
 	public static void test5() throws ParseException {
 		SpreadsheetInput e = new SpreadsheetInput();
 		try {
-			e.setInputFile("/Users/jan/test/excel/header_columns.xls");
+			e.setInputFile("/Users/jan/test/excel/header_columns.xls", true);
 			e.initializeWorkbook();
 			e.useSheet(0);
 			e.setRowStartIndex(1);
@@ -234,7 +237,7 @@ public class TestExcelComp {
 
 	public static void testXLSDecrypted() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
-		e.setInputFile("/private/var/testdata/excel/encrypted.xls");
+		e.setInputFile("/private/var/testdata/excel/encrypted.xls", true);
 		e.setPassword("lolli");
 		e.initializeWorkbook();
 		e.useSheet(0);
@@ -261,13 +264,13 @@ public class TestExcelComp {
 
 	public static void testEncryptFile() throws Exception {
 		SpreadsheetFile.encrypt(
-				"/Volumes/Data/Talend/testdata/excel/largefile.xlsx",
+				"/var/testdata/excel/largefile.xlsx",
 				"geheim");
 	}
 	
 	public static void testXLSXDecrypted() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
-		e.setInputFile("/private/var/testdata/excel/encrypted.xlsx");
+		e.setInputFile("/private/var/testdata/excel/encrypted.xlsx", true);
 		e.setPassword("lolli");
 		e.initializeWorkbook();
 		e.useSheet(0);
@@ -279,7 +282,7 @@ public class TestExcelComp {
 
 	public static void testNamedCells() throws Exception {
 		SpreadsheetOutput e = new SpreadsheetOutput();
-		e.setInputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example.xlsx");
+		e.setInputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example.xlsx", true);
 		e.initializeWorkbook();
 		String name = "name_xfd";
 		if (e.writeNamedCellValue(name, 1234) == false) {
@@ -288,7 +291,7 @@ public class TestExcelComp {
 		e.setOutputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example_result.xlsx");
 		e.writeWorkbook();
 		SpreadsheetNamedCellInput input = new SpreadsheetNamedCellInput();
-		input.setInputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example_result.xlsx");
+		input.setInputFile("/Volumes/Data/Talend/testdata/excel/named_cells_example_result.xlsx", true);
 		input.initializeWorkbook();
 		input.retrieveNamedCellCount();
 		System.out.println("Number of names: " + input.getNumberOfNamedCells());
@@ -306,7 +309,7 @@ public class TestExcelComp {
 	public static void testIfErrorFunction() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		SpreadsheetInput.registerFunction("IFERROR", "org.apache.poi.ss.formula.atp.IfError");
-		e.setInputFile("/private/var/testdata/excel/irerror_test.xlsx");
+		e.setInputFile("/private/var/testdata/excel/irerror_test.xlsx", true);
 		e.initializeWorkbook();
 		e.useSheet(0);
 		e.setRowStartIndex(0);
@@ -317,7 +320,7 @@ public class TestExcelComp {
 
 	public static void testReferencedCells() throws Exception {
 		SpreadsheetReferencedCellInput e = new SpreadsheetReferencedCellInput();
-		e.setInputFile("/private/var/testdata/excel/excel_sample_with_comments.xlsx");
+		e.setInputFile("/private/var/testdata/excel/excel_sample_with_comments.xlsx", true);
 		e.initializeWorkbook();
 		if (e.readNextCell("Sheet1!B4", null, null, null)) {
 			Cell cell = e.getCurrentCell();

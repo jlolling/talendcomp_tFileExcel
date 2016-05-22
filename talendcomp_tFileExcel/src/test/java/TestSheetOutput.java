@@ -76,7 +76,7 @@ public class TestSheetOutput extends TalendFakeJob {
 	public static void testMacroIfSurvives() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		try {
-			e.setInputFile("/home/jlolling/test/excel/macro_test.xlsm");
+			e.setInputFile("/home/jlolling/test/excel/macro_test.xlsm", true);
 			e.initializeWorkbook();
 			e.useSheet(1);
 			e.setRowStartIndex(5);
@@ -190,7 +190,7 @@ public class TestSheetOutput extends TalendFakeJob {
 
 	public static void testNamedCells() throws Exception {
 		SpreadsheetOutput e = new SpreadsheetOutput();
-		e.setInputFile("/private/var/testdata/excel/named_cell_tests/template.xlsx");
+		e.setInputFile("/private/var/testdata/excel/named_cell_tests/template.xlsx", true);
 		e.initializeWorkbook();
 		String name = "p11telefo";
 		if (e.writeNamedCellValue(name, 1234) == false) {
@@ -309,86 +309,5 @@ public class TestSheetOutput extends TalendFakeJob {
 
 	}
 
-	public static void testTables() throws Exception {
-		de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile tFileExcelWorkbookOpen_2 = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile();
-		tFileExcelWorkbookOpen_2.setCreateStreamingXMLWorkbook(false);
-		try {
-			// create empty XLSX workbook
-			tFileExcelWorkbookOpen_2.setInputFile("/private/var/testdata/excel/excel_table_result.xlsx");
-			tFileExcelWorkbookOpen_2.initializeWorkbook();
-		} catch (Exception e) {
-			globalMap.put("tFileExcelWorkbookOpen_2_ERROR_MESSAGE", e.getMessage());
-			throw e;
-		}
-
-		globalMap.put("workbook_tFileExcelWorkbookOpen_2", tFileExcelWorkbookOpen_2.getWorkbook());
-		globalMap.put("tFileExcelWorkbookOpen_2_COUNT_SHEETS",
-				tFileExcelWorkbookOpen_2.getWorkbook().getNumberOfSheets());
-
-		int nb_line_tFileExcelSheetOutput_1 = 0;
-		de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
-		tFileExcelSheetOutput_1
-				.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_tFileExcelWorkbookOpen_2"));
-		tFileExcelSheetOutput_1.setTargetSheetName("Blatt1");
-		tFileExcelSheetOutput_1.initializeSheet();
-		Map<Integer, Integer> columnIndexes = new HashMap<Integer, Integer>();
-		columnIndexes.put(0, 0);
-		columnIndexes.put(1, 2);
-		boolean individualColumnMappingUsed = true;
-		int firstDataRowIndex = 0;
-		List<XSSFTable> listTables = ((XSSFSheet) tFileExcelSheetOutput_1.getSheet()).getTables();
-		if (individualColumnMappingUsed) {
-			for (Integer col : columnIndexes.values()) {
-				System.out.println("check column:" + col);
-				// walk through all written columns and ...
-				for (int i = listTables.size() - 1; i >= 0; i--) {
-					System.out.println("check table index:" + i);
-					// ... through all tables
-					XSSFTable table = listTables.get(i);
-					// check if the table is written
-					if (tFileExcelSheetOutput_1.extendTable(table, firstDataRowIndex, col.intValue(), 7)) {
-						// if extended, remove it from the list
-						System.out.println("table extended for column:" + col.intValue());
-						listTables.remove(table);
-					}
-				}
-			}
-		} else {
-			for (int i = listTables.size() - 1; i >= 0; i--) {
-				// walk through all tables
-				XSSFTable table = listTables.get(i);
-				// check if the table is written
-				if (tFileExcelSheetOutput_1.extendTable(table, firstDataRowIndex, 0, 7)) {
-					// if extended, remove it from the list
-					listTables.remove(table);
-				}
-			}
-		}
-
-		// XSSFSheet xs = (XSSFSheet) tFileExcelSheetOutput_1.getSheet();
-		// List<XSSFTable> listTables = xs.getTables();
-		// int firstRow = 0;
-		// int lastRow = 7;
-		// int firstCol = 0;
-		// for (XSSFTable table : listTables) {
-		// AreaReference currentRef = new
-		// AreaReference(table.getCTTable().getRef());
-		// CellReference topLeft = currentRef.getFirstCell();
-		// CellReference buttomRight = currentRef.getLastCell();
-		// if (topLeft.getRow() <= firstRow && buttomRight.getRow() >= firstRow
-		// && topLeft.getCol() >= firstCol && buttomRight.getCol() >= firstCol)
-		// {
-		// // this table is within out write area, we have to expand it
-		// AreaReference newRef = new AreaReference(
-		// topLeft, // left top including the header line
-		// new CellReference(lastRow, buttomRight.getCol())); // bottom right
-		// table.getCTTable().setRef(newRef.formatAsString());
-		// }
-		// }
-		tFileExcelWorkbookOpen_2.setOutputFile("/private/var/testdata/excel/excel_table_result_updated.xlsx");
-		tFileExcelWorkbookOpen_2.evaluateAllFormulars();
-		tFileExcelWorkbookOpen_2.writeWorkbook();
-
-	}
 
 }
