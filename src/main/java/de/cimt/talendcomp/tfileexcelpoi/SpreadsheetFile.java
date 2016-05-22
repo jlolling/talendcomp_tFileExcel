@@ -27,12 +27,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
 import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
@@ -55,9 +58,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook2;
 
 public class SpreadsheetFile {
 	
+	private Logger logger = null;
 	public static enum SpreadsheetTyp {XLS, XLSX};
 	protected SpreadsheetTyp currentType;
 	private File inputFile = null;
@@ -106,7 +111,11 @@ public class SpreadsheetFile {
 	}
 
 	public void evaluateAllFormulars() {
-		getFormulaEvaluator().evaluateAll();
+		if (workbook instanceof SXSSFWorkbook) {
+			warn("Skip formula evaluation because of using of a streaming-workbook. This kind of workbooks does not provide access to all rows.");
+		} else {
+			getFormulaEvaluator().evaluateAll();
+		}
 	}
 	
 	public boolean isCreateStreamingXMLWorkbook() {
@@ -237,16 +246,39 @@ public class SpreadsheetFile {
 		currentType = SpreadsheetTyp.XLSX;
 	}
 
+	/**
+	 * Set the excel input file and throw an exception if the file does not exists.
+	 * @param inputFileName
+	 * @throws Exception
+	 */
 	public void setInputFile(String inputFileName) throws Exception {
-		File inputFile = new File(inputFileName);
-		this.inputFile = inputFile;
-		SpreadsheetTyp type = getSpreadsheetType(inputFile.getName());
+		setInputFile(inputFileName, true);
+	}
+	
+	/**
+	 * Set the excel input file
+	 * @param inputFileName 
+	 * @param dieIfFileNotExists
+	 * @throws Exception
+	 */
+	public void setInputFile(String inputFileName, boolean dieIfFileNotExists) throws Exception {
+		SpreadsheetTyp type = getSpreadsheetType(inputFileName);
 		if (currentType != null) {
 			if (currentType != type) {
 				throw new Exception("Workbook cannot be saved into a different type for output");
 			}
 		} else {
 			currentType = type;
+		}
+		File inputFile = new File(inputFileName);
+		if (inputFile.exists() == false || inputFile.canRead() == false) {
+			if (dieIfFileNotExists) {
+				throw new Exception("Excel file: " + inputFileName + " does not exists or canot be read!");
+			} else {
+				this.inputFile = null;
+			}
+		} else {
+			this.inputFile = inputFile;
 		}
 	}
 	
@@ -257,7 +289,7 @@ public class SpreadsheetFile {
 		} else if (name.toLowerCase().endsWith(".xlsx") || name.toLowerCase().endsWith(".xlsm") || name.toLowerCase().endsWith(".xlsb")) {
 			type = SpreadsheetTyp.XLSX;
 		} else {
-			throw new Exception("Unknown type of file " + name + ". Currently supported are: xls, xlsx, xlsm, xlsb");
+			throw new Exception("Unknown or missing type of the file " + name + ". Currently are supported: xls, xlsx, xlsm, xlsb");
 		}
 		return type;
 	}
@@ -287,7 +319,8 @@ public class SpreadsheetFile {
 				if (createStreamingXMLWorkbook) {
 					FileInputStream fin = new FileInputStream(inputFile);
 					try {
-						workbook = new SXSSFWorkbook(new XSSFWorkbook(fin), rowAccessWindow);
+						ZipSecureFile.setMinInflateRatio(0);
+						workbook = new SXSSFWorkbook(new XSSFWorkbook2(fin), rowAccessWindow);
 					} finally {
 						if (fin != null) {
 							try {
@@ -311,7 +344,7 @@ public class SpreadsheetFile {
 						    // decrypt 
 						    dataStream = d.getDataStream(filesystem);
 						    // use open input stream
-							workbook = new XSSFWorkbook(dataStream);
+							workbook = new XSSFWorkbook2(dataStream);
 							dataStream.close();
 						} catch (GeneralSecurityException ex) {
 						    throw new Exception("Unable to process encrypted document", ex);
@@ -335,7 +368,7 @@ public class SpreadsheetFile {
 					} else {
 						FileInputStream fin = new FileInputStream(inputFile);
 						try {
-							workbook = new XSSFWorkbook(fin);
+							workbook = new XSSFWorkbook2(fin);
 						} finally {
 							if (fin != null) {
 								try {
@@ -354,9 +387,9 @@ public class SpreadsheetFile {
 				workbook = new HSSFWorkbook();
 			} else if (currentType == SpreadsheetTyp.XLSX) {
 				if (createStreamingXMLWorkbook) {
-					workbook = new SXSSFWorkbook(new XSSFWorkbook(), rowAccessWindow);
+					workbook = new SXSSFWorkbook(new XSSFWorkbook2(), rowAccessWindow);
 				} else {
-					workbook = new XSSFWorkbook();
+					workbook = new XSSFWorkbook2();
 				}
 			}
 		}
@@ -812,21 +845,70 @@ public class SpreadsheetFile {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+		if (logger != null) {
+			logger.setLevel(Level.DEBUG);
+		}
 	}
 
-	void info(String message) {
-		System.out.println("[INFO] " + message);
-	}
-	
-	void debug(String message) {
-		System.out.println("[DEBUG] " + message);
-	}
-	
-	void error(String message, Throwable t) {
-		System.err.println("[ERROR] " + message);
-		if (t != null) {
-			t.printStackTrace(System.err);
+	public void info(String message) {
+		if (logger != null) {
+			logger.info(message);
+		} else {
+			System.out.println("INFO: " + message);
 		}
 	}
 	
+	public void debug(String message) {
+		if (logger != null && logger.isDebugEnabled()) {
+			logger.debug(message);
+		} else if (debug) {
+			System.out.println("DEBUG: " + message);
+		}
+	}
+
+	public void warn(String message) {
+		if (logger != null) {
+			logger.warn(message);
+		} else {
+			System.err.println("WARN: " + message);
+		}
+	}
+
+	public void error(String message, Exception e) {
+		if (logger != null) {
+			if (e != null) {
+				logger.error(message, e);
+			} else {
+				logger.error(message);
+			}
+		} else {
+			System.err.println("ERROR: " + message);
+		}
+	}
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
+
+	protected String printArray(Object[] array) {
+		if (array != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (int i = 0; i < array.length; i++) {
+				if (i > 0) {
+					sb.append(",");
+				}
+				if (array[i] != null) {
+					sb.append(array[i]);
+				} else {
+					sb.append("null");
+				}
+			}
+			sb.append("]");
+			return sb.toString();
+		} else {
+			return "";
+		}
+	}
+
 }

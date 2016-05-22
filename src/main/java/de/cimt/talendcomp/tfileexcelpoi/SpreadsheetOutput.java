@@ -33,13 +33,17 @@ import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.ComparisonOperator;
 import org.apache.poi.ss.usermodel.ConditionalFormatting;
 import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
+import org.apache.poi.ss.usermodel.DataValidation;
+import org.apache.poi.ss.usermodel.DataValidationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
+import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -72,6 +76,8 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private int commentWidth = 3;
 	private String commentAuthor = null;
 	private int dataRowCount = 0;
+	private boolean setupCellStylesForAllColumns = false;
+	private int highestColumnIndex = 0;
 	
 	public void initializeSheet() {
 		if (workbook == null) {
@@ -153,7 +159,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	}
 	
 	public void shiftCurrentRow() {
-		sheet.shiftRows(rowStartIndex + currentDatasetNumber, sheet.getLastRowNum(), 1); // move the rows one down
+		sheet.shiftRows(rowStartIndex + currentDatasetNumber, sheet.getLastRowNum(), 1, true, false); // move the rows one down
 		sheet.createRow(rowStartIndex + currentDatasetNumber); // create a new empty row
 	}
 	
@@ -218,12 +224,32 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					}
 				}
 			}
+			if (highestColumnIndex < currentRow.getLastCellNum()) {
+				highestColumnIndex = currentRow.getLastCellNum();
+			}
 			if (usedCellColumnIndexes.contains(cellIndex) == false) {
 				usedCellColumnIndexes.add(cellIndex);
 			}
 			dataColumnIndex++;
 		}
+		if (setupCellStylesForAllColumns) {
+			// must be called as long as currentDatasetNumber points to the current row 
+			setupCellStylesForAllUnwrittenColumns();
+		}
 		currentDatasetNumber++;
+	}
+	
+	private void setupCellStylesForAllUnwrittenColumns() {
+		// setup style from all other columns in the row
+		for (int ci = 0; ci < highestColumnIndex; ci++) {
+			if (usedCellColumnIndexes.contains(ci) == false) {
+				Cell cell = currentRow.getCell(ci);
+				if (cell == null) {
+					cell = currentRow.createCell(ci);
+				}
+				setupStyle(cell, currentDatasetNumber);
+			}
+		}
 	}
 	
 	private static class GroupInfo {
@@ -338,7 +364,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				anchor.setRow2(cell.getRowIndex() + commentHeight);
 				anchor.setCol1(cell.getColumnIndex() + 1);
 				anchor.setCol2(cell.getColumnIndex() + commentWidth + 1);
-				anchor.setAnchorType(ClientAnchor.MOVE_AND_RESIZE);
+				anchor.setAnchorType(AnchorType.MOVE_AND_RESIZE);
 				c = getDrawing().createCellComment(anchor);
 				c.setVisible(false);
 				if (commentAuthor != null) {
@@ -437,7 +463,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			cell.setCellType(Cell.CELL_TYPE_BLANK);
 		}
 		if (isDataRow(dataRowIndex)) {
-			setupStyle(cell, dataColumnIndex, dataRowIndex);
+			setupStyle(cell, dataRowIndex);
 		}
 	}
 	
@@ -490,17 +516,21 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	}
 	
 	public void deleteFollowingRows() {
-		int rowIndex = firstRowIsHeader ? rowStartIndex + 1 : rowStartIndex;
-		if (currentRow != null) {
-			rowIndex = currentRow.getRowNum() + 1;
-		}
-		int lastSheetRowIndex = sheet.getLastRowNum();
-		for ( ; rowIndex <= lastSheetRowIndex; lastSheetRowIndex--) {
-			Row row = sheet.getRow(lastSheetRowIndex);
-			if (row != null) {
-				sheet.removeRow(row);
+    	if (workbook instanceof SXSSFWorkbook) {
+			warn("Cannot delete following rows in the memory the saving mode (use of the streaming-workbook).");
+    	} else {
+			int rowIndex = firstRowIsHeader ? rowStartIndex + 1 : rowStartIndex;
+			if (currentRow != null) {
+				rowIndex = currentRow.getRowNum() + 1;
 			}
-		}
+			int lastSheetRowIndex = sheet.getLastRowNum();
+			for ( ; rowIndex <= lastSheetRowIndex; lastSheetRowIndex--) {
+				Row row = sheet.getRow(lastSheetRowIndex);
+				if (row != null) {
+					sheet.removeRow(row);
+				}
+			}
+    	}
 	}
 	
 	private boolean isToWriteAsComment(int columnIndex) {
@@ -685,7 +715,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 	}
 
-	private void setupStyle(Cell cell, int column, int row) {
+	private void setupStyle(Cell cell, int row) {
 		CellStyle style = cell.getCellStyle();
 		// cell has its own style and not the default style
 		if (reuseExistingStyles) {
@@ -696,24 +726,24 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					// we are in the first row, memorize the style
 					if (style.getIndex() > 0) {
 						// only if the cell does not use the default style
-						oddRowColumnStyleMap.put(column, style);
+						oddRowColumnStyleMap.put(cell.getColumnIndex(), style);
 					}
 				} else if (isSecondRow(row)) {
 					// we are in the first row, memorize the style
 					if (style.getIndex() > 0) {
 						// only if the cell does not use the default style
-						evenRowColumnStyleMap.put(column, style);
+						evenRowColumnStyleMap.put(cell.getColumnIndex(), style);
 					}
 				} else if (isEvenDataRow(row)) {
 					// reference to the previously memorized style for even rows
-					CellStyle s = evenRowColumnStyleMap.get(column);
+					CellStyle s = evenRowColumnStyleMap.get(cell.getColumnIndex());
 					if (s != null) {
 						style = s;
 						cell.setCellStyle(style);
 					}
 				} else {
 					// reference to the previously memorized style for even rows
-					CellStyle s = oddRowColumnStyleMap.get(column);
+					CellStyle s = oddRowColumnStyleMap.get(cell.getColumnIndex());
 					if (s != null) {
 						style = s;
 						cell.setCellStyle(style);
@@ -725,11 +755,11 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					// memorize the style for reuse in all other rows
 					if (style.getIndex() > 0) {
 						// only if the cell does not use the default style
-						columnStyleMap.put(column, style);
+						columnStyleMap.put(cell.getColumnIndex(), style);
 					}
 				} else {
 					// set the style from the previous row
-					CellStyle s = columnStyleMap.get(column);
+					CellStyle s = columnStyleMap.get(cell.getColumnIndex());
 					if (s != null) {
 						style = s;
 						cell.setCellStyle(style);
@@ -737,16 +767,16 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				}
 			}
 		} else {
-			Short formatIndex = cellFormatMap.get(column);
+			Short formatIndex = cellFormatMap.get(cell.getColumnIndex());
 			if (formatIndex != null) {
 				if ((style.getIndex() == 0) || (style.getDataFormat() != formatIndex)) {
 					// this is the default style or the current format differs from the given format
 					// we need our own style for this 
-					style = columnStyleMap.get(column);
+					style = columnStyleMap.get(cell.getColumnIndex());
 					if (style == null) {
 						style = workbook.createCellStyle();
 						style.setDataFormat(formatIndex.shortValue());
-						columnStyleMap.put(column, style);
+						columnStyleMap.put(cell.getColumnIndex(), style);
 					}
 					cell.setCellStyle(style);
 				}
@@ -838,10 +868,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					}
 				}
 			}
+		} else if (workbook instanceof SXSSFWorkbook) {
+			warn("Cannot extend cell ranges for tables in the memory saving mode (use of the streaming-workbook).");
 		}
 	}
 	
-	public boolean extendTable(XSSFTable table, int firstRow, int firstCol, int lastRow) throws Exception {
+	private boolean extendTable(XSSFTable table, int firstRow, int firstCol, int lastRow) throws Exception {
 		try {
 			AreaReference currentRef = null;
 			if (currentType == SpreadsheetTyp.XLS) {
@@ -852,7 +884,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			CellReference topLeft = currentRef.getFirstCell();
 			CellReference buttomRight = currentRef.getLastCell();
 			if (topLeft.getRow() <= firstRow && buttomRight.getRow() >= firstRow && topLeft.getCol() <= firstCol && buttomRight.getCol() >= firstCol) {
-				// this table is within out write area, we have to expand it
+				// this table is within our write area, we have to expand it
 				AreaReference newRef = new AreaReference(
 						topLeft, // left top including the header line
 						new CellReference(lastRow, buttomRight.getCol())); // bottom right
@@ -869,9 +901,11 @@ public class SpreadsheetOutput extends SpreadsheetFile {
         	}
 		}
 	}
-
+	
     public void extendCellRangesForConditionalFormattings() throws Exception {
-    	try {
+    	if (workbook instanceof SXSSFWorkbook) {
+			warn("Cannot extend cell ranges for conditional formats in the memory the saving mode (use of the streaming-workbook).");
+    	} else {
     		int firstDataRowIndex = firstRowIsHeader ? rowStartIndex + 1 : rowStartIndex;
         	info("Extending cell ranges for conditional formats. Use formats from row: " + firstDataRowIndex);
         	if (getLastRowNum() > 0 && getLastRowNum() > firstDataRowIndex) {
@@ -935,12 +969,6 @@ public class SpreadsheetOutput extends SpreadsheetFile {
         			debug(logoutSheetConditionalFormatting(scf));
         		}
         	}
-    	} catch (Exception t) {
-        	if (workbook instanceof SXSSFWorkbook) {
-        		throw new Exception("Manipulating cell ranges cannot work in a workbook which is not fully loaded because of the memory saving mode. Uncheck Memory saving mode in tFileExcelWorkbookOpen!", t);
-        	} else {
-        		throw t;
-        	}
     	}
     }
     
@@ -994,16 +1022,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     	}
     	return sb.toString();
     }
-    
-//    private static boolean isRowRangeRelatedCondition(ConditionalFormatting cf) {
-//		ConditionType ct = rule.getConditionTypeType();
-//		if (ct.equals(ConditionType.COLOR_SCALE)) {
-//			return true;
-//		}
-//    	
-//    	return false;    	
-//    }
-    
+        
     private static String describeRuleComparisonOperator(ConditionalFormattingRule rule) {
     	StringBuilder sb = new StringBuilder();
     	sb.append(" comparison:");
@@ -1120,6 +1139,92 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	public void setCommentAuthor(String commentAuthor) {
 		if (commentAuthor != null && commentAuthor.trim().isEmpty() == false) {
 			this.commentAuthor = commentAuthor;
+		}
+	}
+
+	public boolean isSetupCellStylesForAllColumns() {
+		return setupCellStylesForAllColumns;
+	}
+
+	public void setSetupCellStylesForAllColumns(boolean setupCellStylesForAllColumns) {
+		this.setupCellStylesForAllColumns = setupCellStylesForAllColumns;
+	}
+
+	private boolean checkIfIsAppendedDataValidationNeccessary(DataValidation originalDv, int lastRowIndex) {
+		CellRangeAddressList originalAl = originalDv.getRegions();
+		int originalLastDataRow = 0;
+		for (int i = 0; i < originalAl.countRanges(); i++) {
+			CellRangeAddress cra = originalAl.getCellRangeAddress(i);
+			if (cra.getLastRow() > originalLastDataRow) {
+				originalLastDataRow = cra.getLastRow();
+			}
+		}
+		return (originalLastDataRow < lastRowIndex);
+	}
+
+	private void createNewAppendingDataValidationAsCopy(Sheet sheet, DataValidation originalDv, int lastRowIndex) {
+		CellRangeAddressList originalAl = originalDv.getRegions();
+		CellRangeAddressList appendingAddressList = createNewAppendingCellRangeAddressList(originalAl, lastRowIndex);
+		DataValidationHelper dvHelper = sheet.getDataValidationHelper();
+		DataValidation newValidation = dvHelper.createValidation(originalDv.getValidationConstraint(), appendingAddressList);
+		newValidation.setSuppressDropDownArrow(originalDv.getSuppressDropDownArrow());
+		newValidation.setShowErrorBox(originalDv.getShowErrorBox());
+		newValidation.setShowPromptBox(originalDv.getShowPromptBox());
+		newValidation.setEmptyCellAllowed(originalDv.getEmptyCellAllowed());
+		newValidation.setErrorStyle(originalDv.getErrorStyle());
+		String promptBoxText = originalDv.getPromptBoxText();
+		String promptBoxTitle = originalDv.getPromptBoxTitle();
+		String errorBoxText = originalDv.getErrorBoxText();
+		String errorBoxTitle = originalDv.getErrorBoxTitle();
+		if (promptBoxTitle != null && promptBoxText != null) {
+			newValidation.createPromptBox(promptBoxTitle, promptBoxText);
+		}
+		if (errorBoxTitle != null && errorBoxText != null) {
+			newValidation.createErrorBox(errorBoxTitle, errorBoxText);
+		}
+		sheet.addValidationData(newValidation);
+	}
+	
+	private CellRangeAddressList createNewAppendingCellRangeAddressList(CellRangeAddressList originalAddressRangeList, int newLastRowIndex) {
+		CellRangeAddressList extendedCellRangeAddressList = new CellRangeAddressList();
+		for (CellRangeAddress ca : originalAddressRangeList.getCellRangeAddresses()) {
+			extendedCellRangeAddressList.addCellRangeAddress(createAppendingCellRangeAddress(ca, newLastRowIndex));
+		}
+		return extendedCellRangeAddressList;
+	}
+	
+	private CellRangeAddress createAppendingCellRangeAddress(CellRangeAddress originalAdressRange, int newLastRowIndex) {
+		return new CellRangeAddress(originalAdressRange.getLastRow() + 1, newLastRowIndex, originalAdressRange.getFirstColumn(), originalAdressRange.getLastColumn());
+	}
+
+	public void createDataValidationsForAppendedRows() {
+		List<? extends DataValidation> dvs = sheet.getDataValidations();
+		if (dvs != null) {
+			if (debug) {
+				debug("Original list of DataValidations:");
+				int i = 0;
+				for (DataValidation dv : dvs) {
+					debug("#" + i + " Adress range: " + dv.getRegions().getCellRangeAddresses()[0].formatAsString());
+					debug("#" + i + "   Constraint: " + printArray(dv.getValidationConstraint().getExplicitListValues()));
+					i++;
+				}
+			}
+			info("Create new extended DataValidations (last written row: " + (currentRow.getRowNum() + 1) + "), number of validations: " + dvs.size());
+			for (DataValidation dv : dvs) {
+				if (checkIfIsAppendedDataValidationNeccessary(dv, currentRow.getRowNum())) {
+					createNewAppendingDataValidationAsCopy(sheet, dv, currentRow.getRowNum());
+				}
+			}
+			if (debug) {
+				debug("New appended list of DataValidations:");
+				dvs = sheet.getDataValidations();
+				int i = 0;
+				for (DataValidation dv : dvs) {
+					debug("#" + i + " Adress range: " + dv.getRegions().getCellRangeAddresses()[0].formatAsString());
+					debug("#" + i + "   Constraint: " + printArray(dv.getValidationConstraint().getExplicitListValues()));
+					i++;
+				}
+			}
 		}
 	}
 	

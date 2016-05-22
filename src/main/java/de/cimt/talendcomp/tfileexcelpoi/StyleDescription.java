@@ -18,8 +18,6 @@ package de.cimt.talendcomp.tfileexcelpoi;
 public class StyleDescription {
 	
 	private String dataFormat = null;
-
-	
 	
 	public void setDataFormat(String dataFormat) {
 		this.dataFormat = dataFormat;

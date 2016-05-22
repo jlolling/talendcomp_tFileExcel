@@ -1,5 +1,6 @@
 package de.cimt.talendcomp.tfileexcelpoi;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -22,7 +23,7 @@ public class TestSpreadsheetFile {
 		SpreadsheetFile sf = new SpreadsheetFile();
 		sf.setCreateStreamingXMLWorkbook(true);
 		try {
-			sf.setInputFile(file);
+			sf.setInputFile(file,true);
 			sf.initializeWorkbook();
 		} catch (Exception e) {
 			fail("Read file failed:" + e.getMessage());
@@ -51,7 +52,7 @@ public class TestSpreadsheetFile {
 		SpreadsheetFile sf = new SpreadsheetFile();
 		sf.setCreateStreamingXMLWorkbook(true);
 		try {
-			sf.setInputFile(file);
+			sf.setInputFile(file, true);
 			sf.initializeWorkbook();
 			workbook = sf.getWorkbook();
 		} catch (Exception e) {
@@ -108,4 +109,36 @@ public class TestSpreadsheetFile {
 		}
 	}
 
+	@Test
+	public void testWithAppendDataValidations() {
+		SpreadsheetOutput out = new SpreadsheetOutput();
+		out.setDebug(true);
+		out.setSetupCellStylesForAllColumns(true);
+		try {
+			out.setInputFile("/Volumes/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Template.xlsx", true);
+			out.initializeWorkbook();
+			out.setTargetSheetName("Recommended Actions");
+			out.initializeSheet();
+			out.setOutputFile("/Volumes/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Result.xlsx");
+			out.setRowStartIndex(1);
+			out.setReuseExistingStyles(true);
+			for (int r = 0; r < 9; r++) {
+				Object[] row = new Object[2];
+				for (int c = 0; c < 2; c++) {
+					if (c == 0) {
+						row[c] = 100 + r;
+					} else {
+						row[c] = "Produkt-" + r;
+					}
+				}
+				out.writeRow(row);
+			}
+			out.createDataValidationsForAppendedRows();
+			out.writeWorkbook();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Initialise workbook failed: " + e.getMessage());
+		}
+	}
+		
 }

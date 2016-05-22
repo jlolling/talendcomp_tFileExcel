@@ -220,7 +220,7 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 			// read a excel file as template
 			// this file file will not used as output file
 			tFileExcelWorkbookOpen_1
-					.setInputFile("/Volumes/Data/Talend/testdata/excel/test21/Customer_View_Template.xlsx");
+					.setInputFile("/Volumes/Data/Talend/testdata/excel/test21/Customer_View_Template.xlsx", true);
 			tFileExcelWorkbookOpen_1.initializeWorkbook();
 		} catch (Exception e) {
 			globalMap.put("tFileExcelWorkbookOpen_1_ERROR_MESSAGE", e.getMessage());
