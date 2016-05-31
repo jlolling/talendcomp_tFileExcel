@@ -5,3 +5,5 @@ There are a lot of features e.g:
 * data range validaetion, 
 * formula support and 
 * building new excel workbooks based on templates
+These components can be get from Talend Exchange
+http://exchange.talend.com
