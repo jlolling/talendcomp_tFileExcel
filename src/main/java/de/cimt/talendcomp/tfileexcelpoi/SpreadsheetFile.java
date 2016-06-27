@@ -606,7 +606,7 @@ public class SpreadsheetFile {
 	 */
 	public void setRowStartIndex(int rowStartIndex) {
 		if (rowStartIndex < 0) {
-			throw new IllegalArgumentException("Row start index starts 1"); // message for the Talend users!
+			throw new IllegalArgumentException("Row index starts 1"); // message for the Talend users!
 		}
 		this.rowStartIndex = rowStartIndex;
 		currentDatasetNumber = 0;
