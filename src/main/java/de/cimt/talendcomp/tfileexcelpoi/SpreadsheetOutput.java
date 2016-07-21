@@ -947,15 +947,17 @@ public class SpreadsheetOutput extends SpreadsheetFile {
             						// the last chunk contains the rest
             						currentSize = restChunkSize;
             					}
-            					ConditionalFormattingRule[] rules = new ConditionalFormattingRule[currentSize];
-                    			for (int i = 0; i < currentSize; i++) {
-                    				int ruleIndex = i + (maxRuleChunkSize * c); // current pointer within a chunk + chunk offset
-                    				rules[i] = currentCf.getRule(ruleIndex);
-                            		if (debug) {
-                            			debug("extendCellRangesForConditionalFormattings: add ranges: " + getRangesAsString(ranges) + " rule #" + ruleIndex + " =" + describeRule(rules[i]));
-                            		}
-                    			}
-                				scf.addConditionalFormatting(ranges, rules);
+            					if (currentSize > 0) {
+                					ConditionalFormattingRule[] rules = new ConditionalFormattingRule[currentSize];
+                        			for (int i = 0; i < currentSize; i++) {
+                        				int ruleIndex = i + (maxRuleChunkSize * c); // current pointer within a chunk + chunk offset
+                        				rules[i] = currentCf.getRule(ruleIndex);
+                                		if (debug) {
+                                			debug("extendCellRangesForConditionalFormattings: add ranges: " + getRangesAsString(ranges) + " rule #" + ruleIndex + " =" + describeRule(rules[i]));
+                                		}
+                        			}
+                    				scf.addConditionalFormatting(ranges, rules);
+            					}
             				}
                     		if (debug) {
                     			debug("extendCellRangesForConditionalFormattings: remove template format at index:" + currentCfIndex);
