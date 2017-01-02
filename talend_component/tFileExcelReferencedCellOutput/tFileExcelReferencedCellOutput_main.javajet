@@ -30,6 +30,7 @@
 					<%=connIn.getName()%>.CELL_VALUE_OBJECT,
 					<%=connIn.getName()%>.CELL_COMMENT);
     } catch (Exception e) {
+    	<%=cid%>.error("Write cell failed:" + e.getMessage(), e);
     	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Write cell failed:" + e.getMessage());
     	throw e;
     }

@@ -47,6 +47,7 @@
 <%      }%>
 		<%=cid%>.initializeWorkbook();
 	} catch (Exception e) {
+		<%=cid%>.error("Intialize empty workbook failed: " + e.getMessage(), e);
 		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
 		throw e;
 	}
@@ -60,6 +61,7 @@
 <%  } %>
 		<%=cid%>.initializeWorkbook();
 	} catch (Exception e) {
+		<%=cid%>.error("Intialize workbook from file failed: " + e.getMessage(), e);
 		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
 		throw e;
 	}

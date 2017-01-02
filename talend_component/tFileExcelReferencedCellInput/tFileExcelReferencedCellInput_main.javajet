@@ -65,11 +65,15 @@
 					<%=connIn.getName()%>.IN_SHEET_NAME_OR_INDEX, 
 					<%=connIn.getName()%>.IN_CELL_ROW, 
 					<%=connIn.getName()%>.IN_CELL_COL) == false) {
-			throw new Exception("Cell does not exists: ref=" + 
+			String <%=cid%>_message = "Cell does not exists: ref=" + 
 				<%=connIn.getName()%>.IN_CELL_REF + 
 				" sheet=" + <%=connIn.getName()%>.IN_SHEET_NAME_OR_INDEX + 
 				" row=" + <%=connIn.getName()%>.IN_CELL_ROW +
-				" col=" + <%=connIn.getName()%>.IN_CELL_COL);
+				" col=" + <%=connIn.getName()%>.IN_CELL_COL;
+			Exception ex = new Exception(<%=cid%>_message);
+			<%=cid%>.error(<%=cid%>_message, ex);
+			globalMap.put("<%=cid%>_ERROR_MESSAGE", <%=cid%>_message);
+			throw ex;
 		}
 <%      }
         if (connOut != null) {
@@ -108,6 +112,7 @@
 		globalMap.put("<%=cid%>_OUT_CELL_BG_COLOR", <%=cid%>.getCurrentCellBgColor());
 		globalMap.put("<%=cid%>_OUT_CELL_FG_COLOR", <%=cid%>.getCurrentCellFgColor());
     } catch (Exception e) {
+    	<%=cid%>.error("Read cell failed:" + e.getMessage(), e);
     	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Read cell failed:" + e.getMessage());
     	throw e;
     }

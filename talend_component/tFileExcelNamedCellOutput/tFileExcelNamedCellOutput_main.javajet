@@ -65,6 +65,7 @@
 			}
 		    nb_cells_<%=cid%>++;
 	    } catch (Exception e) {
+	    	<%=cid%>.error("Write flow failed:" + e.getMessage(), e);
 	    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Write flow failed:" + e.getMessage());
 	    	throw e;
 	    }

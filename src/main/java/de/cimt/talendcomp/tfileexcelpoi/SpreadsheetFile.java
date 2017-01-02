@@ -62,7 +62,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook2;
 
 public class SpreadsheetFile {
 	
-	private Logger logger = null;
+	private static Logger logger = null;
 	public static enum SpreadsheetTyp {XLS, XLSX};
 	protected SpreadsheetTyp currentType;
 	private File inputFile = null;
@@ -130,6 +130,7 @@ public class SpreadsheetFile {
 		if (functionsRegistered == false) {
 			functionsRegistered = true;
 		}
+		setupLogger();
 	}
 	
 	public static void registerBackportFunctions() {
@@ -347,7 +348,7 @@ public class SpreadsheetFile {
 							workbook = new XSSFWorkbook2(dataStream);
 							dataStream.close();
 						} catch (GeneralSecurityException ex) {
-						    throw new Exception("Unable to process encrypted document", ex);
+						    throw new Exception("Unable to read and parse encrypted document", ex);
 						} finally {
 							if (dataStream != null) {
 								try {
@@ -499,13 +500,29 @@ public class SpreadsheetFile {
             	throw new Exception("Unable to create directory: " + pFile.getAbsolutePath());
             }
         }
-		fout = new FileOutputStream(outputFile);
-		workbook.write(fout);
-		fout.flush();
-		fout.close();
-		if (workbook instanceof SXSSFWorkbook) {
-			((SXSSFWorkbook) workbook).dispose();
-		}
+        Exception ex = null;
+        try {
+			fout = new FileOutputStream(outputFile);
+			workbook.write(fout);
+			fout.flush();
+        } catch (Exception e) {
+        	ex = e;
+        	error("write workbook failed: " + e.getMessage(), e);
+        } finally {
+        	if (fout != null) {
+        		try {
+        			fout.close();
+        			if (workbook instanceof SXSSFWorkbook) {
+        				((SXSSFWorkbook) workbook).dispose();
+        			}
+        		} catch (Exception e1) {
+        			// ignored
+        		}
+        	}
+        }
+        if (ex != null) {
+        	throw ex;
+        }
 		workbook = null;
 	}
 	
@@ -558,9 +575,25 @@ public class SpreadsheetFile {
         OutputStream os = enc.getDataStream(fs);
         opc.save(os);
         opc.close();
-        FileOutputStream fos = new FileOutputStream(outFile);
-        fs.writeFilesystem(fos);
-        fos.close();
+        FileOutputStream fos = null;
+        Exception ex = null;
+        try {
+        	fos = new FileOutputStream(outFile);
+            fs.writeFilesystem(fos);
+        } catch (Exception e) {
+        	ex = e;
+        } finally {
+        	if (fos != null) {
+        		try {
+        			fos.close();
+        		} catch (Exception e1) {
+        			// ignore
+        		}
+        	}
+        }
+        if (ex != null) {
+        	throw ex;
+        }
 	}
 	
 	public void deleteSheet(int sheetIndex) throws Exception {
@@ -838,9 +871,23 @@ public class SpreadsheetFile {
 		}
 		return false;
 	}
+	
+	private static void setupLogger() {
+		// Talend sets a System property if logging is enabled
+		String logName = System.getProperty("TalendJob.log");
+		if (logName != null && logName.trim().isEmpty() == false) {
+			if (logger == null) {
+				logger = Logger.getLogger(SpreadsheetFile.class);
+			}
+		}
+	}
 
 	public boolean isDebug() {
-		return debug;
+		if (logger != null) {
+			return logger.isDebugEnabled();
+		} else {
+			return debug;
+		}
 	}
 
 	public void setDebug(boolean debug) {
@@ -883,11 +930,10 @@ public class SpreadsheetFile {
 			}
 		} else {
 			System.err.println("ERROR: " + message);
+			if (e != null) {
+				e.printStackTrace();
+			}
 		}
-	}
-
-	public void setLogger(Logger logger) {
-		this.logger = logger;
 	}
 
 	protected String printArray(Object[] array) {

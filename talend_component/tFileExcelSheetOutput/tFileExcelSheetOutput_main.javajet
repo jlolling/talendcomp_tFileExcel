@@ -49,7 +49,8 @@
 <%  } %>
     	nb_line_<%=cid%>++;
     } catch (Exception e) {
-    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Error in line " + nb_line_<%=cid%> + ":" + e.getMessage());
+		<%=cid%>.error("Write data row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage(), e);   	
+    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Write data row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage());
     	throw e;
     }
 <%  } else { %>

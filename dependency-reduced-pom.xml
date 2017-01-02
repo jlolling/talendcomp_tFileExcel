@@ -4,7 +4,7 @@
   <groupId>de.cimt.talendcomp</groupId>
   <artifactId>cimt-talendcomp-excel</artifactId>
   <name>Excel Output POI</name>
-  <version>7.3</version>
+  <version>7.4</version>
   <organization>
     <name>Jan Lolling</name>
     <url>http://www.jan-lolling.de</url>

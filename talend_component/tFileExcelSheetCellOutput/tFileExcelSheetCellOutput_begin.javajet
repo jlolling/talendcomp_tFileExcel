@@ -21,11 +21,23 @@
 <%  if (sheetName != null && sheetName.isEmpty() == false) {
         if (createSheetAsCopy) { %>
     // clone sheet
-    <%=cid%>.createCopy(<%=sourceSheetName%>, <%=sheetName%>);
+	try {
+	    <%=cid%>.createCopy(<%=sourceSheetName%>, <%=sheetName%>);
+	} catch (Exception e) {
+		<%=cid%>.error("Create copy of source sheet: " + <%=sourceSheetName%> + " failed: " + e.getMessage(), e);
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Create copy of source sheet: " + <%=sourceSheetName%> + " failed: " + e.getMessage());
+		throw e;
+	}
 <%      } %>
     <%=cid%>.setTargetSheetName(<%=sheetName%>);
 <%  } %>
-	<%=cid%>.initializeSheet();
+	try {
+		<%=cid%>.initializeSheet();
+	} catch (Exception e) {
+		<%=cid%>.error("Initialize workbook failed: " + e.getMessage(), e);
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Initialize workbook failed: " + e.getMessage());
+		throw e;
+	}
 	// row counter
     int nb_line_<%=cid%> = 0;
     int nb_cells_<%=cid%> = 0;

@@ -31,7 +31,7 @@
     String columnStartPosStr = ElementParameterParser.getValue(node, "__COLUMN_START_INDEX__");
     Map<Integer, String> fieldMap = new HashMap<Integer, String>();
     int columnIndex = 0;
-	 if (useIndividualColumnPositions) {
+	if (useIndividualColumnPositions) {
        List<Map<String, String>> mappingList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
 	 	 for (Map<String, String> entry : mappingList) {
 			String name = entry.get("POSITION");
@@ -63,8 +63,8 @@
 		}
 		columnIndex++;
 	}	
-   List<Map<String, String>> headerList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
-   Map<Integer, String> headerMap = new HashMap<Integer, String>();
+	List<Map<String, String>> headerList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+	Map<Integer, String> headerMap = new HashMap<Integer, String>();
 	columnIndex = 0;
 	for (Map<String, String> entry : headerList) {
 		String header = entry.get("HEADER");
@@ -81,7 +81,7 @@
 	String groupColumns = ElementParameterParser.getValue(node, "__GROUP_COLS__");
 	if (writeColumns) appendRows = false;
 %>
-    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
+    final de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
     <%=cid%>.setDebug(<%=debug%>);
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
 <%  if (sheetName != null && sheetName.isEmpty() == false) {
@@ -220,7 +220,8 @@
     	<%=cid%>.writeRow(header_<%=cid%>);
 <%  } %>
     } catch (Exception e) {
-    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Error in header:" + e.getMessage());
+		<%=cid%>.error("Write header failed: " + e.getMessage(), e);  	
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Error in header:" + e.getMessage());
     	throw e;
     }
 <%      } else { %>
