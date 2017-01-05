@@ -23,24 +23,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.ss.usermodel.ConditionType;
-import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.ComparisonOperator;
+import org.apache.poi.ss.usermodel.ConditionType;
 import org.apache.poi.ss.usermodel.ConditionalFormatting;
 import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
 import org.apache.poi.ss.usermodel.DataValidation;
 import org.apache.poi.ss.usermodel.DataValidationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
-import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
@@ -379,15 +380,15 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 
 	private void setCellHyperLink(Cell cell, String url) {
 		if (url.contains("://")) {
-			Hyperlink link = creationHelper.createHyperlink(Hyperlink.LINK_URL);
+			Hyperlink link = creationHelper.createHyperlink(HyperlinkType.URL);
 			link.setAddress(url);
 			cell.setHyperlink(link);
 		} else if (url.startsWith("mailto:")) {
-			Hyperlink link = creationHelper.createHyperlink(Hyperlink.LINK_EMAIL);
+			Hyperlink link = creationHelper.createHyperlink(HyperlinkType.EMAIL);
 			link.setAddress(url);
 			cell.setHyperlink(link);
 		} else {
-			Hyperlink link = creationHelper.createHyperlink(Hyperlink.LINK_FILE);
+			Hyperlink link = creationHelper.createHyperlink(HyperlinkType.FILE);
 			link.setAddress(url);
 			cell.setHyperlink(link);
 		}
@@ -457,7 +458,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			cell.setCellValue((java.util.Date) value);
 			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 		} else if (value != null) {
-			cell.setCellValue((String) value.toString());
+			cell.setCellValue(value.toString());
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 		} else if (writeNullValues && value == null) {
 			cell.setCellType(Cell.CELL_TYPE_BLANK);
@@ -1079,7 +1080,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     private static String describeRule(ConditionalFormattingRule rule) {
     	StringBuilder sb = new StringBuilder();
 		sb.append("condition:");
-		ConditionType ct = rule.getConditionTypeType();
+		ConditionType ct = rule.getConditionType();
     	if (ct.equals(ConditionType.CELL_VALUE_IS)) {
     		sb.append(" cell value is: ");
     		sb.append(describeRuleComparisonOperator(rule));
@@ -1099,7 +1100,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
     		sb.append(" data-bar: ");
     		sb.append(rule.getDataBarFormatting());
     	} else {
-        	sb.append(" type=" + rule.getConditionTypeType());
+        	sb.append(" type=" + rule.getConditionType());
     	}
     	sb.append(" formattings:");
     	if (rule.getBorderFormatting() != null) {

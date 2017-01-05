@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -55,6 +56,33 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean findHeaderPosByRegex = false;
 	private boolean useCachedValuesForFailedEvaluations = false;
 	private boolean stopAtMissingRow = true;
+	private StyleUtil styleUtil = null; 
+	
+	private StyleUtil getStyleUtil() {
+		if (styleUtil == null) {
+			styleUtil = new StyleUtil(workbook);
+		}
+		return styleUtil;
+	}
+	
+	public String getCellStyle(int columnIndex) {
+		Cell cell = getCell(columnIndex);
+		if (cell != null) {
+			CellStyle style = cell.getCellStyle();
+			if (style != null) {
+				return getStyleUtil().buildCSS(style);
+			} else {
+				return "";
+			}
+		} else {
+			CellStyle style = workbook.getCellStyleAt(0);
+			if (style != null) {
+				return getStyleUtil().buildCSS(style);
+			} else {
+				return "";
+			}
+		}
+	}
 	
 	public String getStringCellValue(int columnIndex, boolean nullable, boolean trim, boolean useLast) throws Exception {
 		String value = null;

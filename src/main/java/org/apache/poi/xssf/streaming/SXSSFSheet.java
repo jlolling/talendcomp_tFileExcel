@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.AutoFilter;
 import org.apache.poi.ss.usermodel.Cell;
@@ -38,6 +37,7 @@ import org.apache.poi.ss.usermodel.DataValidationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -48,10 +48,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.SheetUtil;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.NotImplemented;
-import org.apache.poi.xssf.streaming.AutoSizeColumnTracker;
-import org.apache.poi.xssf.streaming.SXSSFRow;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.streaming.SheetDataWriter;
 import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
 import org.apache.poi.xssf.usermodel.XSSFHyperlink;
@@ -862,7 +858,8 @@ public class SXSSFSheet implements Sheet, Cloneable
      * @param denominator   The denominator for the zoom magnification.
      * @deprecated 2015-11-23 (circa POI 3.14beta1). Use {@link #setZoom(int)} instead.
      */
-    @Override
+    @Deprecated
+	@Override
     public void setZoom(int numerator, int denominator)
     {
         _sh.setZoom(numerator,denominator);
@@ -1038,17 +1035,6 @@ public class SXSSFSheet implements Sheet, Cloneable
     public void createSplitPane(int xSplitPos, int ySplitPos, int leftmostColumn, int topRow, int activePane)
     {
         _sh.createSplitPane(xSplitPos, ySplitPos, leftmostColumn, topRow, activePane);
-    }
-
-    /**
-     * Returns the information regarding the currently configured pane (split or freeze)
-     *
-     * @return null if no pane configured, or the pane information.
-     */
-    @Override
-    public PaneInformation getPaneInformation()
-    {
-        return _sh.getPaneInformation();
     }
 
     /**
@@ -1608,7 +1594,8 @@ public class SXSSFSheet implements Sheet, Cloneable
      * @return cell comment or <code>null</code> if not found
      * @deprecated as of 2015-11-23 (circa POI 3.14beta1). Use {@link #getCellComment(CellAddress)} instead.
      */
-    @Override
+    @Deprecated
+	@Override
     public XSSFComment getCellComment(int row, int column)
     {
         return getCellComment(new CellAddress(row, column));
@@ -1912,4 +1899,41 @@ public class SXSSFSheet implements Sheet, Cloneable
     public void setActiveCell(CellAddress address) {
         _sh.setActiveCell(address);
     }
+
+	@Override
+	public int addMergedRegionUnsafe(CellRangeAddress region) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void validateMergedRegions() {
+		_sh.validateMergedRegions();
+	}
+
+	@Override
+	public void removeMergedRegions(Collection<Integer> indices) {
+		_sh.removeMergedRegions(indices);
+	}
+
+	@Override
+	public boolean isPrintRowAndColumnHeadings() {
+		return _sh.isPrintRowAndColumnHeadings();
+	}
+
+	@Override
+	public void setPrintRowAndColumnHeadings(boolean show) {
+		_sh.setPrintRowAndColumnHeadings(show);
+	}
+
+	@Override
+	public org.apache.poi.ss.util.PaneInformation getPaneInformation() {
+		return _sh.getPaneInformation();
+	}
+
+	@Override
+	public Hyperlink getHyperlink(CellAddress addr) {
+		return _sh.getHyperlink(addr);
+	}
+	
 }

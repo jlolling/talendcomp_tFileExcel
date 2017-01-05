@@ -37,6 +37,7 @@
     Map<Integer, String> fieldMap = new HashMap<Integer, String>();
     Map<Integer, String> headerNameMap = new HashMap<Integer, String>();
     Map<Integer, Boolean> readCommentMap = new HashMap<Integer, Boolean>();
+    Map<Integer, Boolean> readStyleMap = new HashMap<Integer, Boolean>();
     Map<Integer, Boolean> useLastMap = new HashMap<Integer, Boolean>();
     Map<Integer, Boolean> ignoreErrorMap = new HashMap<Integer, Boolean>();
     Map<Integer, Boolean> ignoreMissingMap = new HashMap<Integer, Boolean>();
@@ -48,11 +49,13 @@
 			fieldMap.put(columnIndex, name.trim());
 		}
 		String readComment = entry.get("READ_COMMENT");
+		String readStyle = entry.get("READ_CELL_STYLE");
 		String useLast = entry.get("KEEP_LAST");
 		String ignore = entry.get("IGNORE_ERROR");
 		String ignoreMissing = entry.get("IGNORE_MISSING");
 		String headerName = entry.get("HEADER_NAME");
 		readCommentMap.put(columnIndex, useIndividualColumnPositions && "true".equals(readComment));
+		readStyleMap.put(columnIndex, useIndividualColumnPositions && "true".equals(readStyle));
 		useLastMap.put(columnIndex, useIndividualColumnPositions && "true".equals(useLast));
 		ignoreErrorMap.put(columnIndex, useIndividualColumnPositions && "true".equals(ignore));
 		ignoreMissingMap.put(columnIndex, configColumnByHeader && "true".equals(ignoreMissing));
@@ -153,132 +156,126 @@
 <%  } %>
 		} 
 
-<%  if (conn != null) { %>		
+<%  if (conn != null) { %>	
 		public void fill(<%=conn.getName()%>Struct out, int rowNum) throws Exception {
-<%  for (columnIndex = 0; columnIndex < listColumns.size(); columnIndex++) {
-		IMetadataColumn column = listColumns.get(columnIndex);
-		boolean trim = trimMap.get(columnIndex);
-		boolean useLast = useLastMap.get(columnIndex);
-		String type = column.getTalendType();
-		if ("id_String".equals(type)) { %>
- 		try {
-<%			if (readCommentMap.get(columnIndex)) { %>
-			out.<%=column.getLabel()%> = sheetInput.getCommentCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
-<%			} else { %>
-			out.<%=column.getLabel()%> = sheetInput.getStringCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
-<%          } %>
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_Integer".equals(type)) { %>	
- 		try {
-    		out.<%=column.getLabel()%> = sheetInput.getIntegerCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_Long".equals(type)) { %>	
- 		try {
-    		out.<%=column.getLabel()%> = sheetInput.getLongCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_BigDecimal".equals(type)) { %>	
- 		try {
-			out.<%=column.getLabel()%> = sheetInput.getBigDecimalCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_Double".equals(type)) { %>	
- 		try {
-			out.<%=column.getLabel()%> = sheetInput.getDoubleCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_Float".equals(type)) { %>	
- 		try {
-			out.<%=column.getLabel()%> = sheetInput.getFloatCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_Short".equals(type)) { %>	
- 		try {
-			out.<%=column.getLabel()%> = sheetInput.getShortCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_Date".equals(type)) { %>
- 		try {
-			out.<%=column.getLabel()%> = sheetInput.getDateCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=column.getPattern()%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else if ("id_Boolean".equals(type)) { %>
- 		try {
-			out.<%=column.getLabel()%> = sheetInput.getBooleanCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
-<%      } else { %>
- 		try {
-			out.<%=column.getLabel()%> = sheetInput.getStringCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
-		} catch (Exception e) {
-<%      if (ignoreErrorMap.get(columnIndex)) { %>
-            <%=cid%>.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
-<%	    } else { %>
-            <%=cid%>.error("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage(), e);
-			throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
-<%      } %>
-		}
+<%		for (columnIndex = 0; columnIndex < listColumns.size(); columnIndex++) {
+			IMetadataColumn column = listColumns.get(columnIndex);
+			boolean trim = trimMap.get(columnIndex);
+			boolean useLast = useLastMap.get(columnIndex);
+			String type = column.getTalendType();
+			if ("id_String".equals(type)) { %>
+	 		try {
+<%				if (readCommentMap.get(columnIndex)) { %>
+				out.<%=column.getLabel()%> = sheetInput.getCommentCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
+<%				} else if (readStyleMap.get(columnIndex)) { %>
+				out.<%=column.getLabel()%> = sheetInput.getCellStyle(<%=columnIndex%>);
+<%				} else { %>
+				out.<%=column.getLabel()%> = sheetInput.getStringCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
+<%          	} %>
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Integer".equals(type)) { %>	
+	 		try {
+	    		out.<%=column.getLabel()%> = sheetInput.getIntegerCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Long".equals(type)) { %>	
+	 		try {
+	    		out.<%=column.getLabel()%> = sheetInput.getLongCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_BigDecimal".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getBigDecimalCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Double".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getDoubleCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Float".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getFloatCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Short".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getShortCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Date".equals(type)) { %>
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getDateCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=column.getPattern()%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Boolean".equals(type)) { %>
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getBooleanCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else { %>
+			// unknown cell data type, so we take it as String
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getStringCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+			
 <%      }
-    } %>		
-		}
-<%  } %>	
-	}
+    	} // for (columnIndex = 0 %>		
+		} // end of fill method
+<%  } // if (conn != null) %>	
+	} // end of Helper class
 	
 	Helper_<%=cid%> <%=cid%>_helper = new Helper_<%=cid%>(<%=cid%>);
 	// row counter
@@ -287,7 +284,7 @@
     	globalMap.put("<%=cid%>_CURRENT_ROW_INDEX", <%=cid%>.getCurrentRowIndex() + 1);
 <%  if (rowEndIndexStr != null && rowEndIndexStr.isEmpty() == false) { %>
 		if (<%=rowEndIndexStr%> > 0 && nb_line_<%=cid%> >= <%=rowEndIndexStr%>) {
-		    System.out.println("Stop reading at row " + <%=rowEndIndexStr%>);
+		    <%=cid%>.info("Stop reading at row " + <%=rowEndIndexStr%>);
 			break;
 		}
 <%  } %>
@@ -306,5 +303,11 @@
 <%  } %>
 <%  if (conn != null) { %>
     	<%=conn.getName()%> = new <%=conn.getName()%>Struct(); // to avoid cell value reusing in errors
+    	try {
 		<%=cid%>_helper.fill(<%=conn.getName()%>, nb_line_<%=cid%>);
+		} catch (Exception ex) {
+			globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
+			<%=cid%>.error(ex.getMessage(), ex);
+			throw ex;
+		}
 <%  } %>
