@@ -44,13 +44,16 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.functions.Function;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -817,7 +820,7 @@ public class SpreadsheetFile {
 			}
 			if (fontDecoration != null && fontDecoration.isEmpty() == false) {
 				if (fontDecoration.contains("b")) {
-					f.setBoldweight(Font.BOLDWEIGHT_BOLD);
+					f.setBold(true);
 				}
 				if (fontDecoration.contains("i")) {
 					f.setItalic(true);
@@ -836,19 +839,19 @@ public class SpreadsheetFile {
 				short color = Short.parseShort(bgColor);
 				style.setFillForegroundColor(color);
 				//style.setFillBackgroundColor(color);
-				style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			}
 			if (textAlign != null && textAlign.isEmpty() == false) {
 				if ("center".equalsIgnoreCase(textAlign)) {
-					style.setAlignment(CellStyle.ALIGN_CENTER);
+					style.setAlignment(HorizontalAlignment.CENTER);
 				} else if ("left".equalsIgnoreCase(textAlign)) {
-					style.setAlignment(CellStyle.ALIGN_LEFT);
+					style.setAlignment(HorizontalAlignment.LEFT);
 				} else if ("right".equals(textAlign)) {
-					style.setAlignment(CellStyle.ALIGN_RIGHT);
+					style.setAlignment(HorizontalAlignment.RIGHT);
 				}
 			}
 			if (buttomBorder) {
-				style.setBorderBottom(CellStyle.BORDER_MEDIUM);
+				style.setBorderBottom(BorderStyle.MEDIUM);
 				style.setBottomBorderColor((short) 9);
 			}
 			namedStyles.put(styleName, style);

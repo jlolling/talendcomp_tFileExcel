@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -111,7 +112,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private String getStringCellValue(Cell cell) throws Exception {
 		String value = null;
 		if (cell != null) {
-			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			if (cell.getCellTypeEnum() == CellType.FORMULA) {
 				try {
 					value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 				} catch (Exception e) {

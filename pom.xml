@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.cimt.talendcomp</groupId>
 	<artifactId>cimt-talendcomp-excel</artifactId>
-	<name>Excel Output POI</name>
+	<name>Talend Excel Components</name>
 	<organization>
-		<name>Jan Lolling</name>
-		<url>http://www.jan-lolling.de</url>
+		<name>cimt AG</name>
+		<url>http://www.cimt-ag.de</url>
 	</organization>
 	<build>
 		<plugins>
@@ -20,39 +20,117 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
+				<groupId>de.cimt.talendcomp</groupId>
+				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
+				<version>1.1</version>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<id>tFileExcelWorkbookOpen</id>
+						<phase>install</phase>
 						<goals>
-							<goal>jar</goal>
+							<goal>component</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>talend_component/tFileExcelWorkbookOpen</outputDirectory>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
+							<componentName>tFileExcelWorkbookOpen</componentName>
 						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
 					<execution>
-						<id>copy-dependencies</id>
-						<phase>prepare-package</phase>
+						<id>tFileExcelWorkbookSave</id>
+						<phase>install</phase>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>component</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.basedir}/talend_component/tFileExcelWorkbookOpen</outputDirectory>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-							<includeScope>runtime</includeScope>
+							<componentName>tFileExcelWorkbookSave</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelSheetInput</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelSheetInput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelSheetOutput</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelSheetOutput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelSheetList</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelSheetList</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelSheetCellOutput</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelSheetCellOutput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelReferencedCellInput</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelReferencedCellInput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelReferencedCellOutput</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelReferencedCellOutput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelNamedCellInput</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelNamedCellInput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelNamedCellOutput</id>
+						<phase>install</phase>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelNamedCellOutput</componentName>
+							<noJars>true</noJars>
 						</configuration>
 					</execution>
 				</executions>
@@ -68,6 +146,18 @@
 				<exclusion>
 					<artifactId>stax-api</artifactId>
 					<groupId>stax</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.7.2</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>xml-apis</artifactId>
+					<groupId>xml-apis</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>

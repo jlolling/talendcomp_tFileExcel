@@ -4,8 +4,10 @@ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -147,13 +149,15 @@ public class StyleUtil {
 
 	public String getAlignmentCSS(CellStyle cellStyle) {
 		StringBuilder css = new StringBuilder();
-		short align = cellStyle.getAlignment();
+		HorizontalAlignment align = cellStyle.getAlignmentEnum();
 		switch (align) {
-			case CellStyle.ALIGN_CENTER: css.append("text-align:center"); break;
-			case CellStyle.ALIGN_FILL: css.append("text-align:fill"); break;
-			case CellStyle.ALIGN_JUSTIFY: css.append("text-align:justified"); break;
-			case CellStyle.ALIGN_LEFT: css.append("text-align:left"); break;
-			case CellStyle.ALIGN_RIGHT: css.append("text-align:right"); break;
+			case CENTER: css.append("text-align:center"); break;
+			case FILL: css.append("text-align:fill"); break;
+			case JUSTIFY: css.append("text-align:justified"); break;
+			case LEFT: css.append("text-align:left"); break;
+			case RIGHT: css.append("text-align:right"); break;
+		default:
+			break;
 		}
 		if (css.length() > 0) {
 			css.append(";");
@@ -176,38 +180,40 @@ public class StyleUtil {
 	}
 
 	public String getBorderCSS(CellStyle cellStyle) {
-		short borderStyle = cellStyle.getBorderBottom();
+		BorderStyle borderStyle = cellStyle.getBorderBottomEnum();
 		StringBuilder css = new StringBuilder();
 		String side = "bottom";
 		css.append(getBorderStyleCSS(borderStyle, side));
 		side = "top";
-		borderStyle = cellStyle.getBorderTop();
+		borderStyle = cellStyle.getBorderTopEnum();
 		css.append(getBorderStyleCSS(borderStyle, side));
 		side = "left";
-		borderStyle = cellStyle.getBorderLeft();
+		borderStyle = cellStyle.getBorderLeftEnum();
 		css.append(getBorderStyleCSS(borderStyle, side));
 		side = "right";
-		borderStyle = cellStyle.getBorderRight();
+		borderStyle = cellStyle.getBorderRightEnum();
 		css.append(getBorderStyleCSS(borderStyle, side));
 		return css.toString();
 	}
 
-	private String getBorderStyleCSS(short borderStyle, String side) {
+	private String getBorderStyleCSS(BorderStyle borderStyle, String side) {
 		StringBuilder css = new StringBuilder();
 		switch (borderStyle) {
-			case CellStyle.BORDER_NONE: css.append("border-" + side + "-style:none"); break;
-			case CellStyle.BORDER_DASH_DOT: css.append("border-" + side + "-style:dashed"); break;
-			case CellStyle.BORDER_DASH_DOT_DOT: css.append("border-" + side + "-style:dashed"); break;
-			case CellStyle.BORDER_DASHED: css.append("border-" + side + "-style:dashed"); break;
-			case CellStyle.BORDER_DOTTED: css.append("border-" + side + "-style:dotted"); break;
-			case CellStyle.BORDER_DOUBLE: css.append("border-" + side + "-style:double"); break;
-			case CellStyle.BORDER_HAIR: css.append("border-" + side + "-style:solid;border-" + side + "-with:thin"); break;
-			case CellStyle.BORDER_MEDIUM: css.append("border-" + side + "-style:solid;border-" + side + "-with:2px"); break;
-			case CellStyle.BORDER_MEDIUM_DASH_DOT: css.append("border-" + side + "-style:dashed;border-" + side + "-with:1px"); break;
-			case CellStyle.BORDER_MEDIUM_DASHED: css.append("border-" + side + "-style:dashed;border-" + side + "-with:1px"); break;
-			case CellStyle.BORDER_MEDIUM_DASH_DOT_DOT: css.append("border-" + side + "-style:dotted; border-" + side + "-with:1px"); break;
-			case CellStyle.BORDER_THIN: css.append("border-" + side + "-style:solid;border-" + side + "-with:thin"); break;
-			case CellStyle.BORDER_THICK: css.append("border-" + side + "-style:solid;border-" + side + "-with:2px"); break;
+			case NONE: css.append("border-" + side + "-style:none"); break;
+			case DASH_DOT: css.append("border-" + side + "-style:dashed"); break;
+			case DASH_DOT_DOT: css.append("border-" + side + "-style:dashed"); break;
+			case DASHED: css.append("border-" + side + "-style:dashed"); break;
+			case DOTTED: css.append("border-" + side + "-style:dotted"); break;
+			case DOUBLE: css.append("border-" + side + "-style:double"); break;
+			case HAIR: css.append("border-" + side + "-style:solid;border-" + side + "-with:thin"); break;
+			case MEDIUM: css.append("border-" + side + "-style:solid;border-" + side + "-with:2px"); break;
+			case MEDIUM_DASH_DOT: css.append("border-" + side + "-style:dashed;border-" + side + "-with:1px"); break;
+			case MEDIUM_DASHED: css.append("border-" + side + "-style:dashed;border-" + side + "-with:1px"); break;
+			case MEDIUM_DASH_DOT_DOT: css.append("border-" + side + "-style:dotted; border-" + side + "-with:1px"); break;
+			case THIN: css.append("border-" + side + "-style:solid;border-" + side + "-with:thin"); break;
+			case THICK: css.append("border-" + side + "-style:solid;border-" + side + "-with:2px"); break;
+		default:
+			break;
 		}
 		if (css.length() > 0) {
 			css.append(";");

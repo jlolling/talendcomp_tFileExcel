@@ -1,54 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<COMPONENT>
-	<HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL"
-		DATA_AUTO_PROPAGATE="false" SCHEMA_AUTO_PROPAGATE="false" HAS_CONDITIONAL_OUTPUTS="false" PLATEFORM="ALL"
-		RELEASE_DATE="20170102" SERIAL="" STARTABLE="false" STATUS="PROD"
-		VERSION="7.4">
-		<SIGNATURE />
-	</HEADER>
-	<FAMILIES>
-		<FAMILY>File/Spreadsheet</FAMILY>
-	</FAMILIES>
-	<DOCUMENTATION>
-		<URL>
-		</URL>
-	</DOCUMENTATION>
-	<CONNECTORS>
-		<CONNECTOR CTYPE="FLOW" MAX_INPUT="1" MAX_OUTPUT="1" />
-		<CONNECTOR CTYPE="ITERATE" MAX_INPUT="1" MAX_OUTPUT="1" />
-		<CONNECTOR CTYPE="SUBJOB_OK" MAX_INPUT="1" />
-		<CONNECTOR CTYPE="SUBJOB_ERROR" MAX_INPUT="1" />
-		<CONNECTOR CTYPE="COMPONENT_OK" />
-		<CONNECTOR CTYPE="COMPONENT_ERROR" />
-		<CONNECTOR CTYPE="RUN_IF" />
-	</CONNECTORS>
-	<PARAMETERS>
-		<PARAMETER NAME="WORKBOOK" FIELD="COMPONENT_LIST"
-			FILTER="tFileExcelWorkbookOpen" NUM_ROW="2" REQUIRED="true" />
-		<PARAMETER NAME="SCHEMA" FIELD="SCHEMA_TYPE" REQUIRED="true" NUM_ROW="5">
-			<TABLE READONLY="false">
-				<COLUMN NAME="CELL_REF" TYPE="id_String" LENGTH="64"
-					READONLY="true" CUSTOM="true" COMMENT="Cell reference (optional with sheet)" />
-				<COLUMN NAME="SHEET_NAME_OR_INDEX" TYPE="id_Object" LENGTH="32"
-					READONLY="true" CUSTOM="true" COMMENT="Sheet name or index (0-based) will be used if not given in Excel cell reference" />
-				<COLUMN NAME="CELL_ROW" TYPE="id_Integer" LENGTH="10"
-					READONLY="true" CUSTOM="true" COMMENT="Row index (1-based) will be used if Excel cell reference is empty" />
-				<COLUMN NAME="CELL_COL" TYPE="id_Object" LENGTH="4"
-					READONLY="true" CUSTOM="true" COMMENT="Column as index (0-based) or name (A-based) will be used if Excel cell reference is empty" />
-				<COLUMN NAME="CELL_VALUE_OBJECT" TYPE="id_Object"
-					READONLY="true" CUSTOM="true" COMMENT="Cell value as Object" />
-				<COLUMN NAME="CELL_COMMENT" TYPE="id_String"
-					READONLY="true" CUSTOM="true" LENGTH="255" COMMENT="Cell comment text" />
-				<COLUMN NAME="CELL_COMMENT_AUTHOR" TYPE="id_String"
-					READONLY="true" CUSTOM="true" LENGTH="255" COMMENT="Cell comment author"/>
-			</TABLE>
-		</PARAMETER>
-	</PARAMETERS>
-	<ADVANCED_PARAMETERS>
-	</ADVANCED_PARAMETERS>
-	<CODEGENERATION>
-	</CODEGENERATION>
-	<RETURNS>
-		<RETURN AVAILABILITY="FLOW" NAME="NB_LINE" TYPE="id_Integer" />
-	</RETURNS>
+
+<COMPONENT> 
+  <HEADER AUTHOR="cimt AG" COMPATIBILITY="ALL" DATA_AUTO_PROPAGATE="false" SCHEMA_AUTO_PROPAGATE="false" HAS_CONDITIONAL_OUTPUTS="false" PLATEFORM="ALL" RELEASE_DATE="20170108" SERIAL="" STARTABLE="false" STATUS="PROD" VERSION="8.0"> 
+    <SIGNATURE/> 
+  </HEADER>  
+  <FAMILIES> 
+    <FAMILY>File/Spreadsheet</FAMILY> 
+  </FAMILIES>  
+  <DOCUMENTATION> 
+    <URL/> 
+  </DOCUMENTATION>  
+  <CONNECTORS> 
+    <CONNECTOR CTYPE="FLOW" MAX_INPUT="1" MAX_OUTPUT="1"/>  
+    <CONNECTOR CTYPE="ITERATE" MAX_INPUT="1" MAX_OUTPUT="1"/>  
+    <CONNECTOR CTYPE="SUBJOB_OK" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="SUBJOB_ERROR" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="COMPONENT_OK"/>  
+    <CONNECTOR CTYPE="COMPONENT_ERROR"/>  
+    <CONNECTOR CTYPE="RUN_IF"/> 
+  </CONNECTORS>  
+  <PARAMETERS> 
+    <PARAMETER NAME="WORKBOOK" FIELD="COMPONENT_LIST" FILTER="tFileExcelWorkbookOpen" NUM_ROW="2" REQUIRED="true"/>  
+    <PARAMETER NAME="SCHEMA" FIELD="SCHEMA_TYPE" REQUIRED="true" NUM_ROW="5"> 
+      <TABLE READONLY="false"> 
+        <COLUMN NAME="CELL_REF" TYPE="id_String" LENGTH="64" READONLY="true" CUSTOM="true" COMMENT="Cell reference (optional with sheet)"/>  
+        <COLUMN NAME="SHEET_NAME_OR_INDEX" TYPE="id_Object" LENGTH="32" READONLY="true" CUSTOM="true" COMMENT="Sheet name or index (0-based) will be used if not given in Excel cell reference"/>  
+        <COLUMN NAME="CELL_ROW" TYPE="id_Integer" LENGTH="10" READONLY="true" CUSTOM="true" COMMENT="Row index (1-based) will be used if Excel cell reference is empty"/>  
+        <COLUMN NAME="CELL_COL" TYPE="id_Object" LENGTH="4" READONLY="true" CUSTOM="true" COMMENT="Column as index (0-based) or name (A-based) will be used if Excel cell reference is empty"/>  
+        <COLUMN NAME="CELL_VALUE_OBJECT" TYPE="id_Object" READONLY="true" CUSTOM="true" COMMENT="Cell value as Object"/>  
+        <COLUMN NAME="CELL_COMMENT" TYPE="id_String" READONLY="true" CUSTOM="true" LENGTH="255" COMMENT="Cell comment text"/>  
+        <COLUMN NAME="CELL_COMMENT_AUTHOR" TYPE="id_String" READONLY="true" CUSTOM="true" LENGTH="255" COMMENT="Cell comment author"/> 
+      </TABLE> 
+    </PARAMETER> 
+  </PARAMETERS>  
+  <ADVANCED_PARAMETERS> 
+    <PARAMETER NAME="RELEASE_LABEL" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 8.0 build at: 20170108</DEFAULT>
+    </PARAMETER>
+  </ADVANCED_PARAMETERS>  
+  <CODEGENERATION/>  
+  <RETURNS> 
+    <RETURN AVAILABILITY="FLOW" NAME="NB_LINE" TYPE="id_Integer"/> 
+  </RETURNS>
 </COMPONENT>
