@@ -22,11 +22,10 @@
 			<plugin>
 				<groupId>de.cimt.talendcomp</groupId>
 				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
-				<version>1.1</version>
+				<version>1.5</version>
 				<executions>
 					<execution>
 						<id>tFileExcelWorkbookOpen</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -36,7 +35,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelWorkbookSave</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -47,7 +45,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelSheetInput</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -58,7 +55,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelSheetOutput</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -69,7 +65,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelSheetList</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -80,7 +75,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelSheetCellOutput</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -91,7 +85,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelReferencedCellInput</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -102,7 +95,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelReferencedCellOutput</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -113,7 +105,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelNamedCellInput</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -124,7 +115,6 @@
 					</execution>
 					<execution>
 						<id>tFileExcelNamedCellOutput</id>
-						<phase>install</phase>
 						<goals>
 							<goal>component</goal>
 						</goals>
@@ -174,5 +164,5 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<version>8.0</version>
+	<version>8.1</version>
 </project>

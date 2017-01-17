@@ -545,23 +545,43 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
+	public Date getTimeCellValue(int columnIndex, boolean nullable, boolean useLast, String pattern) throws Exception {
+		Date value = null;
+		Cell cell = getCell(columnIndex);
+		if (cell == null) {
+			if (nullable == false) {
+				throw new Exception("Cell in column " + columnIndex + " has no value!");
+			}
+		} else {
+			value = getTimeCellValue(cell, pattern);
+		}
+		if (useLast && value == null) {
+			value = (Date) lastValueMap.get(columnIndex);
+		} else {
+			lastValueMap.put(columnIndex, value);
+		}
+		if (value == null && nullable == false) {
+			throw new Exception("Cell in column " + columnIndex + " has no value!");
+		}
+		return value;
+	}
+
 	private Date parseDate(String s, String pattern) throws ParseException {
 		if (s != null && s.isEmpty() == false) {
-			if (pattern == null || pattern.isEmpty()) {
-				return GenericDateUtil.parseDate(s);
-			} else {
-				SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-				try {
-					return sdf.parse(s);
-				} catch (ParseException pe) {
-					return GenericDateUtil.parseDate(s);
-				}
-			}
+			return GenericDateUtil.parseDate(s, pattern);
 		} else {
 			return null;
 		}
 	}
 	
+	private Date parseTime(String s, String pattern) throws ParseException {
+		if (s != null && s.isEmpty() == false) {
+			return GenericDateUtil.parseTime(s, pattern);
+		} else {
+			return null;
+		}
+	}
+
 	private Date getDateCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
@@ -592,6 +612,36 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
+	private Date getTimeCellValue(Cell cell, String pattern) throws Exception {
+		Date value = null;
+		if (cell != null) {
+			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+				try {
+					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+					return parseTime(s, pattern);
+				} catch (Exception e) {
+					if (useCachedValuesForFailedEvaluations) {
+						int cachedFormulaType = cell.getCachedFormulaResultType();
+						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+							String s = cell.getStringCellValue();
+							value = parseDate(s, pattern);
+						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+							value = cell.getDateCellValue();
+						}
+					} else {
+						throw e;
+					}
+				}
+			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+				value = cell.getDateCellValue();
+			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+				String s = cell.getStringCellValue();
+				value = parseTime(s, pattern);
+			}
+		}
+		return value;
+	}
+
 	public boolean readNextRow() {
 		int rowIndex = rowStartIndex + currentDatasetNumber;
 		if (isCreateStreamingXMLWorkbook()) {

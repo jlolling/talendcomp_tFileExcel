@@ -163,6 +163,7 @@
 			boolean trim = trimMap.get(columnIndex);
 			boolean useLast = useLastMap.get(columnIndex);
 			String type = column.getTalendType();
+			String comment = column.getComment();
 			if ("id_String".equals(type)) { %>
 	 		try {
 <%				if (readCommentMap.get(columnIndex)) { %>
@@ -241,7 +242,11 @@
 			}
 <%      	} else if ("id_Date".equals(type)) { %>
 	 		try {
+<%				if ("time".equals(comment)) { %>
+				out.<%=column.getLabel()%> = sheetInput.getTimeCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=column.getPattern()%>);
+<%              } else { %>
 				out.<%=column.getLabel()%> = sheetInput.getDateCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=column.getPattern()%>);
+<%				} %>
 			} catch (Exception e) {
 <%      	if (ignoreErrorMap.get(columnIndex)) { %>
 	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
