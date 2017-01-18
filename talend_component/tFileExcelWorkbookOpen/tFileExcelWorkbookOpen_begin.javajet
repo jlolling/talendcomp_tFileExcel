@@ -23,15 +23,15 @@
 		for (Map<String, String> entry : functionList) {
 			String fName = entry.get("FUNC_NAME");
 			String fClass = entry.get("FUNC_CLASS"); %>
-			de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile.registerFunction(<%=fName%>, <%=fClass%>);
+			de.cimt.talendcomp.excel.SpreadsheetFile.registerFunction(<%=fName%>, <%=fClass%>);
 <%		}
 	}
     boolean registerBackportFunctions = "true".equals(ElementParameterParser.getValue(node, "__REGISTER_BACKPORT_FUNCTIONS__"));
 %>
-	de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile();
+	de.cimt.talendcomp.excel.SpreadsheetFile <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetFile();
 <%  if (registerBackportFunctions) { %>
     // register additional backported functions like IFERROR
-    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile.registerBackportFunctions();
+    de.cimt.talendcomp.excel.SpreadsheetFile.registerBackportFunctions();
 <%  } %>	
 	<%=cid%>.setCreateStreamingXMLWorkbook(<%=createStreamingWorkbook%>);
 <%  if (createEmptyWorkbook) {%>

@@ -90,7 +90,7 @@
 	}
 	boolean skipEmptyRows = "true".equals(ElementParameterParser.getValue(node, "__SKIP_EMPTY_ROW__"));
 %>
-    final de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput();
+    final de.cimt.talendcomp.excel.SpreadsheetInput <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetInput();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
     <%=cid%>.useSheet(<%=sheetName%>);
     globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName());
@@ -130,9 +130,9 @@
 	// Helper class to reduce the byte code footprint
 	class Helper_<%=cid%> {
 		
-		private de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput sheetInput = null;
+		private de.cimt.talendcomp.excel.SpreadsheetInput sheetInput = null;
 		
-		public Helper_<%=cid%>(final de.cimt.talendcomp.tfileexcelpoi.SpreadsheetInput sheetInput) {
+		public Helper_<%=cid%>(final de.cimt.talendcomp.excel.SpreadsheetInput sheetInput) {
 			this.sheetInput = sheetInput;
 		}
 	

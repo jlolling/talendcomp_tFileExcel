@@ -18,7 +18,7 @@
     boolean encrypt = "true".equals(ElementParameterParser.getValue(node, "__ENCRYPT_FILE__"));
     String password = ElementParameterParser.getValue(node, "__PASSWORD__");
 %>
-	de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile();
+	de.cimt.talendcomp.excel.SpreadsheetFile <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetFile();
     // set the workbook
 	<%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openCompName%>"));
 <%  if (evaluateFomulas) { %>
@@ -51,7 +51,7 @@
    // renames the original file into a temp file and rewrite it again as encrypted file
    try {
    <%=cid%>.info("Encrypt file: " + <%=cid%>.getOutputFile());
-   de.cimt.talendcomp.tfileexcelpoi.SpreadsheetFile.encrypt(<%=cid%>.getOutputFile(), <%=password%>);
+   de.cimt.talendcomp.excel.SpreadsheetFile.encrypt(<%=cid%>.getOutputFile(), <%=password%>);
    <%=cid%>.info("Done.");
    } catch (Exception e) {
    		<%=cid%>.error("Exncryption of file failed: " + e.getMessage(), e);

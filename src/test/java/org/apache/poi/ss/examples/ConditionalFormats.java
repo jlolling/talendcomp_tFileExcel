@@ -24,7 +24,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput;
+import de.cimt.talendcomp.excel.SpreadsheetOutput;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -11,7 +11,7 @@
     String cid = node.getUniqueName();
     String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
 %>
-    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
+    de.cimt.talendcomp.excel.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetOutput();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
 	 // row counter
     int nb_line_<%=cid%> = 0;

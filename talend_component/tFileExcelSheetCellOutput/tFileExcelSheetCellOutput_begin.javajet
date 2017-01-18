@@ -15,7 +15,7 @@
     boolean createSheetAsCopy = "true".equals(ElementParameterParser.getValue(node, "__CREATE_SHEET_AS_COPY__"));
     String sourceSheetName = ElementParameterParser.getValue(node, "__SOURCE_SHEET_NAME__");
 %>
-    de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
+    de.cimt.talendcomp.excel.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetOutput();
     <%=cid%>.setDateFormatPattern(<%=dateFormat%>);
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
 <%  if (sheetName != null && sheetName.isEmpty() == false) {

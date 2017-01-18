@@ -81,7 +81,7 @@
 	String groupColumns = ElementParameterParser.getValue(node, "__GROUP_COLS__");
 	if (writeColumns) appendRows = false;
 %>
-    final de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.tfileexcelpoi.SpreadsheetOutput();
+    final de.cimt.talendcomp.excel.SpreadsheetOutput <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetOutput();
     <%=cid%>.setDebug(<%=debug%>);
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
 <%  if (sheetName != null && sheetName.isEmpty() == false) {

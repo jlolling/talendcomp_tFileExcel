@@ -7,6 +7,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.cimt.talendcomp.excel.SpreadsheetFile;
+import de.cimt.talendcomp.excel.SpreadsheetInput;
+import de.cimt.talendcomp.excel.SpreadsheetOutput;
+
 
 public class TestSpreadsheetFile {
 	
