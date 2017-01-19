@@ -545,7 +545,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	public Date getTimeCellValue(int columnIndex, boolean nullable, boolean useLast, String pattern) throws Exception {
+	public Date getDurationCellValue(int columnIndex, boolean nullable, boolean useLast, String pattern) throws Exception {
 		Date value = null;
 		Cell cell = getCell(columnIndex);
 		if (cell == null) {
@@ -553,7 +553,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 				throw new Exception("Cell in column " + columnIndex + " has no value!");
 			}
 		} else {
-			value = getTimeCellValue(cell, pattern);
+			value = getDurationCellValue(cell, pattern);
 		}
 		if (useLast && value == null) {
 			value = (Date) lastValueMap.get(columnIndex);
@@ -574,9 +574,9 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		}
 	}
 	
-	private Date parseTime(String s, String pattern) throws ParseException {
+	private Date parseDuration(String s, String pattern) throws ParseException {
 		if (s != null && s.isEmpty() == false) {
-			return GenericDateUtil.parseTime(s, pattern);
+			return GenericDateUtil.parseDuration(s, pattern);
 		} else {
 			return null;
 		}
@@ -612,13 +612,13 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Date getTimeCellValue(Cell cell, String pattern) throws Exception {
+	private Date getDurationCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
 			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
-					return parseTime(s, pattern);
+					return parseDuration(s, pattern);
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
 						int cachedFormulaType = cell.getCachedFormulaResultType();
@@ -633,10 +633,10 @@ public class SpreadsheetInput extends SpreadsheetFile {
 					}
 				}
 			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-				value = cell.getDateCellValue();
+				return new Date(GenericDateUtil.parseDuration(cell.getNumericCellValue()));
 			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 				String s = cell.getStringCellValue();
-				value = parseTime(s, pattern);
+				value = parseDuration(s, pattern);
 			}
 		}
 		return value;

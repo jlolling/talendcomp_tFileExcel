@@ -3,6 +3,7 @@ package de.cimt.talendcomp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -17,60 +18,83 @@ public class GenericDateUtil {
 	
 	private static ThreadLocal<DateParser> threadLocal = new ThreadLocal<DateParser>();
 	
+    /**
+     * parseDate: returns the Date from the given text representation
+     * Uses an internal list of patterns to parse the source.
+     * 
+     * @param source the formatted date as String
+     * @return Date object representing the Date
+     */
 	public static Date parseDate(String source) throws ParseException {
 		return parseDate(source, (String[]) null);
 	}
 
     /**
+     * parseDuration: returns the Date from the given text representation containing the time part as duration
+     * Uses an internal list of patterns to parse the source.
+     * 
+     * @param source the formatted time as String
+     * @return Date object representing the duration
+     */
+	public static Date parseDuration(String source) throws ParseException {
+		return parseDuration(source, (String[]) null);
+	}
+
+	/**
      * parseDate: returns the Date from the given text representation
      * Tolerates if the content does not fit to the given pattern and retries it
      * with build in patterns
      * 
-     * {Category} GenericDateUtil
-     * 
-     * {talendTypes} Date
-     * 
-     * {param} String(dateString)
-     * {param} String(suggestedPattern)
-     * 
-     * {example} parseDate(dateString, suggestedPattern).
+     * @param source the formatted time as String
+     * @param suggestedPattern an array of suggested patterns
+     * @return Date object representing the Date
      */
 	public static Date parseDate(String source, String ...suggestedPattern) throws ParseException {
-		DateParser p = threadLocal.get();
-		if (p == null) {
-			p = new DateParser();
-			threadLocal.set(p);
-		}
-		return p.parseDate(source, suggestedPattern);
+		return getDateParser().parseDate(source, suggestedPattern);
 	}
 	
     /**
-     * parseTime: returns the Date from the given text representation which consists only the time part
+     * parseDuration: returns the Date from the given source as duration
      * Tolerates if the content does not fit to the given pattern and retries it
      * with build in patterns
-     * 
-     * {Category} GenericDateUtil
-     * 
-     * {talendTypes} Date
-     * 
-     * {param} String(timeString)
-     * {param} String(suggestedPattern)
-     * 
-     * {example} parseTime(timeString, suggestedPattern).
+     * @param source the formatted time as String
+     * @param suggestedPattern an array of suggested patterns
+     * @return Date object representing the duration
      */
-	public static Date parseTime(String timeString, String ...suggestedPattern) throws ParseException {
+	public static Date parseDuration(String source, String ...suggestedPattern) throws ParseException {
+		return getDateParser().parseDuration(source, suggestedPattern);
+	}
+
+    /**
+     * parseDuration: returns the Date from the given source as duration
+     * Tolerates if the content does not fit to the given pattern and retries it
+     * with build in patterns
+     * @param source date or time as Double in which a 1 is one day
+     * @return Long object representing the duration
+     */
+	public static Long parseDuration(Double source) {
+		return getDateParser().getDuration(source);
+	}
+
+	private static DateParser getDateParser() {
 		DateParser p = threadLocal.get();
 		if (p == null) {
 			p = new DateParser();
 			threadLocal.set(p);
 		}
-		return p.parseTime(timeString, suggestedPattern);
+		return p;
 	}
-
-	static class DateParser {
+	
+	private static class DateParser {
 		
 		private List<String> datePatternList = null;
 		private List<String> timePatternList = null;
+		
+		private static final int SECONDS_PER_MINUTE = 60;
+		private static final int MINUTES_PER_HOUR = 60;
+		private static final int HOURS_PER_DAY = 24;
+		private static final int SECONDS_PER_DAY = (HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE);
+		private static final long DAY_MILLISECONDS = SECONDS_PER_DAY * 1000L;
 		
 		DateParser() {
 			datePatternList = new ArrayList<String>();
@@ -96,20 +120,22 @@ public class GenericDateUtil {
 			datePatternList.add("yyyyMM");
 			datePatternList.add("yyyy");
 			timePatternList = new ArrayList<String>();
-			timePatternList.add("'T'HH:mm:ss.SSSZ");
-			timePatternList.add(" HHmmss");
+			timePatternList.add(" mm'′'ss'″'");
+			timePatternList.add(" mm''ss'\"'");
 			timePatternList.add(" HH'h'mm'm'ss's'");
-			timePatternList.add(" HH'h' mm'm' ss's'");
+			timePatternList.add(" HH'h'mm'm'");
+			timePatternList.add(" mm'm'ss's'");
+			timePatternList.add("'T'HH:mm:ss.SSSZ");
+			timePatternList.add("'T'HH:mm:ss.SSS");
 			timePatternList.add(" HH:mm:ss.SSS");
 			timePatternList.add(" HH:mm:ss");
-			timePatternList.add(" mm''ss'\"'");
-			timePatternList.add(" HH'h'mm'm'");
-			timePatternList.add(" HH'h' mm'm'");
+			timePatternList.add(" mm:ss");
+			timePatternList.add(" HHmmss");
+			timePatternList.add(" mmss");
 		}
 		
-		public Date parseDate(String text, String ... userPattern) throws ParseException {
-			if (text != null) {
-				SimpleDateFormat sdf = new SimpleDateFormat();
+		private Date parseDate(String text, String ... userPattern) throws ParseException {
+			if (text != null && text.trim().isEmpty() == false) {
 				Date dateValue = null;
 				if (userPattern != null) {
 					for (int i = userPattern.length - 1; i >= 0; i--) {
@@ -119,8 +145,9 @@ public class GenericDateUtil {
 						datePatternList.add(0, userPattern[i]);
 					}
 				}
+				SimpleDateFormat sdf = new SimpleDateFormat();
 				for (String pattern : datePatternList) {
-					sdf.applyPattern(pattern);
+					sdf.applyPattern(pattern.trim());
 					try {
 						dateValue = sdf.parse(text);
 						// if we continue here the pattern fits
@@ -152,30 +179,48 @@ public class GenericDateUtil {
 			}
 		}
 
-		public Date parseTime(String text, String ... userPattern) throws ParseException {
-			SimpleDateFormat sdf = new SimpleDateFormat();
-			sdf.setTimeZone(getUTCTimeZone());
-			Date timeValue = null;
-			if (userPattern != null) {
-				for (int i = userPattern.length - 1; i >= 0; i--) {
-					if (timePatternList.contains(userPattern[i])) {
-						timePatternList.remove(userPattern[i]);
+		private Date parseDuration(String text, String ... userPattern) throws ParseException {
+			if (text != null && text.trim().isEmpty() == false) {
+				Date timeValue = null;
+				if (userPattern != null) {
+					for (int i = userPattern.length - 1; i >= 0; i--) {
+						if (timePatternList.contains(userPattern[i])) {
+							timePatternList.remove(userPattern[i]);
+						}
+						timePatternList.add(0, userPattern[i]);
 					}
-					timePatternList.add(0, userPattern[i]);
 				}
-			}
-			for (String pattern : timePatternList) {
-				sdf.applyPattern(pattern.trim());
-				try {
-					timeValue = sdf.parse(text);
-					// if we continue here the pattern fits
-					return timeValue;
-				} catch (ParseException e) {
-					// the pattern obviously does not work
-					continue;
+				SimpleDateFormat sdf = new SimpleDateFormat();
+				sdf.setTimeZone(getUTCTimeZone());
+				for (String pattern : timePatternList) {
+					sdf.applyPattern(pattern.trim());
+					try {
+						timeValue = sdf.parse(text);
+						// if we continue here the pattern fits
+						return timeValue;
+					} catch (ParseException e) {
+						// the pattern obviously does not work
+						continue;
+					}
 				}
+				throw new ParseException("The value: " + text + " could not be parsed to a Date as duration.", 0);
+			} else {
+				return null;
 			}
-			throw new ParseException("The value: " + text + " could not be parsed to a Date (only with time).", 0);
+		}
+		
+		private Long getDuration(Double timeInExcel) {
+			if (timeInExcel != null) {
+		        int wholeDays = (int) Math.floor(timeInExcel);
+		        int millisecondsInDay = (int) ((timeInExcel - wholeDays) * DAY_MILLISECONDS + 0.5);
+		        Calendar cal = Calendar.getInstance(getUTCTimeZone());
+		        cal.setTimeInMillis(0);
+		        cal.set(Calendar.DAY_OF_YEAR, wholeDays + 1);
+		        cal.set(Calendar.MILLISECOND, millisecondsInDay);
+		        return cal.getTimeInMillis();
+			} else {
+				return null;
+			}
 		}
 
 	}
