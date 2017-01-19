@@ -147,30 +147,32 @@ public class GenericDateUtil {
 				}
 				SimpleDateFormat sdf = new SimpleDateFormat();
 				for (String pattern : datePatternList) {
-					sdf.applyPattern(pattern.trim());
-					try {
-						dateValue = sdf.parse(text);
-						// if we continue here the pattern fits
-						// now we know the date is correct, lets try the time part:
-						if (text.length() - pattern.length() >= 6) {
-							// there is more in the text than only the date
-							for (String timepattern : timePatternList) {
-								String dateTimePattern = pattern + timepattern;
-								sdf.applyPattern(dateTimePattern);
-								try {
-									dateValue = sdf.parse(text);
-									// we got it
-									pattern = dateTimePattern;
-									break;
-								} catch (ParseException e1) {
-									// ignore parsing errors, we are trying
+					if (pattern != null) {
+						sdf.applyPattern(pattern.trim());
+						try {
+							dateValue = sdf.parse(text);
+							// if we continue here the pattern fits
+							// now we know the date is correct, lets try the time part:
+							if (text.length() - pattern.length() >= 6) {
+								// there is more in the text than only the date
+								for (String timepattern : timePatternList) {
+									String dateTimePattern = pattern + timepattern;
+									sdf.applyPattern(dateTimePattern);
+									try {
+										dateValue = sdf.parse(text);
+										// we got it
+										pattern = dateTimePattern;
+										break;
+									} catch (ParseException e1) {
+										// ignore parsing errors, we are trying
+									}
 								}
 							}
+							return dateValue;
+						} catch (ParseException e) {
+							// the pattern obviously does not work
+							continue;
 						}
-						return dateValue;
-					} catch (ParseException e) {
-						// the pattern obviously does not work
-						continue;
 					}
 				}
 				throw new ParseException("The value: " + text + " could not be parsed to a Date.", 0);
@@ -193,14 +195,16 @@ public class GenericDateUtil {
 				SimpleDateFormat sdf = new SimpleDateFormat();
 				sdf.setTimeZone(getUTCTimeZone());
 				for (String pattern : timePatternList) {
-					sdf.applyPattern(pattern.trim());
-					try {
-						timeValue = sdf.parse(text);
-						// if we continue here the pattern fits
-						return timeValue;
-					} catch (ParseException e) {
-						// the pattern obviously does not work
-						continue;
+					if (pattern != null) {
+						sdf.applyPattern(pattern.trim());
+						try {
+							timeValue = sdf.parse(text);
+							// if we continue here the pattern fits
+							return timeValue;
+						} catch (ParseException e) {
+							// the pattern obviously does not work
+							continue;
+						}
 					}
 				}
 				throw new ParseException("The value: " + text + " could not be parsed to a Date as duration.", 0);
