@@ -42,7 +42,7 @@ import de.cimt.talendcomp.GenericDateUtil;
 public class SpreadsheetInput extends SpreadsheetFile {
 	
 	private Map<Integer, Object> lastValueMap = new HashMap<Integer, Object>();
-	private SimpleDateFormat defaultDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+	private SimpleDateFormat defaultDateFormat = null;
 	private int maxRowIndex = 0;
 	private int currentRowIndex = 0;
 	private NumberFormat numberFormat = NumberFormat.getInstance();
@@ -66,7 +66,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return styleUtil;
 	}
 	
-	public String getCellStyle(int columnIndex) {
+	public String getCellStyleCSS(int columnIndex) {
 		Cell cell = getCell(columnIndex);
 		if (cell != null) {
 			CellStyle style = cell.getCellStyle();
@@ -82,6 +82,15 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			} else {
 				return "";
 			}
+		}
+	}
+	
+	public CellStyle getCellStyle(int columnIndex) {
+		Cell cell = getCell(columnIndex);
+		if (cell != null) {
+			return cell.getCellStyle();
+		} else {
+			return null;
 		}
 	}
 	
@@ -112,13 +121,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private String getStringCellValue(Cell cell) throws Exception {
 		String value = null;
 		if (cell != null) {
-			if (cell.getCellTypeEnum() == CellType.FORMULA) {
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.FORMULA) {
 				try {
 					value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						int cachedFormulaType = cell.getCachedFormulaResultType();
-						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+						cellType = cell.getCachedFormulaResultTypeEnum();
+						if (cellType == CellType.STRING) {
 							if (returnURLInsteadOfName) {
 								Hyperlink link = cell.getHyperlink();
 								if (link != null) {
@@ -141,21 +151,27 @@ public class SpreadsheetInput extends SpreadsheetFile {
 							} else {
 								value = cell.getStringCellValue();
 							}
-						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+						} else if (cellType == CellType.NUMERIC) {
 							if (DateUtil.isCellDateFormatted(cell)) {
-								Date d = cell.getDateCellValue();
-								value = defaultDateFormat.format(d);
+								if (defaultDateFormat != null) {
+									Date d = cell.getDateCellValue();
+									if (d != null) {
+										value = defaultDateFormat.format(d);
+									}
+								} else {
+									value = getDataFormatter().formatCellValue(cell);
+								}
 							} else {
 								value = numberFormat.format(cell.getNumericCellValue());
 							}
-						} else if (cachedFormulaType == Cell.CELL_TYPE_BOOLEAN) {
+						} else if (cellType == CellType.BOOLEAN) {
 							value = cell.getBooleanCellValue() ? "true" : "false";
 						}
 					} else {
 						throw e;
 					}
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+			} else if (cellType == CellType.STRING) {
 				if (returnURLInsteadOfName) {
 					Hyperlink link = cell.getHyperlink();
 					if (link != null) {
@@ -178,16 +194,15 @@ public class SpreadsheetInput extends SpreadsheetFile {
 				} else {
 					value = cell.getStringCellValue();
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == CellType.NUMERIC) {
 				if (DateUtil.isCellDateFormatted(cell)) {
-					Date d = cell.getDateCellValue();
-					value = defaultDateFormat.format(d);
+					value = getDataFormatter().formatCellValue(cell);
 				} else {
 					value = numberFormat.format(cell.getNumericCellValue());
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+			} else if (cellType == CellType.BOOLEAN) {
 				value = cell.getBooleanCellValue() ? "true" : "false";
-			} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+			} else if (cellType == CellType.BLANK) {
 				value = null;
 			}
 		}
@@ -259,28 +274,31 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		Cell cell = getCell(columnIndex);
 		if (cell == null) {
 			return true;
-		} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
-			return true;
-		} else if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-			try {
-				String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+		} else { 
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.BLANK) {
+				return true;
+			} else if (cellType == CellType.FORMULA) {
+				try {
+					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+					if (s == null || s.trim().isEmpty()) {
+						return true;
+					} else {
+						return false;
+					}
+				} catch (Exception e) {
+					return false;
+				}
+			} else if (cellType == CellType.STRING) {
+				String s = cell.getStringCellValue();
 				if (s == null || s.trim().isEmpty()) {
 					return true;
 				} else {
 					return false;
 				}
-			} catch (Exception e) {
-				return false;
-			}
-		} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-			String s = cell.getStringCellValue();
-			if (s == null || s.trim().isEmpty()) {
-				return true;
 			} else {
 				return false;
 			}
-		} else {
-			return false;
 		}
 	}
 
@@ -326,7 +344,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Double getDoubleCellValue(Cell cell) throws Exception {
 		Double value = null;
 		if (cell != null) {
-			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					if (s != null && s.trim().isEmpty() == false) {
@@ -335,27 +354,27 @@ public class SpreadsheetInput extends SpreadsheetFile {
 					}
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						int cachedFormulaType = cell.getCachedFormulaResultType();
-						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+						cellType = cell.getCachedFormulaResultTypeEnum();
+						if (cellType == CellType.STRING) {
 							String s = cell.getStringCellValue();
 							if (s != null && s.trim().isEmpty() == false) {
 								Number n = numberFormat.parse(s.trim());
 								value = n.doubleValue();
 							}
-						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+						} else if (cellType == CellType.NUMERIC) {
 							value = cell.getNumericCellValue();
 						}
 					} else {
 						throw e;
 					}
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+			} else if (cellType == CellType.STRING) {
 				String s = cell.getStringCellValue();
 				if (s != null && s.trim().isEmpty() == false) {
 					Number n = numberFormat.parse(s.trim());
 					value = n.doubleValue();
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == CellType.NUMERIC) {
 				value = cell.getNumericCellValue();
 			}
 		}
@@ -493,31 +512,32 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Boolean getBooleanCellValue(Cell cell) throws Exception {
 		Boolean value = null;
 		if (cell != null) {
-			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					value = toBool(s);
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						int cachedFormulaType = cell.getCachedFormulaResultType();
-						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+						cellType = cell.getCachedFormulaResultTypeEnum();
+						if (cellType == CellType.STRING) {
 							String s = cell.getStringCellValue();
 							value = toBool(s);
-						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+						} else if (cellType == CellType.NUMERIC) {
 							double s = cell.getNumericCellValue();
 							value = toBool(s);
-						} else if (cachedFormulaType == Cell.CELL_TYPE_BOOLEAN) {
+						} else if (cellType == CellType.BOOLEAN) {
 							value = cell.getBooleanCellValue();
 						}
 					}
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+			} else if (cellType == CellType.STRING) {
 				String s = cell.getStringCellValue();
 				value = toBool(s);
-			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == CellType.NUMERIC) {
 				double s = cell.getNumericCellValue();
 				value = toBool(s);
-			} else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+			} else if (cellType == CellType.BOOLEAN) {
 				value = cell.getBooleanCellValue();
 			}
 		}
@@ -585,27 +605,33 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Date getDateCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
-			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					return parseDate(s, pattern);
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						int cachedFormulaType = cell.getCachedFormulaResultType();
-						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
+						cellType = cell.getCachedFormulaResultTypeEnum();
+						if (cellType == CellType.STRING) {
 							String s = cell.getStringCellValue();
 							value = parseDate(s, pattern);
-						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+						} else if (cellType == CellType.NUMERIC) {
 							value = cell.getDateCellValue();
 						}
 					} else {
 						throw e;
 					}
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-				value = cell.getDateCellValue();
-			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-				String s = cell.getStringCellValue();
+			} else if (cellType == CellType.NUMERIC) {
+				if (DateUtil.isCellDateFormatted(cell)) {
+					value = cell.getDateCellValue();
+				} else {
+					String s = getDataFormatter().formatCellValue(cell);
+					value = parseDate(s, pattern);
+				}
+			} else if (cellType == CellType.STRING) {
+				String s = getDataFormatter().formatCellValue(cell);
 				value = parseDate(s, pattern);
 			}
 		}
@@ -615,27 +641,28 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Date getDurationCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
-			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					return parseDuration(s, pattern);
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						int cachedFormulaType = cell.getCachedFormulaResultType();
-						if (cachedFormulaType == Cell.CELL_TYPE_STRING) {
-							String s = cell.getStringCellValue();
+						cellType = cell.getCachedFormulaResultTypeEnum();
+						if (cellType == CellType.STRING) {
+							String s = getDataFormatter().formatCellValue(cell);
 							value = parseDate(s, pattern);
-						} else if (cachedFormulaType == Cell.CELL_TYPE_NUMERIC) {
+						} else if (cellType == CellType.NUMERIC) {
 							value = cell.getDateCellValue();
 						}
 					} else {
 						throw e;
 					}
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == CellType.NUMERIC) {
 				return new Date(GenericDateUtil.parseDuration(cell.getNumericCellValue()));
-			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-				String s = cell.getStringCellValue();
+			} else if (cellType == CellType.STRING) {
+				String s = getDataFormatter().formatCellValue(cell);
 				value = parseDuration(s, pattern);
 			}
 		}
@@ -686,8 +713,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		for (int i = firstCellNum; i <= lastCellNum; i++) {
 			Cell cell = headerRow.getCell(i);
 			if (cell != null) {
-				int type = cell.getCellType();
-				if (type == Cell.CELL_TYPE_STRING) {
+				CellType cellType = cell.getCellTypeEnum();
+				if (cellType == CellType.STRING) {
 					String name = cell.getStringCellValue();
 					if (name != null && name.trim().isEmpty() == false) {
 						namesFromHeaderRow.put(name.trim().toLowerCase(), i);
@@ -847,8 +874,11 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			return true;
 		} else {
 			for (Cell cell : currentRow) {
-				if (cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-					return false;
+				if (cell != null) {
+					CellType cellType = cell.getCellTypeEnum();
+					if (cellType != CellType.BLANK) {
+						return false;
+					}
 				}
 			}
 			return true;
@@ -861,8 +891,11 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		} else {
 			for (int i : columns) {
 				Cell cell = currentRow.getCell(i);
-				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-					return false;
+				if (cell != null) {
+					CellType cellType = cell.getCellTypeEnum();
+					if (cellType != CellType.BLANK) {
+						return false;
+					}
 				}
 			}
 			return true;

@@ -19,17 +19,6 @@ public class GenericDateUtil {
 	private static ThreadLocal<DateParser> threadLocal = new ThreadLocal<DateParser>();
 	
     /**
-     * parseDate: returns the Date from the given text representation
-     * Uses an internal list of patterns to parse the source.
-     * 
-     * @param source the formatted date as String
-     * @return Date object representing the Date
-     */
-	public static Date parseDate(String source) throws ParseException {
-		return parseDate(source, (String[]) null);
-	}
-
-    /**
      * parseDuration: returns the Date from the given text representation containing the time part as duration
      * Uses an internal list of patterns to parse the source.
      * 
@@ -40,19 +29,6 @@ public class GenericDateUtil {
 		return parseDuration(source, (String[]) null);
 	}
 
-	/**
-     * parseDate: returns the Date from the given text representation
-     * Tolerates if the content does not fit to the given pattern and retries it
-     * with build in patterns
-     * 
-     * @param source the formatted time as String
-     * @param suggestedPattern an array of suggested patterns
-     * @return Date object representing the Date
-     */
-	public static Date parseDate(String source, String ...suggestedPattern) throws ParseException {
-		return getDateParser().parseDate(source, suggestedPattern);
-	}
-	
     /**
      * parseDuration: returns the Date from the given source as duration
      * Tolerates if the content does not fit to the given pattern and retries it
@@ -76,6 +52,30 @@ public class GenericDateUtil {
 		return getDateParser().getDuration(source);
 	}
 
+    /**
+     * parseDate: returns the Date from the given text representation
+     * Uses an internal list of patterns to parse the source.
+     * 
+     * @param source the formatted date as String
+     * @return Date object representing the Date
+     */
+	public static Date parseDate(String source) throws ParseException {
+		return parseDate(source, (String[]) null);
+	}
+
+	/**
+     * parseDate: returns the Date from the given text representation
+     * Tolerates if the content does not fit to the given pattern and retries it
+     * with build in patterns
+     * 
+     * @param source the formatted time as String
+     * @param suggestedPattern an array of suggested patterns
+     * @return Date object representing the Date
+     */
+	public static Date parseDate(String source, String ...suggestedPattern) throws ParseException {
+		return getDateParser().parseDate(source, suggestedPattern);
+	}
+	
 	private static DateParser getDateParser() {
 		DateParser p = threadLocal.get();
 		if (p == null) {
