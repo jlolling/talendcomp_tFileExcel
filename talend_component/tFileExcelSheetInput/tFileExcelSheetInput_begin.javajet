@@ -173,7 +173,7 @@
 <%				if (readCommentMap.get(columnIndex)) { %>
 				out.<%=column.getLabel()%> = sheetInput.getCommentCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
 <%				} else if (readStyleMap.get(columnIndex)) { %>
-				out.<%=column.getLabel()%> = sheetInput.getCellStyle(<%=columnIndex%>);
+				out.<%=column.getLabel()%> = sheetInput.getCellStyleCSS(<%=columnIndex%>);
 <%				} else { %>
 				out.<%=column.getLabel()%> = sheetInput.getStringCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=trim%>, <%=useLast%>);
 <%          	} %>

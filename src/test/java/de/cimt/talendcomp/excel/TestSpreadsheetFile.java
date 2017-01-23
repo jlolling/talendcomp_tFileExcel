@@ -1,15 +1,14 @@
-package de.cimt.talendcomp.tfileexcelpoi;
+package de.cimt.talendcomp.excel;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Date;
+
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Before;
 import org.junit.Test;
-
-import de.cimt.talendcomp.excel.SpreadsheetFile;
-import de.cimt.talendcomp.excel.SpreadsheetInput;
-import de.cimt.talendcomp.excel.SpreadsheetOutput;
 
 
 public class TestSpreadsheetFile {
@@ -144,5 +143,35 @@ public class TestSpreadsheetFile {
 			fail("Initialise workbook failed: " + e.getMessage());
 		}
 	}
-		
+
+	@Test
+	public void testReadDuration() throws Exception {
+		SpreadsheetInput tFileExcelSheetInput_2 = new SpreadsheetInput();
+		tFileExcelSheetInput_2.setInputFile("/var/testdata/excel/time.xls");
+		tFileExcelSheetInput_2.initializeWorkbook();
+		tFileExcelSheetInput_2.useSheet(0);
+		tFileExcelSheetInput_2.setStopAtMissingRow(false);
+		tFileExcelSheetInput_2.setRowStartIndex(0);
+		// configure cell positions
+		tFileExcelSheetInput_2.setDataColumnPosition(0, "B");
+		tFileExcelSheetInput_2.setDataColumnPosition(1, "B");
+		tFileExcelSheetInput_2.setNumberFormatLocale("en", true);
+		tFileExcelSheetInput_2.setDefaultDateFormat("yyyy-MM-dd HH:mm:ss");
+		tFileExcelSheetInput_2.setReturnURLInsteadOfName(false);
+		tFileExcelSheetInput_2.setConcatenateLabelUrl(false);
+		while (tFileExcelSheetInput_2.readNextRow()) {
+			Date durationDate = tFileExcelSheetInput_2.getDurationCellValue(0, true, false, "HH:mm:ss");
+			String agStr = tFileExcelSheetInput_2.getStringCellValue(1, true, true, false);
+			CellStyle style1 = tFileExcelSheetInput_2.getCellStyle(1);
+			String pattern1 = "--";
+			if (style1 != null) {
+				pattern1 = style1.getDataFormatString();
+			}
+			System.out.println();
+			System.out.println("row: " + tFileExcelSheetInput_2.getCurrentRowIndex() + " value: " + durationDate.getTime() + " pattern: " + pattern1);
+			System.out.println("row: " + tFileExcelSheetInput_2.getCurrentRowIndex() + " value: " + agStr + " pattern: " + pattern1);
+		}
+		assertTrue(true);
+	}
+	
 }

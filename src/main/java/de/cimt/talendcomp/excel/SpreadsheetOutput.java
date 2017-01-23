@@ -27,6 +27,7 @@ import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.usermodel.Comment;
@@ -392,7 +393,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			link.setAddress(url);
 			cell.setHyperlink(link);
 		}
-		if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+		if (cell.getCellTypeEnum() == CellType.BLANK) {
 			cell.setCellValue(url);
 		}
 	}
@@ -421,47 +422,47 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				if (s.startsWith("=")) {
 					int rowNum = cell.getRow().getRowNum();
 					cell.setCellFormula(getFormular(s, rowNum));
-					cell.setCellType(Cell.CELL_TYPE_FORMULA);
+					cell.setCellType(CellType.FORMULA);
 				} else {
 					cell.setCellValue(s);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellType(CellType.STRING);
 				}
 			}
 		} else if (value instanceof Integer) {
 			cell.setCellValue((Integer) value);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Boolean) {
 			cell.setCellValue((Boolean) value);
-			cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+			cell.setCellType(CellType.BOOLEAN);
 		} else if (value instanceof Long) {
 			cell.setCellValue((Long) value);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof BigInteger) {
 			cell.setCellValue(((BigInteger) value).longValue());
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof BigDecimal) {
 			cell.setCellValue(((BigDecimal) value).doubleValue());
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Double) {
 			cell.setCellValue((Double) value);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Float) {
 			cell.setCellValue((Float) value);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Short) {
 			cell.setCellValue((Short) value);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Number) {
 			cell.setCellValue(Double.valueOf(((Number) value).doubleValue()));
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof java.util.Date) {
 			cell.setCellValue((java.util.Date) value);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 		} else if (value != null) {
 			cell.setCellValue(value.toString());
-			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellType(CellType.STRING);
 		} else if (writeNullValues && value == null) {
-			cell.setCellType(Cell.CELL_TYPE_BLANK);
+			cell.setCellType(CellType.BLANK);
 		}
 		if (isDataRow(dataRowIndex)) {
 			setupStyle(cell, dataRowIndex);

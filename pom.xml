@@ -164,5 +164,5 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<version>8.1</version>
+	<version>8.2</version>
 </project>

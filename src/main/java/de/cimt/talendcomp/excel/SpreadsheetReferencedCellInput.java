@@ -23,6 +23,7 @@ import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -158,24 +159,25 @@ public class SpreadsheetReferencedCellInput extends SpreadsheetFile {
 				currentCellComment = comment.getString().getString();
 				currentCellCommentAuthor = comment.getAuthor();
 			}
-			if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.BLANK) {
 				currentCellValueClassName = "Object";
-			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+			} else if (cellType == CellType.STRING) {
 				currentCellValueClassName = "String";
 				currentCellValueObject = currentCellValueString;
-			} else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+			} else if (cellType == CellType.BOOLEAN) {
 				currentCellValueClassName = "Boolean";
 				currentCellValueBool = cell.getBooleanCellValue();
 				currentCellValueObject = currentCellValueBool;
-			} else if (cell.getCellType() == Cell.CELL_TYPE_ERROR) {
+			} else if (cellType == CellType.ERROR) {
 				currentCellValueClassName = "Byte";
 				currentCellValueObject = cell.getErrorCellValue();
-			} else if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			} else if (cellType == CellType.FORMULA) {
 				currentCellValueClassName = "String";
 				currentCellFormula = cell.getCellFormula();
 				currentCellValueString = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 				currentCellValueObject = currentCellValueString;
-			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == CellType.NUMERIC) {
 				if (DateUtil.isCellDateFormatted(cell)) {
 					currentCellValueClassName = "java.util.Date";
 					currentCellValueDate = cell.getDateCellValue();
@@ -287,9 +289,10 @@ public class SpreadsheetReferencedCellInput extends SpreadsheetFile {
 	private String getStringCellValue(Cell cell) {
 		String value = null;
 		if (cell != null) {
-			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			CellType cellType = cell.getCellTypeEnum();
+			if (cellType == CellType.FORMULA) {
 				value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
-			} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+			} else if (cellType == CellType.STRING) {
 				if (returnURLInsteadOfName) {
 					Hyperlink link = cell.getHyperlink();
 					if (link != null) {
@@ -312,16 +315,16 @@ public class SpreadsheetReferencedCellInput extends SpreadsheetFile {
 				} else {
 					value = cell.getStringCellValue();
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == CellType.NUMERIC) {
 				if (DateUtil.isCellDateFormatted(cell)) {
 					Date d = cell.getDateCellValue();
 					value = defaultDateFormat.format(d);
 				} else {
 					value = numberFormat.format(cell.getNumericCellValue());
 				}
-			} else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+			} else if (cellType == CellType.BOOLEAN) {
 				value = cell.getBooleanCellValue() ? "true" : "false";
-			} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+			} else if (cellType == CellType.BLANK) {
 				value = null;
 			}
 		}
