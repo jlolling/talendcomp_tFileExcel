@@ -55,7 +55,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean returnURLInsteadOfName = false;
 	private boolean concatenateLabelUrl = false;
 	private boolean findHeaderPosByRegex = false;
-	private boolean useCachedValuesForFailedEvaluations = false;
+	private boolean useCachedValuesForFailedEvaluations = true;
 	private boolean stopAtMissingRow = true;
 	private StyleUtil styleUtil = null; 
 	

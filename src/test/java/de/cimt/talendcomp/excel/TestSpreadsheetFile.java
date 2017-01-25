@@ -174,4 +174,18 @@ public class TestSpreadsheetFile {
 		assertTrue(true);
 	}
 	
+	public void testWriteReadDate() throws Exception {
+		SpreadsheetOutput out = new SpreadsheetOutput();
+		out.setDebug(true);
+		out.createEmptyXLSXWorkbook();
+		out.initializeWorkbook();
+		out.setTargetSheetName("DateTime");
+		out.initializeSheet();
+		out.setOutputFile("/var/testdata/excel/test_write_read_date.xlsx");
+		out.setRowStartIndex(1 - 1);
+		out.setColumnStart("A");
+		out.setDataFormat(1, "dd.MM.yyyy");
+		
+	}
+	
 }
