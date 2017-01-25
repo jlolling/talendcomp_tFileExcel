@@ -4,6 +4,7 @@
 	<groupId>de.cimt.talendcomp</groupId>
 	<artifactId>cimt-talendcomp-excel</artifactId>
 	<name>Talend Excel Components</name>
+	<version>8.3</version>
 	<organization>
 		<name>cimt AG</name>
 		<url>http://www.cimt-ag.de</url>
@@ -164,5 +165,4 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<version>8.3</version>
 </project>
