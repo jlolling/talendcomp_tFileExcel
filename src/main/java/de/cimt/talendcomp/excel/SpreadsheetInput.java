@@ -45,7 +45,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private SimpleDateFormat defaultDateFormat = null;
 	private int maxRowIndex = 0;
 	private int currentRowIndex = 0;
-	private NumberFormat numberFormat = NumberFormat.getInstance();
+	private NumberFormat defaultNumberFormat = null;
+	private Map<Integer, NumberFormat> numberFormatColumnMap = new HashMap<Integer, NumberFormat>();
 	private int headerRowIndex = 0;
 	private Map<String, Integer> namesFromHeaderRow = new HashMap<String, Integer>();
 	private Map<Integer, String> namesFromSchema = new HashMap<Integer, String>();
@@ -57,7 +58,32 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean findHeaderPosByRegex = false;
 	private boolean useCachedValuesForFailedEvaluations = true;
 	private boolean stopAtMissingRow = true;
-	private StyleUtil styleUtil = null; 
+	private StyleUtil styleUtil = null;
+	private boolean overrideExcelNumberFormat = false;
+	
+	public SpreadsheetInput() {
+		defaultNumberFormat = NumberFormat.getInstance(Locale.ENGLISH);
+		defaultNumberFormat.setMaximumFractionDigits(20);
+		defaultNumberFormat.setGroupingUsed(false);
+	}
+	
+	public void setNumberPrecision(int columnIndex, Integer precision) {
+		if (precision != null) {
+			NumberFormat nf = (NumberFormat) defaultNumberFormat.clone();
+			nf.setMaximumFractionDigits(precision);
+			overrideExcelNumberFormat = true;
+			numberFormatColumnMap.put(columnIndex, nf);
+		}
+	}
+	
+	private NumberFormat getNumberFormat(int columnIndex) {
+		NumberFormat nf = numberFormatColumnMap.get(columnIndex);
+		if (nf != null) {
+			return nf;
+		} else {
+			return defaultNumberFormat;
+		}
+	}
 	
 	private StyleUtil getStyleUtil() {
 		if (styleUtil == null) {
@@ -102,7 +128,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 				throw new Exception("Cell in column " + columnIndex + " has no value!");
 			}
 		} else {
-			value = getStringCellValue(cell);
+			value = getStringCellValue(cell, columnIndex);
 		}
 		if (trim && value != null) {
 			value = value.trim();
@@ -118,7 +144,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private String getStringCellValue(Cell cell) throws Exception {
+	private String getStringCellValue(Cell cell, int originalColumnIndex) throws Exception {
 		String value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellTypeEnum();
@@ -162,7 +188,11 @@ public class SpreadsheetInput extends SpreadsheetFile {
 									value = getDataFormatter().formatCellValue(cell);
 								}
 							} else {
-								value = numberFormat.format(cell.getNumericCellValue());
+								if (overrideExcelNumberFormat) {
+									value = getNumberFormat(originalColumnIndex).format(cell.getNumericCellValue());
+								} else {
+									value = getDataFormatter().formatCellValue(cell);
+								}
 							}
 						} else if (cellType == CellType.BOOLEAN) {
 							value = cell.getBooleanCellValue() ? "true" : "false";
@@ -198,7 +228,11 @@ public class SpreadsheetInput extends SpreadsheetFile {
 				if (DateUtil.isCellDateFormatted(cell)) {
 					value = getDataFormatter().formatCellValue(cell);
 				} else {
-					value = numberFormat.format(cell.getNumericCellValue());
+					if (overrideExcelNumberFormat) {
+						value = getNumberFormat(originalColumnIndex).format(cell.getNumericCellValue());
+					} else {
+						value = getDataFormatter().formatCellValue(cell);
+					}
 				}
 			} else if (cellType == CellType.BOOLEAN) {
 				value = cell.getBooleanCellValue() ? "true" : "false";
@@ -349,7 +383,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					if (s != null && s.trim().isEmpty() == false) {
-						Number n = numberFormat.parse(s.trim());
+						Number n = getNumberFormat(cell.getColumnIndex()).parse(s.trim());
 						value = n.doubleValue();
 					}
 				} catch (Exception e) {
@@ -358,7 +392,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 						if (cellType == CellType.STRING) {
 							String s = cell.getStringCellValue();
 							if (s != null && s.trim().isEmpty() == false) {
-								Number n = numberFormat.parse(s.trim());
+								Number n = getNumberFormat(cell.getColumnIndex()).parse(s.trim());
 								value = n.doubleValue();
 							}
 						} else if (cellType == CellType.NUMERIC) {
@@ -371,7 +405,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			} else if (cellType == CellType.STRING) {
 				String s = cell.getStringCellValue();
 				if (s != null && s.trim().isEmpty() == false) {
-					Number n = numberFormat.parse(s.trim());
+					Number n = getNumberFormat(cell.getColumnIndex()).parse(s.trim());
 					value = n.doubleValue();
 				}
 			} else if (cellType == CellType.NUMERIC) {
@@ -812,7 +846,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		setNumberFormatLocale(locale, true);
 	}
 	
-	public void setNumberFormatLocale(String locale, boolean useGrouping) {
+	private Locale createLocale(String locale) {
 		int p = locale.indexOf('_');
 		String language = locale;
 		String country = "";
@@ -820,8 +854,13 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			language = locale.substring(0, p);
 			country = locale.substring(p);
 		}
-		numberFormat = NumberFormat.getInstance(new Locale(language, country));
-		numberFormat.setGroupingUsed(useGrouping);
+		return new Locale(language, country);
+	}
+	
+	public void setNumberFormatLocale(String locale, boolean useGrouping) {
+		defaultNumberFormat = NumberFormat.getInstance(createLocale(locale));
+		defaultNumberFormat.setMaximumFractionDigits(20);
+		defaultNumberFormat.setGroupingUsed(useGrouping);
 	}
 
 	public int getHeaderRowIndex() {

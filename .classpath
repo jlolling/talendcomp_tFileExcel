@@ -22,5 +22,14 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/Users/jan/.m2/repository/de/cimt/talendcomp/test/talend-fake-job/0.9/talend-fake-job-0.9.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="de.cimt.talendcomp.test"/>
+			<attribute name="maven.artifactId" value="talend-fake-job"/>
+			<attribute name="maven.version" value="0.9"/>
+			<attribute name="maven.scope" value="test"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

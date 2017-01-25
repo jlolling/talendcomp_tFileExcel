@@ -31,6 +31,7 @@
     String useRegexToFindColumnInHeader = ElementParameterParser.getValue(node, "__CONFIG_HEADER_BY_REGEX__");
     String columnStartPosStr = ElementParameterParser.getValue(node, "__COLUMN_START_INDEX__");
     String numberFormatLocale = ElementParameterParser.getValue(node, "__NUMBERFORMAT_LOCALE__");
+    boolean overrideExcelNumberFormat = "true".equals(ElementParameterParser.getValue(node, "__OVERRIDE_EXCEL_NUMBER_FORMAT__"));
     String defaultDateFormat = ElementParameterParser.getValue(node, "__DEFAULT_DATE_FORMAT__");
     boolean useGrouping = "true".equals(ElementParameterParser.getValue(node, "__USE_GROUPING__"));
     String returnLink = ElementParameterParser.getValue(node, "__RETURN_LINK__");
@@ -131,6 +132,14 @@
 <%  } %>
 	<%=cid%>.setReturnURLInsteadOfName(<%=returnLink%>);
 	<%=cid%>.setConcatenateLabelUrl(<%=concatenateLabelUrl%>);
+<%  if (overrideExcelNumberFormat) {
+		for (columnIndex = 0; columnIndex < listColumns.size(); columnIndex++) {
+			IMetadataColumn column = listColumns.get(columnIndex);
+			if (column.getPrecision() != null) { %>
+	<%=cid%>.setNumberPrecision(<%=columnIndex%>, <%=column.getPrecision()%>);
+<%			} 
+		}
+	} %>
 	// Helper class to reduce the byte code footprint
 	class Helper_<%=cid%> {
 		

@@ -174,17 +174,89 @@ public class TestSpreadsheetFile {
 		assertTrue(true);
 	}
 	
-	public void testWriteReadDate() throws Exception {
-		SpreadsheetOutput out = new SpreadsheetOutput();
-		out.setDebug(true);
-		out.createEmptyXLSXWorkbook();
-		out.initializeWorkbook();
-		out.setTargetSheetName("DateTime");
-		out.initializeSheet();
-		out.setOutputFile("/var/testdata/excel/test_write_read_date.xlsx");
-		out.setRowStartIndex(1 - 1);
-		out.setColumnStart("A");
-		out.setDataFormat(1, "dd.MM.yyyy");
+	@Test
+	public void testReadNumberFormatted() throws Exception {
+		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.cimt.talendcomp.excel.SpreadsheetFile();
+		tFileExcelWorkbookOpen_1.setCreateStreamingXMLWorkbook(false);
+		try {
+			// read a excel file as template
+			// this file file will not used as output file
+			tFileExcelWorkbookOpen_1
+					.setInputFile(
+							"/Volumes/Data/Talend/testdata/excel/test_double.xls",
+							true);
+			tFileExcelWorkbookOpen_1.initializeWorkbook();
+		} catch (Exception e) {
+			tFileExcelWorkbookOpen_1.error(
+					"Intialize workbook from file failed: "
+							+ e.getMessage(), e);
+			throw e;
+		}
+		
+		final de.cimt.talendcomp.excel.SpreadsheetInput tFileExcelSheetInput_1 = new de.cimt.talendcomp.excel.SpreadsheetInput();
+		tFileExcelSheetInput_1
+				.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
+		tFileExcelSheetInput_1.useSheet(0);
+		tFileExcelSheetInput_1.setStopAtMissingRow(false);
+		tFileExcelSheetInput_1.setRowStartIndex(1 - 1);
+		// configure cell positions
+		tFileExcelSheetInput_1.setDataColumnPosition(0, "A");
+		tFileExcelSheetInput_1.setDataColumnPosition(1, "B");
+		tFileExcelSheetInput_1.setDataColumnPosition(2, "A");
+		tFileExcelSheetInput_1.setDataColumnPosition(3, "B");
+		tFileExcelSheetInput_1.setNumberFormatLocale("fr", false);
+		tFileExcelSheetInput_1.setDefaultDateFormat("yyyyMMddHHmmss");
+		tFileExcelSheetInput_1.setReturnURLInsteadOfName(false);
+		tFileExcelSheetInput_1.setConcatenateLabelUrl(false);
+		tFileExcelSheetInput_1.setNumberPrecision(0, 5);
+		tFileExcelSheetInput_1.setNumberPrecision(1, 5);
+
+		// row counter
+		int nb_line_tFileExcelSheetInput_1 = 0;
+		while (tFileExcelSheetInput_1.readNextRow()) {
+			nb_line_tFileExcelSheetInput_1++;
+			try {
+				String col1_str = tFileExcelSheetInput_1.getStringCellValue(0,
+						true, false, false);
+				System.out.println(col1_str);
+			} catch (Exception e) {
+				throw new Exception(
+						"Read column col1_str in row number="
+								+ nb_line_tFileExcelSheetInput_1 + " failed:"
+								+ e.getMessage(), e);
+			}
+			try {
+				String col2_str = tFileExcelSheetInput_1.getStringCellValue(1,
+						true, false, false);
+				System.out.println(col2_str);
+			} catch (Exception e) {
+				throw new Exception(
+						"Read column col2_str in row number="
+								+ nb_line_tFileExcelSheetInput_1 + " failed:"
+								+ e.getMessage(), e);
+			}
+			try {
+				Double col1_double = tFileExcelSheetInput_1.getDoubleCellValue(2,
+						true, false);
+			} catch (Exception e) {
+				tFileExcelSheetInput_1
+						.warn("Read column col1_double in row number="
+								+ nb_line_tFileExcelSheetInput_1
+								+ " error ignored:"
+								+ e.getMessage());
+			}
+			try {
+				Double col2_double = tFileExcelSheetInput_1.getDoubleCellValue(3,
+						true, false);
+			} catch (Exception e) {
+				tFileExcelSheetInput_1
+						.warn("Read column col2_double in row number="
+								+ nb_line_tFileExcelSheetInput_1
+								+ " error ignored:"
+								+ e.getMessage());
+			}
+			assertTrue(true);
+		}
 		
 	}
 	
