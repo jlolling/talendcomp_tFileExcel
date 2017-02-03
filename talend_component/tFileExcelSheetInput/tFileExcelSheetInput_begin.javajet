@@ -125,7 +125,7 @@
 	<%=cid%>.setColumnStart(<%=columnStartPosStr%>);
 <%  }
 	if (numberFormatLocale != null && numberFormatLocale.isEmpty() == false) { %>
-	<%=cid%>.setNumberFormatLocale(<%=numberFormatLocale%>, <%=useGrouping%>);
+	<%=cid%>.setFormatLocale(<%=numberFormatLocale%>, <%=useGrouping%>);
 <%  }
 	if (defaultDateFormat != null && defaultDateFormat.isEmpty() == false) { %>
 	<%=cid%>.setDefaultDateFormat(<%=defaultDateFormat%>);

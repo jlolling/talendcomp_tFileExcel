@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Utility class to parse a String into a Date 
@@ -73,9 +74,22 @@ public class GenericDateUtil {
      * @return Date object representing the Date
      */
 	public static Date parseDate(String source, String ...suggestedPattern) throws ParseException {
-		return getDateParser().parseDate(source, suggestedPattern);
+		return getDateParser().parseDate(source, null, suggestedPattern);
 	}
 	
+	/**
+     * parseDate: returns the Date from the given text representation
+     * Tolerates if the content does not fit to the given pattern and retries it
+     * with build in patterns
+     * 
+     * @param source the formatted time as String
+     * @param suggestedPattern an array of suggested patterns
+     * @return Date object representing the Date
+     */
+	public static Date parseDate(String source, Locale locale, String ...suggestedPattern) throws ParseException {
+		return getDateParser().parseDate(source, locale, suggestedPattern);
+	}
+
 	private static DateParser getDateParser() {
 		DateParser p = threadLocal.get();
 		if (p == null) {
@@ -138,7 +152,7 @@ public class GenericDateUtil {
 			timePatternList.add(" mmss");
 		}
 		
-		private Date parseDate(String text, String ... userPattern) throws ParseException {
+		private Date parseDate(String text, Locale locale, String ... userPattern) throws ParseException {
 			if (text != null && text.trim().isEmpty() == false) {
 				Date dateValue = null;
 				if (userPattern != null) {
@@ -149,10 +163,13 @@ public class GenericDateUtil {
 						datePatternList.add(0, userPattern[i]);
 					}
 				}
-				SimpleDateFormat sdf = new SimpleDateFormat();
+				if (locale == null) {
+					locale = Locale.getDefault();
+				}
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", locale);
 				for (String pattern : datePatternList) {
 					if (pattern != null) {
-						sdf.applyPattern(pattern.trim());
+						sdf.applyLocalizedPattern(pattern.trim());
 						try {
 							dateValue = sdf.parse(text);
 							// if we continue here the pattern fits
@@ -161,7 +178,7 @@ public class GenericDateUtil {
 								// there is more in the text than only the date
 								for (String timepattern : timePatternList) {
 									String dateTimePattern = pattern + timepattern;
-									sdf.applyPattern(dateTimePattern);
+									sdf.applyLocalizedPattern(dateTimePattern);
 									try {
 										dateValue = sdf.parse(text);
 										// we got it

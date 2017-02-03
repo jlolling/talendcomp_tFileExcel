@@ -155,7 +155,7 @@ public class TestSpreadsheetFile {
 		// configure cell positions
 		tFileExcelSheetInput_2.setDataColumnPosition(0, "B");
 		tFileExcelSheetInput_2.setDataColumnPosition(1, "B");
-		tFileExcelSheetInput_2.setNumberFormatLocale("en", true);
+		tFileExcelSheetInput_2.setFormatLocale("en", true);
 		tFileExcelSheetInput_2.setDefaultDateFormat("yyyy-MM-dd HH:mm:ss");
 		tFileExcelSheetInput_2.setReturnURLInsteadOfName(false);
 		tFileExcelSheetInput_2.setConcatenateLabelUrl(false);
@@ -204,7 +204,7 @@ public class TestSpreadsheetFile {
 		tFileExcelSheetInput_1.setDataColumnPosition(1, "B");
 		tFileExcelSheetInput_1.setDataColumnPosition(2, "A");
 		tFileExcelSheetInput_1.setDataColumnPosition(3, "B");
-		tFileExcelSheetInput_1.setNumberFormatLocale("fr", false);
+		tFileExcelSheetInput_1.setFormatLocale("fr", false);
 		tFileExcelSheetInput_1.setDefaultDateFormat("yyyyMMddHHmmss");
 		tFileExcelSheetInput_1.setReturnURLInsteadOfName(false);
 		tFileExcelSheetInput_1.setConcatenateLabelUrl(false);

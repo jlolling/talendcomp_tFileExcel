@@ -60,6 +60,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean stopAtMissingRow = true;
 	private StyleUtil styleUtil = null;
 	private boolean overrideExcelNumberFormat = false;
+	private Locale defaultLocale = null;
 	
 	public SpreadsheetInput() {
 		defaultNumberFormat = NumberFormat.getInstance(Locale.ENGLISH);
@@ -842,8 +843,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		}
 	}
 	
-	public void setNumberFormatLocale(String locale) {
-		setNumberFormatLocale(locale, true);
+	public void setFormatLocale(String locale) {
+		setFormatLocale(locale, true);
 	}
 	
 	private Locale createLocale(String locale) {
@@ -857,8 +858,9 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return new Locale(language, country);
 	}
 	
-	public void setNumberFormatLocale(String locale, boolean useGrouping) {
-		defaultNumberFormat = NumberFormat.getInstance(createLocale(locale));
+	public void setFormatLocale(String locale, boolean useGrouping) {
+		defaultLocale = createLocale(locale);
+		defaultNumberFormat = NumberFormat.getInstance(defaultLocale);
 		defaultNumberFormat.setMaximumFractionDigits(20);
 		defaultNumberFormat.setGroupingUsed(useGrouping);
 	}
