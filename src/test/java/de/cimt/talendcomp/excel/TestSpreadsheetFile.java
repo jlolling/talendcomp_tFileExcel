@@ -2,6 +2,7 @@ package de.cimt.talendcomp.excel;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -174,6 +175,32 @@ public class TestSpreadsheetFile {
 		assertTrue(true);
 	}
 	
+	@Test
+	public void testReadDateLocalised() throws Exception {
+		SpreadsheetInput tFileExcelSheetInput_2 = new SpreadsheetInput();
+		tFileExcelSheetInput_2.setInputFile("/var/testdata/excel/time.xls");
+		tFileExcelSheetInput_2.initializeWorkbook();
+		tFileExcelSheetInput_2.useSheet(0);
+		tFileExcelSheetInput_2.setStopAtMissingRow(false);
+		tFileExcelSheetInput_2.setRowStartIndex(0);
+		// configure cell positions
+		tFileExcelSheetInput_2.setDataColumnPosition(0, "A");
+		tFileExcelSheetInput_2.setFormatLocale("de", true);
+		tFileExcelSheetInput_2.setDefaultDateFormat("yyyy-MM-dd HH:mm:ss");
+		tFileExcelSheetInput_2.setReturnURLInsteadOfName(false);
+		tFileExcelSheetInput_2.setConcatenateLabelUrl(false);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		while (tFileExcelSheetInput_2.readNextRow()) {
+			try {
+				Date date = tFileExcelSheetInput_2.getDateCellValue(0, true, false, null);
+				System.out.println("row: " + (tFileExcelSheetInput_2.getCurrentRowIndex() + 1) + " value: " + sdf.format(date));
+			} catch (Exception e) {
+				System.out.println("Error in row: " + (tFileExcelSheetInput_2.getCurrentRowIndex() + 1) + " message: " + e.getMessage());
+			}
+		}
+		assertTrue(true);
+	}
+
 	@Test
 	public void testReadNumberFormatted() throws Exception {
 		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.cimt.talendcomp.excel.SpreadsheetFile();

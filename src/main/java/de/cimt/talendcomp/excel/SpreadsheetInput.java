@@ -37,8 +37,6 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 
-import de.cimt.talendcomp.GenericDateUtil;
-
 public class SpreadsheetInput extends SpreadsheetFile {
 	
 	private Map<Integer, Object> lastValueMap = new HashMap<Integer, Object>();

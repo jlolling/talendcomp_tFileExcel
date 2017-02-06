@@ -10,8 +10,6 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import de.cimt.talendcomp.GenericDateUtil;
-
 public class TestGenericDateUtil {
 	
 	@Test

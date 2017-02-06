@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.cimt.talendcomp;
+package de.cimt.talendcomp.excel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -140,6 +140,7 @@ public class GenericDateUtil {
 			datePatternList.add("dd/MM/yy");
 			datePatternList.add("dd/MMM/yyyy");
 			datePatternList.add("dd. MMMM yyyy");
+			datePatternList.add("dd. MMM. yyyy");
 			datePatternList.add("dd. MMM yyyy");
 			datePatternList.add("MMMM dd'th' yyyy");
 			datePatternList.add("MMM dd'th' yyyy");
