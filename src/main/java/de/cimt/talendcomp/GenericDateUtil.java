@@ -130,6 +130,10 @@ public class GenericDateUtil {
 			datePatternList.add("MMM dd'th' yyyy");
 			datePatternList.add("dd'th' MMMM yyyy");
 			datePatternList.add("dd'th' MMM yyyy");
+			datePatternList.add("'KW' w/yyyy");
+			datePatternList.add("'w/c' w.yyyy");
+			datePatternList.add("'CW' w.yyyy");
+			datePatternList.add("MMMM yyyy");
 			datePatternList.add("dd-MM-yyyy");
 			datePatternList.add("dd-MM-yy");
 			datePatternList.add("dd-MMM-yyyy");
@@ -164,12 +168,12 @@ public class GenericDateUtil {
 					}
 				}
 				if (locale == null) {
-					locale = Locale.getDefault();
+					locale = Locale.ENGLISH;
 				}
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", locale);
 				for (String pattern : datePatternList) {
 					if (pattern != null) {
-						sdf.applyLocalizedPattern(pattern.trim());
+						sdf.applyPattern(pattern.trim());
 						try {
 							dateValue = sdf.parse(text);
 							// if we continue here the pattern fits
@@ -178,7 +182,7 @@ public class GenericDateUtil {
 								// there is more in the text than only the date
 								for (String timepattern : timePatternList) {
 									String dateTimePattern = pattern + timepattern;
-									sdf.applyLocalizedPattern(dateTimePattern);
+									sdf.applyPattern(dateTimePattern);
 									try {
 										dateValue = sdf.parse(text);
 										// we got it
