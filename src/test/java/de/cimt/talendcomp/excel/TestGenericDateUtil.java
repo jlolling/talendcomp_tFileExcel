@@ -135,7 +135,7 @@ public class TestGenericDateUtil {
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));
 		s1 = "01. März 2017";
-		date1 = GenericDateUtil.parseDate(s1, Locale.GERMANY, (String) null);
+		date1 = GenericDateUtil.parseDate(s1, new Locale("de"), (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));

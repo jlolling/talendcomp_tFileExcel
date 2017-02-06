@@ -623,7 +623,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	private Date parseDate(String s, String pattern) throws ParseException {
 		if (s != null && s.isEmpty() == false) {
-			return GenericDateUtil.parseDate(s, pattern);
+			return GenericDateUtil.parseDate(s, defaultLocale, pattern);
 		} else {
 			return null;
 		}
