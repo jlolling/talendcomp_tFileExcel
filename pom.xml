@@ -75,16 +75,6 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>tFileExcelSheetCellOutput</id>
-						<goals>
-							<goal>component</goal>
-						</goals>
-						<configuration>
-							<componentName>tFileExcelSheetCellOutput</componentName>
-							<noJars>true</noJars>
-						</configuration>
-					</execution>
-					<execution>
 						<id>tFileExcelReferencedCellInput</id>
 						<goals>
 							<goal>component</goal>
