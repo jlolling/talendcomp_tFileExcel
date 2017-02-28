@@ -33,6 +33,7 @@
     String numberFormatLocale = ElementParameterParser.getValue(node, "__NUMBERFORMAT_LOCALE__");
     boolean overrideExcelNumberFormat = "true".equals(ElementParameterParser.getValue(node, "__OVERRIDE_EXCEL_NUMBER_FORMAT__"));
     String defaultDateFormat = ElementParameterParser.getValue(node, "__DEFAULT_DATE_FORMAT__");
+    boolean parseDateFromString = "true".equals(ElementParameterParser.getValue(node, "__PARSE_DATE_FROM_VISIBLE_STRING__"));
     boolean useGrouping = "true".equals(ElementParameterParser.getValue(node, "__USE_GROUPING__"));
     String returnLink = ElementParameterParser.getValue(node, "__RETURN_LINK__");
     String concatenateLabelUrl = ElementParameterParser.getValue(node, "__ADD_LINK_TO_LABEL__");
@@ -130,6 +131,7 @@
 	if (defaultDateFormat != null && defaultDateFormat.isEmpty() == false) { %>
 	<%=cid%>.setDefaultDateFormat(<%=defaultDateFormat%>);
 <%  } %>
+    <%=cid%>.setParseDateFromVisibleString(<%=parseDateFromString%>);
 	<%=cid%>.setReturnURLInsteadOfName(<%=returnLink%>);
 	<%=cid%>.setConcatenateLabelUrl(<%=concatenateLabelUrl%>);
 <%  if (overrideExcelNumberFormat) {

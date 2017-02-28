@@ -16,6 +16,7 @@
 package de.cimt.talendcomp.excel;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.util.CellReference;
@@ -62,20 +63,20 @@ public class SpreadsheetNamedCellInput extends SpreadsheetFile {
 	}
 	
 	public Object getCellValue() {
-		if (currentNamedCell != null) {
-			if (currentNamedCell.getCellType() == Cell.CELL_TYPE_BLANK) {
+		if (currentNamedCell != null) { // cell.getCellTypeEnum() == CellType.BLANK
+			if (currentNamedCell.getCellTypeEnum() == CellType.BLANK) {
 				valueClass = null;
 				return null;
-			} else if (currentNamedCell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+			} else if (currentNamedCell.getCellTypeEnum() == CellType.BOOLEAN) {
 				valueClass = "java.lang.Boolean";
 				return currentNamedCell.getBooleanCellValue();
-			} else if (currentNamedCell.getCellType() == Cell.CELL_TYPE_ERROR) {
+			} else if (currentNamedCell.getCellTypeEnum() == CellType.ERROR) {
 				valueClass = null;
 				return null;
-			} else if (currentNamedCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+			} else if (currentNamedCell.getCellTypeEnum() == CellType.FORMULA) {
 				valueClass = "java.lang.String";
 				return getDataFormatter().formatCellValue(currentNamedCell, getFormulaEvaluator());
-			} else if (currentNamedCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+			} else if (currentNamedCell.getCellTypeEnum() == CellType.NUMERIC) {
 				if (DateUtil.isCellDateFormatted(currentNamedCell)) {
 					valueClass = "java.util.Date";
 					return currentNamedCell.getDateCellValue();
@@ -83,7 +84,7 @@ public class SpreadsheetNamedCellInput extends SpreadsheetFile {
 					valueClass = "java.lang.Double";
 					return currentNamedCell.getNumericCellValue();
 				}
-			} else if (currentNamedCell.getCellType() == Cell.CELL_TYPE_STRING) {
+			} else if (currentNamedCell.getCellTypeEnum() == CellType.STRING) {
 				valueClass = "java.lang.String";
 				return currentNamedCell.getStringCellValue();
 			} else {

@@ -264,7 +264,7 @@ public class GenericDateUtil {
 		        int millisecondsInDay = (int) ((timeInExcel - wholeDays) * DAY_MILLISECONDS + 0.5);
 		        Calendar cal = Calendar.getInstance(getUTCTimeZone());
 		        cal.setTimeInMillis(0);
-		        cal.set(Calendar.DAY_OF_YEAR, wholeDays + 1);
+//		        cal.set(Calendar.DAY_OF_YEAR, wholeDays + 1);
 		        cal.set(Calendar.MILLISECOND, millisecondsInDay);
 		        return cal.getTimeInMillis();
 			} else {

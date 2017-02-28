@@ -59,6 +59,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private StyleUtil styleUtil = null;
 	private boolean overrideExcelNumberFormat = false;
 	private Locale defaultLocale = null;
+	private boolean parseDateFromVisibleString = false;
 	
 	public SpreadsheetInput() {
 		defaultNumberFormat = NumberFormat.getInstance(Locale.ENGLISH);
@@ -657,7 +658,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 					}
 				}
 			} else if (cellType == CellType.NUMERIC) {
-				if (DateUtil.isCellDateFormatted(cell)) {
+				if (DateUtil.isCellDateFormatted(cell) && parseDateFromVisibleString == false) {
 					value = cell.getDateCellValue();
 				} else {
 					String s = getDataFormatter().formatCellValue(cell);
@@ -693,7 +694,12 @@ public class SpreadsheetInput extends SpreadsheetFile {
 					}
 				}
 			} else if (cellType == CellType.NUMERIC) {
-				return new Date(GenericDateUtil.parseDuration(cell.getNumericCellValue()));
+				if (parseDateFromVisibleString) {
+					String s = getDataFormatter().formatCellValue(cell);
+					value = parseDuration(s, pattern);
+				} else {
+					value = new Date(GenericDateUtil.parseDuration(cell.getNumericCellValue()));
+				}
 			} else if (cellType == CellType.STRING) {
 				String s = getDataFormatter().formatCellValue(cell);
 				value = parseDuration(s, pattern);
@@ -943,6 +949,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	public int getCurrentRowIndex() {
 		return currentRowIndex;
+	}
+
+	public boolean isParseDateFromVisibleString() {
+		return parseDateFromVisibleString;
+	}
+
+	public void setParseDateFromVisibleString(boolean parseDateFromVisibleString) {
+		this.parseDateFromVisibleString = parseDateFromVisibleString;
 	}
 
 }
