@@ -1,6 +1,6 @@
 
-import java.io.File;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeSet;
@@ -28,8 +28,11 @@ public class TestExcelComp {
 	 */
 	public static void main(String[] args) throws Exception {
 		//testReferencedCells();
-		testOutputStyled();
+//		testOutputStyled();
 //		testEncryptFile();
+		String s = "01:00:00 PM";
+		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss aaa");
+		System.out.println(sdf.parse(s).getTime());
 	}
 	
 	public static void testOutputStyled() {

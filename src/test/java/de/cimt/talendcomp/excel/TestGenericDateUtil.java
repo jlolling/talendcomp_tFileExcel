@@ -72,6 +72,16 @@ public class TestGenericDateUtil {
 		actual = result.getTime();
 		System.out.println("(9) Time in ms: " + actual);
 		assertEquals(expected, actual);
+		s = "13:00:00";
+		result = GenericDateUtil.parseDuration(s, (String) null); 
+		actual = result.getTime();
+		System.out.println("(9) Time in ms: " + actual);
+		assertEquals(46800000l, actual);
+		s = "01:00:00 PM";
+		result = GenericDateUtil.parseDuration(s, (String) null); 
+		actual = result.getTime();
+		System.out.println("(9) Time in ms: " + actual);
+		assertEquals(43200000l, actual);
 	}
 	
 	@Test
@@ -152,6 +162,17 @@ public class TestGenericDateUtil {
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.before(date2));
+	}
+	
+	@Test
+	public void testZeroDate() throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String s1 = "0000-00-00 05:00:00";
+//		Date date1 = GenericDateUtil.parseDate(s1, Locale.ENGLISH, (String) null);#
+		Date date1 = sdf.parse(s1);
+		System.out.println("date1: " + date1);
+		System.out.println("date1 ms: " + date1.getTime());
+		assertTrue(GenericDateUtil.isZeroDate(date1));
 	}
 
 }

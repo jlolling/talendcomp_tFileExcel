@@ -60,6 +60,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean overrideExcelNumberFormat = false;
 	private Locale defaultLocale = null;
 	private boolean parseDateFromVisibleString = false;
+	private boolean returnZeroDateAsNull = true;
 	
 	public SpreadsheetInput() {
 		defaultNumberFormat = NumberFormat.getInstance(Locale.ENGLISH);
@@ -594,7 +595,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			lastValueMap.put(columnIndex, value);
 		}
 		if (value == null && nullable == false) {
-			throw new Exception("Cell in column " + columnIndex + " has no value!");
+			throw new Exception("Cell in column " + columnIndex + " has no value or a zero date!");
 		}
 		return value;
 	}
@@ -668,6 +669,9 @@ public class SpreadsheetInput extends SpreadsheetFile {
 				String s = getDataFormatter().formatCellValue(cell);
 				value = parseDate(s, pattern);
 			}
+		}
+		if (returnZeroDateAsNull && GenericDateUtil.isZeroDate(value)) {
+			value = null;
 		}
 		return value;
 	}
@@ -957,6 +961,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	public void setParseDateFromVisibleString(boolean parseDateFromVisibleString) {
 		this.parseDateFromVisibleString = parseDateFromVisibleString;
+	}
+
+	public boolean isReturnZeroDateAsNull() {
+		return returnZeroDateAsNull;
+	}
+
+	public void setReturnZeroDateAsNull(boolean returnZeroDateAsNull) {
+		this.returnZeroDateAsNull = returnZeroDateAsNull;
 	}
 
 }

@@ -23,7 +23,7 @@ public class TestSpreadsheetFile {
 
 	@Test
 	public void testReadStreamingCheckContent() {
-		String file = "/Volumes/Data/Talend/testdata/excel/test2/store_report_simple.xlsx";
+		String file = "/var/testdata/excel/test2/store_report_simple.xlsx";
 		SpreadsheetFile sf = new SpreadsheetFile();
 		sf.setCreateStreamingXMLWorkbook(true);
 		try {

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private int dataRowCount = 0;
 	private boolean setupCellStylesForAllColumns = false;
 	private int highestColumnIndex = 0;
+	private boolean writeZeroDateAsNull = true;
 	
 	public void initializeSheet() {
 		if (workbook == null) {
@@ -455,9 +457,13 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		} else if (value instanceof Number) {
 			cell.setCellValue(Double.valueOf(((Number) value).doubleValue()));
 			cell.setCellType(CellType.NUMERIC);
-		} else if (value instanceof java.util.Date) {
-			cell.setCellValue((java.util.Date) value);
-			cell.setCellType(CellType.NUMERIC);
+		} else if (value instanceof Date) {
+			if (writeZeroDateAsNull && GenericDateUtil.isZeroDate((Date) value)) {
+				cell.setCellType(CellType.BLANK);
+			} else {
+				cell.setCellValue((Date) value);
+				cell.setCellType(CellType.NUMERIC);
+			}
 		} else if (value != null) {
 			cell.setCellValue(value.toString());
 			cell.setCellType(CellType.STRING);
@@ -1230,6 +1236,14 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				}
 			}
 		}
+	}
+
+	public boolean isWriteZeroDateAsNull() {
+		return writeZeroDateAsNull;
+	}
+
+	public void setWriteZeroDateAsNull(boolean writeZeroDateAsNull) {
+		this.writeZeroDateAsNull = writeZeroDateAsNull;
 	}
 	
 }

@@ -33,6 +33,7 @@ import java.util.Locale;
 public class GenericDateUtil {
 	
 	private static ThreadLocal<DateParser> threadLocal = new ThreadLocal<DateParser>();
+	public static final long ZERO_TIME = -62170160400000l;
 	
     /**
      * parseDuration: returns the Date from the given text representation containing the time part as duration
@@ -105,7 +106,7 @@ public class GenericDateUtil {
 		return getDateParser().parseDate(source, locale, suggestedPattern);
 	}
 
-	private static DateParser getDateParser() {
+	public static DateParser getDateParser() {
 		DateParser p = threadLocal.get();
 		if (p == null) {
 			p = new DateParser();
@@ -114,7 +115,7 @@ public class GenericDateUtil {
 		return p;
 	}
 	
-	private static class DateParser {
+	public static class DateParser {
 		
 		private List<String> datePatternList = null;
 		private List<String> timePatternList = null;
@@ -124,6 +125,7 @@ public class GenericDateUtil {
 		private static final int HOURS_PER_DAY = 24;
 		private static final int SECONDS_PER_DAY = (HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE);
 		private static final long DAY_MILLISECONDS = SECONDS_PER_DAY * 1000L;
+		private boolean lenient = true;
 		
 		DateParser() {
 			datePatternList = new ArrayList<String>();
@@ -169,6 +171,7 @@ public class GenericDateUtil {
 			timePatternList.add(" mm'm'ss's'");
 			timePatternList.add("'T'HH:mm:ss.SSSZ");
 			timePatternList.add("'T'HH:mm:ss.SSS");
+			timePatternList.add(" hh:mm:ss aaa");
 			timePatternList.add(" HH:mm:ss.SSS");
 			timePatternList.add(" HH:mm:ss");
 			timePatternList.add(" mm:ss");
@@ -191,6 +194,7 @@ public class GenericDateUtil {
 					locale = Locale.ENGLISH;
 				}
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", locale);
+				sdf.setLenient(lenient);
 				for (String pattern : datePatternList) {
 					if (pattern != null) {
 						sdf.applyPattern(pattern.trim());
@@ -272,6 +276,14 @@ public class GenericDateUtil {
 			}
 		}
 
+		public boolean isLenient() {
+			return lenient;
+		}
+
+		public void setLenient(boolean lenient) {
+			this.lenient = lenient;
+		}
+
 	}
 	
     private static java.util.TimeZone utcTimeZone = null;
@@ -281,6 +293,30 @@ public class GenericDateUtil {
     		utcTimeZone = java.util.TimeZone.getTimeZone("UTC");
     	}
     	return utcTimeZone;
+    }
+    
+    public static boolean isZeroDate(Date date) {
+    	if (date != null) {
+    		Calendar cal = Calendar.getInstance(getUTCTimeZone());
+    		cal.setTime(date);
+    		cal.setLenient(false);
+        	cal.set(java.util.Calendar.MINUTE, 0);
+        	cal.set(java.util.Calendar.SECOND, 0);
+        	cal.set(java.util.Calendar.MILLISECOND, 0);
+        	cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+    		int year = cal.get(Calendar.YEAR);
+    		int month = cal.get(Calendar.MONTH);
+    		int day = cal.get(Calendar.DAY_OF_MONTH);
+    		int era = cal.get(Calendar.ERA);
+    		if (year == 2 && month == 10 && era == 0) {
+    			if (day == 29 || day == 30) {
+        			return true;
+    			}
+    		}
+    		return false;
+    	} else {
+    		return false;
+    	}
     }
 
 }

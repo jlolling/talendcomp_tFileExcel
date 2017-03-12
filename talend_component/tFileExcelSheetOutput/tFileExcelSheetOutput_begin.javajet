@@ -23,6 +23,7 @@
     String sourceSheetName = ElementParameterParser.getValue(node, "__SOURCE_SHEET_NAME__");
     boolean appendRows = "true".equals(ElementParameterParser.getValue(node, "__APPEND_ROWS__"));
     boolean includeHeader = "true".equals(ElementParameterParser.getValue(node, "__INCLUDE_HEADER__"));
+    boolean writeZeroDateAsNull = "true".equals(ElementParameterParser.getValue(node, "__WRITE_ZERO_DATE_AS_NULL__"));
     String rowStartIndexStr = ElementParameterParser.getValue(node, "__ROW_START_INDEX__");
     String allowWriteNull = ElementParameterParser.getValue(node, "__WRITE_NULL__");
     String freezeRowStr = ElementParameterParser.getValue(node, "__FREEZE_ROW__");
@@ -171,6 +172,7 @@
 <%  	} %>
 <%  } %>
     <%=cid%>.setWriteNullValues(<%=allowWriteNull%>);
+    <%=cid%>.setWriteZeroDateAsNull(<%=writeZeroDateAsNull%>);
     // configure auto size columns and group rows by and comments
 <%  List<Map<String, String>> columnConfigList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
 	columnIndex = 0;
