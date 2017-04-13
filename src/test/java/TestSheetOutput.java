@@ -7,8 +7,8 @@ import java.util.TreeSet;
 
 import org.apache.poi.hssf.util.HSSFColor;
 
-import de.cimt.talendcomp.excel.SpreadsheetInput;
-import de.cimt.talendcomp.excel.SpreadsheetOutput;
+import de.jlo.talendcomp.excel.SpreadsheetInput;
+import de.jlo.talendcomp.excel.SpreadsheetOutput;
 
 public class TestSheetOutput extends TalendFakeJob {
 
@@ -195,7 +195,7 @@ public class TestSheetOutput extends TalendFakeJob {
 
 	public static void testTypes() throws Exception {
 
-		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_2 = new de.cimt.talendcomp.excel.SpreadsheetFile();
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_2 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		tFileExcelWorkbookOpen_2.setCreateStreamingXMLWorkbook(false);
 		try {
 			// create empty XLSX workbook
@@ -211,7 +211,7 @@ public class TestSheetOutput extends TalendFakeJob {
 				tFileExcelWorkbookOpen_2.getWorkbook().getNumberOfSheets());
 
 		int nb_line_tFileExcelSheetOutput_1 = 0;
-		de.cimt.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.cimt.talendcomp.excel.SpreadsheetOutput();
+		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1
 				.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_tFileExcelWorkbookOpen_2"));
 		tFileExcelSheetOutput_1.setTargetSheetName("test_out");
@@ -280,7 +280,7 @@ public class TestSheetOutput extends TalendFakeJob {
 			throw e;
 		}
 
-		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookSave_1 = new de.cimt.talendcomp.excel.SpreadsheetFile();
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookSave_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		// set the workbook
 		tFileExcelWorkbookSave_1
 				.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_tFileExcelWorkbookOpen_2"));

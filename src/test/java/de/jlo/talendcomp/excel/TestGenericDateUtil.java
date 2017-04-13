@@ -1,4 +1,4 @@
-package de.cimt.talendcomp.excel;
+package de.jlo.talendcomp.excel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -77,93 +77,116 @@ public class TestGenericDateUtil {
 		actual = result.getTime();
 		System.out.println("(9) Time in ms: " + actual);
 		assertEquals(46800000l, actual);
-		s = "01:00:00 PM";
+		s = "01:00:00";
 		result = GenericDateUtil.parseDuration(s, (String) null); 
 		actual = result.getTime();
 		System.out.println("(9) Time in ms: " + actual);
-		assertEquals(43200000l, actual);
+		assertEquals(3600000l, actual);
 	}
 	
 	@Test
-	public void testDate() throws ParseException {
+	public void testDateAndTime() throws ParseException {
 		String s = "2016-12-11 13:26:11";
 		Long actual = GenericDateUtil.parseDate(s, "yyyy-MM-dd HH:mm:ss").getTime();
 		Long expected = 1481459171000l;
 		assertEquals(expected, actual);
 	}
 	
+	
 	@Test
-	public void testDateYearAndFull() throws Exception {
-		String s1 = "2017";
-		String s2 = "01.03.2017";
-		Date date1 = GenericDateUtil.parseDate(s1, (String) null);
-		Date date2 = GenericDateUtil.parseDate(s2, "dd.MM.yyyy");
+	public void testDate() throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String s2 = "01.03.2017";
+		Date date2 = GenericDateUtil.getDateParser(false).parseDate(s2, (String) null);
+		String s1 = "01.03.2017";
+		Date date1 = GenericDateUtil.getDateParser(false).parseDate(s1, "dd.MM.yy");
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
-		assertTrue(date1.before(date2));
-		s1 = "01.01.2017";
-		date1 = GenericDateUtil.parseDate(s1, (String) null);
+		assertTrue(date1.equals(date2));
+		s1 = "2017-03-01";
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
-		assertTrue(date1.before(date2));
-		s1 = "2017-01-01";
-		date1 = GenericDateUtil.parseDate(s1, (String) null);
+		assertTrue(date1.equals(date2));
+		s1 = "03/01/2017";
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
-		assertTrue(date1.before(date2));
-		s1 = "01/14/2017";
-		date1 = GenericDateUtil.parseDate(s1, (String) null);
+		assertTrue(date1.equals(date2));
+		s1 = "03/01/17";
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
-		assertTrue(date1.before(date2));
-		s1 = "14th Jan 2017";
-		date1 = GenericDateUtil.parseDate(s1, (String) null);
+		assertTrue(date1.equals(date2));
+		s1 = "01.03.17";
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
-		assertTrue(date1.before(date2));
+		assertTrue(date1.equals(date2));
+		s1 = "1th Mar 2017";
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
+		System.out.println("date1: " + sdf.format(date1));
+		System.out.println("date2: " + sdf.format(date2));
+		assertTrue(date1.equals(date2));
 		s1 = "Mar 1th 2017";
-		date1 = GenericDateUtil.parseDate(s1, (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));
 		s1 = "01. March 2017";
-		date1 = GenericDateUtil.parseDate(s1, (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));
 		s1 = "March 2017";
-		date1 = GenericDateUtil.parseDate(s1, (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));
 		s1 = "03/2017";
-		date1 = GenericDateUtil.parseDate(s1, "MM/yyyy");
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, "MM/yyyy");
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));
 		s1 = "01. März 2017";
-		date1 = GenericDateUtil.parseDate(s1, new Locale("de"), (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, new Locale("de"), (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));
 		s1 = "März 2017";
-		date1 = GenericDateUtil.parseDate(s1, Locale.GERMANY, (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.GERMANY, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.equals(date2));
 		s1 = "KW 9/2017";
-		date1 = GenericDateUtil.parseDate(s1, Locale.GERMANY, (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.GERMANY, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.before(date2));
 		s1 = "w/c 9.2017";
-		date1 = GenericDateUtil.parseDate(s1, Locale.ENGLISH, (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
 		System.out.println("date1: " + sdf.format(date1));
 		System.out.println("date2: " + sdf.format(date2));
 		assertTrue(date1.before(date2));
+		s1 = "01.03.17";
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
+		System.out.println("date1: " + sdf.format(date1));
+		System.out.println("date2: " + sdf.format(date2));
+		assertTrue(date1.equals(date2));
+		s1 = "01-03-2017";
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
+		System.out.println("date1: " + sdf.format(date1));
+		System.out.println("date2: " + sdf.format(date2));
+		assertTrue(date1.equals(date2));
+		s1 = "2017";
+		s2 = "01.01.2017";
+		date2 = GenericDateUtil.getDateParser(false).parseDate(s2, (String) null);
+		date1 = GenericDateUtil.getDateParser(false).parseDate(s1, Locale.ENGLISH, (String) null);
+		System.out.println("date1: " + sdf.format(date1));
+		System.out.println("date2: " + sdf.format(date2));
+		assertTrue(date1.equals(date2));
 	}
-	
+
 	@Test
 	public void testZeroDate() throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

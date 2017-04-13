@@ -1,13 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>de.cimt.talendcomp</groupId>
-	<artifactId>cimt-talendcomp-excel</artifactId>
+	<groupId>de.jlo.talendcomp</groupId>
+	<artifactId>jlo-talendcomp-excel</artifactId>
 	<name>Talend Excel Components</name>
-	<version>8.6</version>
+	<version>8.7</version>
 	<organization>
-		<name>cimt AG</name>
-		<url>http://www.cimt-ag.de</url>
+		<name>Jan Lolling</name>
 	</organization>
 	<build>
 		<plugins>

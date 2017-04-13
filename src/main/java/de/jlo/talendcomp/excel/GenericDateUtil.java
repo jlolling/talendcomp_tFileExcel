@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.cimt.talendcomp.excel;
+package de.jlo.talendcomp.excel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,11 +28,10 @@ import java.util.Locale;
  * by testing a number of common pattern
  * This class is thread save.
  * 
- * @author jan.lolling@cimt-ag.de
+ * @author jan.lolling@gmail.de
  */
 public class GenericDateUtil {
 	
-	private static ThreadLocal<DateParser> threadLocal = new ThreadLocal<DateParser>();
 	public static final long ZERO_TIME = -62170160400000l;
 	
     /**
@@ -107,14 +106,17 @@ public class GenericDateUtil {
 	}
 
 	public static DateParser getDateParser() {
-		DateParser p = threadLocal.get();
-		if (p == null) {
-			p = new DateParser();
-			threadLocal.set(p);
-		}
+		DateParser p = new DateParser();
+		p.setLenient(true);
 		return p;
 	}
 	
+	public static DateParser getDateParser(boolean lenient) {
+		DateParser p = new DateParser();
+		p.setLenient(lenient);
+		return p;
+	}
+
 	public static class DateParser {
 		
 		private List<String> datePatternList = null;
@@ -125,18 +127,18 @@ public class GenericDateUtil {
 		private static final int HOURS_PER_DAY = 24;
 		private static final int SECONDS_PER_DAY = (HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE);
 		private static final long DAY_MILLISECONDS = SECONDS_PER_DAY * 1000L;
-		private boolean lenient = true;
+		private boolean lenient = false;
 		
-		DateParser() {
+		public void init() {
 			datePatternList = new ArrayList<String>();
 			datePatternList.add("yyyy-MM-dd");
-			datePatternList.add("dd.MM.yyyy");
-			datePatternList.add("d.MM.yyyy");
 			datePatternList.add("d.M.yy");
 			datePatternList.add("dd.MM.yy");
+			datePatternList.add("d.MM.yyyy");
+			datePatternList.add("dd.MM.yyyy");
 			datePatternList.add("dd.MMM.yyyy");
-			datePatternList.add("MM/dd/yyyy");
 			datePatternList.add("MM/dd/yy");
+			datePatternList.add("MM/dd/yyyy");
 			datePatternList.add("M/d/yy");
 			datePatternList.add("dd/MM/yyyy");
 			datePatternList.add("dd/MM/yy");
@@ -152,8 +154,8 @@ public class GenericDateUtil {
 			datePatternList.add("'w/c' w.yyyy");
 			datePatternList.add("'CW' w.yyyy");
 			datePatternList.add("MMMM yyyy");
-			datePatternList.add("dd-MM-yyyy");
 			datePatternList.add("dd-MM-yy");
+			datePatternList.add("dd-MM-yyyy");
 			datePatternList.add("dd-MMM-yyyy");
 			datePatternList.add("d-M-yy");
 			datePatternList.add("yyyyMMdd");
@@ -179,7 +181,15 @@ public class GenericDateUtil {
 			timePatternList.add(" mmss");
 		}
 		
-		private Date parseDate(String text, Locale locale, String ... userPattern) throws ParseException {
+		DateParser() {
+			init();
+		}
+		
+		public Date parseDate(String text, String ... userPattern) throws ParseException {
+			return parseDate(text, null, userPattern);
+		}
+
+		public Date parseDate(String text, Locale locale, String ... userPattern) throws ParseException {
 			if (text != null && text.trim().isEmpty() == false) {
 				Date dateValue = null;
 				if (userPattern != null) {
@@ -268,7 +278,6 @@ public class GenericDateUtil {
 		        int millisecondsInDay = (int) ((timeInExcel - wholeDays) * DAY_MILLISECONDS + 0.5);
 		        Calendar cal = Calendar.getInstance(getUTCTimeZone());
 		        cal.setTimeInMillis(0);
-//		        cal.set(Calendar.DAY_OF_YEAR, wholeDays + 1);
 		        cal.set(Calendar.MILLISECOND, millisecondsInDay);
 		        return cal.getTimeInMillis();
 			} else {

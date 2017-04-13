@@ -13,11 +13,11 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
-import de.cimt.talendcomp.excel.SpreadsheetFile;
-import de.cimt.talendcomp.excel.SpreadsheetInput;
-import de.cimt.talendcomp.excel.SpreadsheetNamedCellInput;
-import de.cimt.talendcomp.excel.SpreadsheetOutput;
-import de.cimt.talendcomp.excel.SpreadsheetReferencedCellInput;
+import de.jlo.talendcomp.excel.SpreadsheetFile;
+import de.jlo.talendcomp.excel.SpreadsheetInput;
+import de.jlo.talendcomp.excel.SpreadsheetNamedCellInput;
+import de.jlo.talendcomp.excel.SpreadsheetOutput;
+import de.jlo.talendcomp.excel.SpreadsheetReferencedCellInput;
 
 
 public class TestExcelComp {

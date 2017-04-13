@@ -26,7 +26,7 @@
 	    outgoingConnName = outConn.getName();
 	}
 %>
-    de.cimt.talendcomp.excel.SpreadsheetNamedCellInput <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetNamedCellInput();
+    de.jlo.talendcomp.excel.SpreadsheetNamedCellInput <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetNamedCellInput();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
     <%=cid%>.retrieveNamedCellCount(); // count the named cells
 	 // row counter

@@ -1,4 +1,4 @@
-package de.cimt.talendcomp.excel;
+package de.jlo.talendcomp.excel;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -10,6 +10,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Before;
 import org.junit.Test;
+
+import de.jlo.talendcomp.excel.SpreadsheetFile;
+import de.jlo.talendcomp.excel.SpreadsheetInput;
+import de.jlo.talendcomp.excel.SpreadsheetOutput;
 
 
 public class TestSpreadsheetFile {
@@ -203,7 +207,7 @@ public class TestSpreadsheetFile {
 
 	@Test
 	public void testReadNumberFormatted() throws Exception {
-		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.cimt.talendcomp.excel.SpreadsheetFile();
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		tFileExcelWorkbookOpen_1.setCreateStreamingXMLWorkbook(false);
 		try {
 			// read a excel file as template
@@ -220,7 +224,7 @@ public class TestSpreadsheetFile {
 			throw e;
 		}
 		
-		final de.cimt.talendcomp.excel.SpreadsheetInput tFileExcelSheetInput_1 = new de.cimt.talendcomp.excel.SpreadsheetInput();
+		final de.jlo.talendcomp.excel.SpreadsheetInput tFileExcelSheetInput_1 = new de.jlo.talendcomp.excel.SpreadsheetInput();
 		tFileExcelSheetInput_1
 				.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
 		tFileExcelSheetInput_1.useSheet(0);

@@ -1,4 +1,4 @@
-package de.cimt.talendcomp.excel;
+package de.jlo.talendcomp.excel;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;

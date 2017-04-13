@@ -214,7 +214,7 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 
 		int tos_count_tFileExcelWorkbookOpen_1 = 0;
 
-		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.cimt.talendcomp.excel.SpreadsheetFile();
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		tFileExcelWorkbookOpen_1.setCreateStreamingXMLWorkbook(false);
 		try {
 			// read a excel file as template
@@ -257,7 +257,7 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 
 		int tos_count_tFileExcelSheetOutput_1 = 0;
 
-		de.cimt.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.cimt.talendcomp.excel.SpreadsheetOutput();
+		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setDebug(true);
 		tFileExcelSheetOutput_1
 				.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap

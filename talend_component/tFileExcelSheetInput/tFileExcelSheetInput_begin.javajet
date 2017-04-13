@@ -34,6 +34,7 @@
     boolean overrideExcelNumberFormat = "true".equals(ElementParameterParser.getValue(node, "__OVERRIDE_EXCEL_NUMBER_FORMAT__"));
     String defaultDateFormat = ElementParameterParser.getValue(node, "__DEFAULT_DATE_FORMAT__");
     boolean parseDateFromString = "true".equals(ElementParameterParser.getValue(node, "__PARSE_DATE_FROM_VISIBLE_STRING__"));
+    boolean parseDateLenient = "true".equals(ElementParameterParser.getValue(node, "__PARSE_DATE_LENIENT__"));
     boolean returnZeroDateAsNull = "true".equals(ElementParameterParser.getValue(node, "__RETURN_ZERO_DATE_AS_NULL__"));
     boolean useGrouping = "true".equals(ElementParameterParser.getValue(node, "__USE_GROUPING__"));
     String returnLink = ElementParameterParser.getValue(node, "__RETURN_LINK__");
@@ -94,7 +95,7 @@
 	}
 	boolean skipEmptyRows = "true".equals(ElementParameterParser.getValue(node, "__SKIP_EMPTY_ROW__"));
 %>
-    final de.cimt.talendcomp.excel.SpreadsheetInput <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetInput();
+    final de.jlo.talendcomp.excel.SpreadsheetInput <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetInput();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
     <%=cid%>.useSheet(<%=sheetName%>);
     globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName());
@@ -133,6 +134,7 @@
 	<%=cid%>.setDefaultDateFormat(<%=defaultDateFormat%>);
 <%  } %>
     <%=cid%>.setParseDateFromVisibleString(<%=parseDateFromString%>);
+    <%=cid%>.setLenientDateParsing(<%=parseDateLenient%>);
     <%=cid%>.setReturnZeroDateAsNull(<%=returnZeroDateAsNull%>);
 	<%=cid%>.setReturnURLInsteadOfName(<%=returnLink%>);
 	<%=cid%>.setConcatenateLabelUrl(<%=concatenateLabelUrl%>);
@@ -147,9 +149,9 @@
 	// Helper class to reduce the byte code footprint
 	class Helper_<%=cid%> {
 		
-		private de.cimt.talendcomp.excel.SpreadsheetInput sheetInput = null;
+		private de.jlo.talendcomp.excel.SpreadsheetInput sheetInput = null;
 		
-		public Helper_<%=cid%>(final de.cimt.talendcomp.excel.SpreadsheetInput sheetInput) {
+		public Helper_<%=cid%>(final de.jlo.talendcomp.excel.SpreadsheetInput sheetInput) {
 			this.sheetInput = sheetInput;
 		}
 	

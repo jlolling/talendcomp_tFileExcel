@@ -34,7 +34,7 @@
 	}
 %>
 
-    de.cimt.talendcomp.excel.SpreadsheetList <%=cid%> = new de.cimt.talendcomp.excel.SpreadsheetList();
+    de.jlo.talendcomp.excel.SpreadsheetList <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetList();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
 	int countSheets_<%=cid%> = <%=cid%>.countSheets();
 	int <%=cid%>_sheetIndex = 0;

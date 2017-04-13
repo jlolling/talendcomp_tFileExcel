@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.cimt.talendcomp.excel;
+package de.jlo.talendcomp.excel;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -36,6 +36,8 @@ import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
+
+import de.jlo.talendcomp.excel.GenericDateUtil.DateParser;
 
 public class SpreadsheetInput extends SpreadsheetFile {
 	
@@ -60,6 +62,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private boolean overrideExcelNumberFormat = false;
 	private Locale defaultLocale = null;
 	private boolean parseDateFromVisibleString = false;
+	private boolean lenientDateParsing = true;
 	private boolean returnZeroDateAsNull = true;
 	
 	public SpreadsheetInput() {
@@ -623,7 +626,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	private Date parseDate(String s, String pattern) throws ParseException {
 		if (s != null && s.isEmpty() == false) {
-			return GenericDateUtil.parseDate(s, defaultLocale, pattern);
+			DateParser du = GenericDateUtil.getDateParser(lenientDateParsing);
+			return du.parseDate(s, defaultLocale, pattern);
 		} else {
 			return null;
 		}
@@ -969,6 +973,16 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	public void setReturnZeroDateAsNull(boolean returnZeroDateAsNull) {
 		this.returnZeroDateAsNull = returnZeroDateAsNull;
+	}
+
+	public boolean isLenientDateParsing() {
+		return lenientDateParsing;
+	}
+
+	public void setLenientDateParsing(Boolean lenientDateParsing) {
+		if (lenientDateParsing != null) {
+			this.lenientDateParsing = lenientDateParsing;
+		}
 	}
 
 }

@@ -1,4 +1,4 @@
-package de.cimt.talendcomp.excel;
+package de.jlo.talendcomp.excel;
 
 import static org.junit.Assert.assertTrue;
 
@@ -11,13 +11,13 @@ public class TestExcelSheetOutput {
 	
 	@Test
 	public void testWriteZeroDate() throws Exception {
-		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.cimt.talendcomp.excel.SpreadsheetFile();
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		tFileExcelWorkbookOpen_1.setCreateStreamingXMLWorkbook(false);
 		tFileExcelWorkbookOpen_1.setInputFile(
 				"/var/testdata/excel/time.xlsx", false);
 		tFileExcelWorkbookOpen_1.initializeWorkbook();
 		
-		final de.cimt.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.cimt.talendcomp.excel.SpreadsheetOutput();
+		final de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setDebug(false);
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName("out");
@@ -42,7 +42,7 @@ public class TestExcelSheetOutput {
 		row[1] = new Date();
 		tFileExcelSheetOutput_1.writeRow(row);
 
-		de.cimt.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookSave_1 = new de.cimt.talendcomp.excel.SpreadsheetFile();
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookSave_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		// set the workbook
 		tFileExcelWorkbookSave_1.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
 		tFileExcelWorkbookSave_1.evaluateAllFormulars();
