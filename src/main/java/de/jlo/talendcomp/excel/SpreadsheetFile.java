@@ -61,7 +61,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook2;
 
 public class SpreadsheetFile {
 	
@@ -324,7 +323,7 @@ public class SpreadsheetFile {
 					FileInputStream fin = new FileInputStream(inputFile);
 					try {
 						ZipSecureFile.setMinInflateRatio(0);
-						workbook = new SXSSFWorkbook(new XSSFWorkbook2(fin), rowAccessWindow);
+						workbook = new SXSSFWorkbook(new XSSFWorkbook(fin), rowAccessWindow);
 					} finally {
 						if (fin != null) {
 							try {
@@ -348,7 +347,7 @@ public class SpreadsheetFile {
 						    // decrypt 
 						    dataStream = d.getDataStream(filesystem);
 						    // use open input stream
-							workbook = new XSSFWorkbook2(dataStream);
+							workbook = new XSSFWorkbook(dataStream);
 							dataStream.close();
 						} catch (GeneralSecurityException ex) {
 						    throw new Exception("Unable to read and parse encrypted document", ex);
@@ -372,7 +371,7 @@ public class SpreadsheetFile {
 					} else {
 						FileInputStream fin = new FileInputStream(inputFile);
 						try {
-							workbook = new XSSFWorkbook2(fin);
+							workbook = new XSSFWorkbook(fin);
 						} finally {
 							if (fin != null) {
 								try {
@@ -391,9 +390,9 @@ public class SpreadsheetFile {
 				workbook = new HSSFWorkbook();
 			} else if (currentType == SpreadsheetTyp.XLSX) {
 				if (createStreamingXMLWorkbook) {
-					workbook = new SXSSFWorkbook(new XSSFWorkbook2(), rowAccessWindow);
+					workbook = new SXSSFWorkbook(new XSSFWorkbook(), rowAccessWindow);
 				} else {
-					workbook = new XSSFWorkbook2();
+					workbook = new XSSFWorkbook();
 				}
 			}
 		}

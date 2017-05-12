@@ -173,7 +173,7 @@ public class GenericDateUtil {
 			timePatternList.add(" mm'm'ss's'");
 			timePatternList.add("'T'HH:mm:ss.SSSZ");
 			timePatternList.add("'T'HH:mm:ss.SSS");
-			timePatternList.add(" hh:mm:ss aaa");
+			timePatternList.add(" hh:mm:ss a");
 			timePatternList.add(" HH:mm:ss.SSS");
 			timePatternList.add(" HH:mm:ss");
 			timePatternList.add(" mm:ss");
@@ -289,8 +289,9 @@ public class GenericDateUtil {
 			return lenient;
 		}
 
-		public void setLenient(boolean lenient) {
+		public DateParser setLenient(boolean lenient) {
 			this.lenient = lenient;
+			return this;
 		}
 
 	}

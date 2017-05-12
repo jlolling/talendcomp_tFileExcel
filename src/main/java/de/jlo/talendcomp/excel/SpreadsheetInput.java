@@ -310,6 +310,10 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	public boolean isCellValueEmpty(int columnIndex) {
 		Cell cell = getCell(columnIndex);
+		return isCellValueEmpty(cell);
+	}
+
+	public boolean isCellValueEmpty(Cell cell) {
 		if (cell == null) {
 			return true;
 		} else { 
@@ -325,7 +329,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 						return false;
 					}
 				} catch (Exception e) {
-					return false;
+					return true;
 				}
 			} else if (cellType == CellType.STRING) {
 				String s = cell.getStringCellValue();
@@ -928,8 +932,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		} else {
 			for (Cell cell : currentRow) {
 				if (cell != null) {
-					CellType cellType = cell.getCellTypeEnum();
-					if (cellType != CellType.BLANK) {
+					if (isCellValueEmpty(cell) == false) {
 						return false;
 					}
 				}
@@ -945,8 +948,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			for (int i : columns) {
 				Cell cell = currentRow.getCell(i);
 				if (cell != null) {
-					CellType cellType = cell.getCellTypeEnum();
-					if (cellType != CellType.BLANK) {
+					if (isCellValueEmpty(cell) == false) {
 						return false;
 					}
 				}
