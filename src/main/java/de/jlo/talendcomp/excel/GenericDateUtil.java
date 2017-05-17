@@ -258,8 +258,13 @@ public class GenericDateUtil {
 						sdf.applyPattern(pattern.trim());
 						try {
 							timeValue = sdf.parse(text);
+							// take care we remove the days
+							Calendar c = Calendar.getInstance(getUTCTimeZone());
+							c.setTime(timeValue);
+							c.set(Calendar.DAY_OF_YEAR, 1);
+							c.set(Calendar.YEAR, 1970);
 							// if we continue here the pattern fits
-							return timeValue;
+							return c.getTime();
 						} catch (ParseException e) {
 							// the pattern obviously does not work
 							continue;
