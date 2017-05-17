@@ -183,6 +183,10 @@
 			boolean useLast = useLastMap.get(columnIndex);
 			String type = column.getTalendType();
 			String comment = column.getComment();
+			String pattern = column.getPattern();
+			if (pattern == null || pattern.trim().isEmpty()) {
+				pattern = "null";
+			}
 			if ("id_String".equals(type)) { %>
 	 		try {
 <%				if (readCommentMap.get(columnIndex)) { %>
@@ -262,9 +266,9 @@
 <%      	} else if ("id_Date".equals(type)) { %>
 	 		try {
 <%				if ("duration".equals(comment)) { %>
-				out.<%=column.getLabel()%> = sheetInput.getDurationCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=column.getPattern()%>);
+				out.<%=column.getLabel()%> = sheetInput.getDurationCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=pattern%>);
 <%              } else { %>
-				out.<%=column.getLabel()%> = sheetInput.getDateCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=column.getPattern()%>);
+				out.<%=column.getLabel()%> = sheetInput.getDateCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=pattern%>);
 <%				} %>
 			} catch (Exception e) {
 <%      	if (ignoreErrorMap.get(columnIndex)) { %>
