@@ -366,8 +366,8 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				ClientAnchor anchor = creationHelper.createClientAnchor();
 				anchor.setRow1(cell.getRowIndex());
 				anchor.setRow2(cell.getRowIndex() + commentHeight);
-				anchor.setCol1(cell.getColumnIndex() + 1);
-				anchor.setCol2(cell.getColumnIndex() + commentWidth + 1);
+				anchor.setCol1(cell.getColumnIndex());
+				anchor.setCol2(cell.getColumnIndex() + commentWidth);
 				anchor.setAnchorType(AnchorType.MOVE_AND_RESIZE);
 				c = getDrawing().createCellComment(anchor);
 				c.setVisible(false);
