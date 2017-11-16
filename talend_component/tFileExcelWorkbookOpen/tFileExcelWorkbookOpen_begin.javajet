@@ -12,7 +12,9 @@
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();	
     String file = ElementParameterParser.getValue(node, "__FILENAME__");
+    String bytearray = ElementParameterParser.getValue(node, "__BYTEARRAY__");
     String spreadsheetType = ElementParameterParser.getValue(node, "__SPREADSHEET_TYPE__");
+    boolean useByteArray = "true".equals(ElementParameterParser.getValue(node, "__USE_BYTEARRAY__"));
     boolean createEmptyWorkbook = "true".equals(ElementParameterParser.getValue(node, "__CREATE_EMPTY_WORKBOOK__"));
     boolean createStreamingWorkbook = "true".equals(ElementParameterParser.getValue(node, "__CREATE_STREAMING_WORKBOOK__"));
     boolean dieIfFileNotExists = "true".equals(ElementParameterParser.getValue(node, "__DIE_IF_FILE_NOT_EXISTS__"));
@@ -30,41 +32,47 @@
 %>
 	de.jlo.talendcomp.excel.SpreadsheetFile <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetFile();
 <%  if (registerBackportFunctions) { %>
-    // register additional backported functions like IFERROR
-    de.jlo.talendcomp.excel.SpreadsheetFile.registerBackportFunctions();
+        // register additional backported functions like IFERROR
+        de.jlo.talendcomp.excel.SpreadsheetFile.registerBackportFunctions();
 <%  } %>	
 	<%=cid%>.setCreateStreamingXMLWorkbook(<%=createStreamingWorkbook%>);
 <%  if (createEmptyWorkbook) {%>
-	try {
-<%		if ("XLS".equals(spreadsheetType)) {%>
-        // create empty XLS workbook
-		<%=cid%>.createEmptyXLSWorkbook();
-<%		} else if ("XLSX".equals(spreadsheetType)) {%>
-        // create empty XLSX workbook
-		<%=cid%>.createEmptyXLSXWorkbook();
-<%      } else {%>
-			throw new Exception("Unknown spreadsheet type: <%=spreadsheetType%>");
-<%      }%>
-		<%=cid%>.initializeWorkbook();
-	} catch (Exception e) {
-		<%=cid%>.error("Intialize empty workbook failed: " + e.getMessage(), e);
-		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
-		throw e;
-	}
+        try {
+<%          if ("XLS".equals(spreadsheetType)) {%>
+                // create empty XLS workbook
+                <%=cid%>.createEmptyXLSWorkbook();
+<%          } else if ("XLSX".equals(spreadsheetType)) {%>
+                // create empty XLSX workbook
+                <%=cid%>.createEmptyXLSXWorkbook();
+<%          } else {%>
+                throw new Exception("Unknown spreadsheet type: <%=spreadsheetType%>");
+<%          }%>
+            <%=cid%>.initializeWorkbook();
+        } catch (Exception e) {
+            <%=cid%>.error("Intialize empty workbook failed: " + e.getMessage(), e);
+            globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+            throw e;
+        }
 <%  } else {%>
-	try {
-	    // read a excel file as template
-	    // this file file will not used as output file
-		<%=cid%>.setInputFile(<%=file%>, <%=dieIfFileNotExists%>);
-<%  if (decrypt && createStreamingWorkbook == false) {%>
-		<%=cid%>.setPassword(<%=password%>);
-<%  } %>
-		<%=cid%>.initializeWorkbook();
-	} catch (Exception e) {
-		<%=cid%>.error("Intialize workbook from file failed: " + e.getMessage(), e);
-		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
-		throw e;
-	}
+        try {
+<%          if( useByteArray ){%>
+                // read a excel file from a byte array
+                // this file file will not used as output file
+                <%=cid%>.setInputFile(<%=bytearray%>, <%=dieIfFileNotExists%>);
+<%          } else {%>
+                // read a excel file as template
+                // this file file will not used as output file
+                <%=cid%>.setInputFile(<%=file%>, <%=dieIfFileNotExists%>);
+<%          }%>
+<%          if (decrypt && createStreamingWorkbook == false) {%>
+                <%=cid%>.setPassword(<%=password%>);
+<%          } %>
+            <%=cid%>.initializeWorkbook();
+        } catch (Exception e) {
+            <%=cid%>.error("Intialize workbook from file failed: " + e.getMessage(), e);
+            globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+            throw e;
+        }
 <%  }
     /*
 	List<Map<String, String>> styleList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__CELL_STYLES__");

@@ -15,6 +15,7 @@
  */
 package de.jlo.talendcomp.excel;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Arrays;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -68,6 +70,8 @@ public class SpreadsheetFile {
 	public static enum SpreadsheetTyp {XLS, XLSX};
 	protected SpreadsheetTyp currentType;
 	private File inputFile = null;
+	private byte[] inputBytes = null;
+	private Boolean isFileMode = null;
 	protected FileOutputStream fout;
 	protected File outputFile = null;
 	protected Workbook workbook;
@@ -93,6 +97,12 @@ public class SpreadsheetFile {
 	private DataFormatter dataFormatter = null;
 	protected boolean debug = false;
 	private static final Pattern CELL_REF_PATTERN = Pattern.compile("\\$?([A-Za-z]+)\\$?([0-9]+)"); // max is XFD
+	private static byte[] xlsMagicNumbers = {
+		(byte)0xD0, (byte)0xCF,
+		(byte)0x11, (byte)0xE0,
+		(byte)0xA1, (byte)0xB1, 
+		(byte)0x1A, (byte)0xE1
+	};
 
 	protected DataFormatter getDataFormatter() {
 		if (dataFormatter == null) {
@@ -282,7 +292,41 @@ public class SpreadsheetFile {
 			}
 		} else {
 			this.inputFile = inputFile;
+			this.isFileMode = true;
 		}
+	}
+	
+	/**
+	 * Set the excel byte array
+	 * @param bytes
+	 * @param filetype
+	 * @param dieIfEmpty
+	 * @throws Exception
+	 */
+	public void setInputFile(byte[] bytes, boolean dieIfEmpty) throws Exception {
+		
+		if((bytes == null || bytes.length == 0) && dieIfEmpty) {
+			throw new Exception("No bytes where given as input!");
+		}
+		
+		SpreadsheetTyp type = null;
+		
+		if( Arrays.equals(xlsMagicNumbers, Arrays.copyOf(bytes, xlsMagicNumbers.length)) ) {
+			type = SpreadsheetTyp.XLS;
+		} else {
+			type = SpreadsheetTyp.XLSX;
+		}
+		
+		if (currentType != null) {
+			if (currentType != type) {
+				throw new Exception("Workbook cannot be saved into a different type for output");
+			}
+		} else {
+			currentType = type;
+		}
+		
+		this.inputBytes = bytes;
+		this.isFileMode = false;
 	}
 	
 	private static SpreadsheetTyp getSpreadsheetType(String name) throws Exception {
@@ -297,37 +341,47 @@ public class SpreadsheetFile {
 		return type;
 	}
 	
+	private InputStream getInputStream() throws Exception{
+		if(this.isFileMode) {
+			return new FileInputStream(this.inputFile);
+		} else {
+			return new ByteArrayInputStream(this.inputBytes);
+		}
+	}
+	
 	public void initializeWorkbook() throws Exception {
-		if (inputFile != null) {
+		if (inputFile != null || inputBytes != null) {
 			// open existing files
+			InputStream ins = null;
+			
 			if (currentType == SpreadsheetTyp.XLS) {
 				if (readPassword != null) {
 					try {
 						// switch on decryption
 						Biff8EncryptionKey.setCurrentUserPassword(readPassword);
-						FileInputStream fin = new FileInputStream(inputFile);
-						workbook = new HSSFWorkbook(fin);
-						fin.close();
+						ins = getInputStream();
+						workbook = new HSSFWorkbook(ins);
+						ins.close();
 					} finally {
 						// switch off
 						Biff8EncryptionKey.setCurrentUserPassword(null);
 						readPassword = null;
 					}
 				} else {
-					FileInputStream fin = new FileInputStream(inputFile);
-					workbook = new HSSFWorkbook(fin);
-					fin.close();
+					ins = getInputStream();
+					workbook = new HSSFWorkbook(ins);
+					ins.close();
 				}
 			} else if (currentType == SpreadsheetTyp.XLSX) {
 				if (createStreamingXMLWorkbook) {
-					FileInputStream fin = new FileInputStream(inputFile);
+					ins = getInputStream();
 					try {
 						ZipSecureFile.setMinInflateRatio(0);
-						workbook = new SXSSFWorkbook(new XSSFWorkbook(fin), rowAccessWindow);
+						workbook = new SXSSFWorkbook(new XSSFWorkbook(ins), rowAccessWindow);
 					} finally {
-						if (fin != null) {
+						if (ins != null) {
 							try {
-								fin.close();
+								ins.close();
 							} catch (IOException ioe) {
 								// ignore
 							}
@@ -335,8 +389,8 @@ public class SpreadsheetFile {
 					}
 				} else {
 					if (readPassword != null) {
-						FileInputStream fin = new FileInputStream(inputFile);
-						POIFSFileSystem filesystem = new POIFSFileSystem(fin);
+						ins = getInputStream();
+						POIFSFileSystem filesystem = new POIFSFileSystem(ins);
 						EncryptionInfo info = new EncryptionInfo(filesystem);
 						Decryptor d = Decryptor.getInstance(info);
 						InputStream dataStream = null;
@@ -359,9 +413,9 @@ public class SpreadsheetFile {
 									// ignore
 								}
 							}
-							if (fin != null) {
+							if (ins != null) {
 								try {
-									fin.close();
+									ins.close();
 								} catch (IOException ioe) {
 									// ignore
 								}
@@ -369,13 +423,13 @@ public class SpreadsheetFile {
 						}
 						readPassword = null;
 					} else {
-						FileInputStream fin = new FileInputStream(inputFile);
+						ins = getInputStream();
 						try {
-							workbook = new XSSFWorkbook(fin);
+							workbook = new XSSFWorkbook(ins);
 						} finally {
-							if (fin != null) {
+							if (ins != null) {
 								try {
-									fin.close();
+									ins.close();
 								} catch (IOException ioe) {
 									// ignore
 								}
