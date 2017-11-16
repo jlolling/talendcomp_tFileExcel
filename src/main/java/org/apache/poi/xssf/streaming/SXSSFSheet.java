@@ -838,22 +838,6 @@ public class SXSSFSheet implements Sheet, Cloneable
     }
 
     /**
-     * Sets the zoom magnication for the sheet.  The zoom is expressed as a
-     * fraction.  For example to express a zoom of 75% use 3 for the numerator
-     * and 4 for the denominator.
-     *
-     * @param numerator     The numerator for the zoom magnification.
-     * @param denominator   The denominator for the zoom magnification.
-     * @deprecated 2015-11-23 (circa POI 3.14beta1). Use {@link #setZoom(int)} instead.
-     */
-    @Deprecated
-	@Override
-    public void setZoom(int numerator, int denominator)
-    {
-        _sh.setZoom(numerator,denominator);
-    }
-    
-    /**
      * Window zoom magnification for current view representing percent values.
      * Valid values range from 10 to 400. Horizontal & Vertical scale together.
      *
@@ -1576,19 +1560,6 @@ public class SXSSFSheet implements Sheet, Cloneable
         }
     }
 
-    /**
-     * Returns cell comment for the specified row and column
-     *
-     * @return cell comment or <code>null</code> if not found
-     * @deprecated as of 2015-11-23 (circa POI 3.14beta1). Use {@link #getCellComment(CellAddress)} instead.
-     */
-    @Deprecated
-	@Override
-    public XSSFComment getCellComment(int row, int column)
-    {
-        return getCellComment(new CellAddress(row, column));
-    }
-    
     /**
      * Returns cell comment for the specified row and column
      *
