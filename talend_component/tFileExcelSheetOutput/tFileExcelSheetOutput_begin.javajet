@@ -95,9 +95,7 @@
 <%  } %>
 	<%=cid%>.initializeSheet();
 <%  if (appendRows) { %>
-	 {
-	    <%=cid%>.setRowStartIndex(<%=cid%>.getSheet().getLastRowNum() + 1);
-	 }
+    <%=cid%>.setRowStartIndex(<%=cid%>.getSheet().getLastRowNum() + 1);
 <%  } else if (rowStartIndexStr != null && rowStartIndexStr.isEmpty() == false) { %>
 	<%=cid%>.setRowStartIndex(<%=rowStartIndexStr%> - 1);
 <%  } %>
@@ -130,16 +128,15 @@
     // configure cell formats
 <%	if ("true".equals(reuseStyle) == false) {
 	    for (Map.Entry<Integer, String> entry : formatMap.entrySet()) { 
-		    String columnFormat = null;
         	Integer schemaColumnIndex = entry.getKey();
-        	columnFormat = entry.getValue();
+        	String columnFormat = entry.getValue();
         	String talendType = null;
         	Integer precision = null;
         	if (listColumns != null) { 
 	        	IMetadataColumn mc = listColumns.get(schemaColumnIndex);
 	        	precision = mc.getPrecision();
    	        	talendType = mc.getTalendType().substring(3);
- 		    	if (columnFormat == null || columnFormat.isEmpty()) {
+ 		    	if (columnFormat == null || columnFormat.trim().isEmpty()) {
                		columnFormat = mc.getPattern();
             	}
         	} %>

@@ -1,5 +1,8 @@
 package de.jlo.talendcomp.excel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -219,6 +222,15 @@ public class StyleUtil {
 			css.append(";");
 		}
 		return css.toString();
+	}
+	
+	public List<CellStyle> listAll() {
+		int n = workbook.getNumCellStyles();
+		List<CellStyle> listStyles = new ArrayList<CellStyle>();
+		for (int i = 0; i < n; i++) {
+			listStyles.add(workbook.getCellStyleAt(i));
+		}
+		return listStyles;
 	}
 	
 }
