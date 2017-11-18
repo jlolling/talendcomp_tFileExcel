@@ -10,9 +10,11 @@
     INode node = (INode) codeGenArgument.getArgument();
     String cid = node.getUniqueName();
     String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
+    boolean forbidWritingInLockedCells = "true".equals(ElementParameterParser.getValue(node, "__FORBID_WRITING_INTO_LOCKED_CELLS__"));
 %>
     de.jlo.talendcomp.excel.SpreadsheetOutput <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetOutput();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
+    <%=cid%>.setForbidWritingInProtectedCells(<%=forbidWritingInLockedCells%>);
 	 // row counter
     int nb_line_<%=cid%> = 0;
     

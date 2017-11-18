@@ -82,6 +82,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private boolean setupCellStylesForAllColumns = false;
 	private int highestColumnIndex = 0;
 	private boolean writeZeroDateAsNull = true;
+	private boolean forbidWritingInProtectedCells = false;
 	
 	public void initializeSheet() {
 		if (workbook == null) {
@@ -129,12 +130,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		writeRow(oneRow);
 	}
 
-	public void writeColumn(List<? extends Object> listValues) throws IOException {
+	public void writeColumn(List<? extends Object> listValues) throws Exception {
 		Object[] oneRow = listValues.toArray();
 		writeColumn(oneRow);
 	}
 
-	public void writeColumn(Object[] dataset) throws IOException {
+	public void writeColumn(Object[] dataset) throws Exception {
 		if (sheet == null) {
 			throw new IOException("Sheet is not initialized!");
 		}
@@ -400,7 +401,19 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 	}
 	
-	private void writeCellValue(Cell cell, Object value, int dataColumnIndex, int dataRowIndex) {
+	private boolean isCellProtected(Cell cell) {
+		if (cell != null) {
+			return sheet.getProtect() && cell.getCellStyle().getLocked();
+		}
+		return false;
+	}
+	
+	private void writeCellValue(Cell cell, Object value, int dataColumnIndex, int dataRowIndex) throws Exception {
+		if (forbidWritingInProtectedCells) {
+			if (isCellProtected(cell)) {
+				throw new Exception("Not allowed to write into locked cells. The cell is locked: " + new CellReference(cell).formatAsString());
+			}
+		}
 		if (value instanceof String) {
 			String s = (String) value;
 			boolean isPlainValue = true;
@@ -1244,6 +1257,14 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 
 	public void setWriteZeroDateAsNull(boolean writeZeroDateAsNull) {
 		this.writeZeroDateAsNull = writeZeroDateAsNull;
+	}
+
+	public boolean isForbiddenWritingInProtectedCells() {
+		return forbidWritingInProtectedCells;
+	}
+
+	public void setForbidWritingInProtectedCells(boolean forbidWritingInProtectedCells) {
+		this.forbidWritingInProtectedCells = forbidWritingInProtectedCells;
 	}
 	
 }
