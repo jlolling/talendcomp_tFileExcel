@@ -81,16 +81,6 @@ public abstract class DetachedCellStyle implements CellStyle {
 	}
 
 	@Override
-	public void setQuotePrefixed(boolean quotePrefix) {
-		this.quotePrefixed = quotePrefix;
-	}
-
-	@Override
-	public boolean getQuotePrefixed() {
-		return quotePrefixed;
-	}
-
-	@Override
 	public void setAlignment(HorizontalAlignment align) {
 		this.horizontalAlignment = align;
 	}

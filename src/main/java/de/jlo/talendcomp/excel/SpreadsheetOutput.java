@@ -58,7 +58,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private boolean autoSizeAllColumns = false;
 	private List<Integer> listColumnsToWriteComment = new ArrayList<Integer>();
 	private List<Integer> listColumnsToWriteHyperlink = new ArrayList<Integer>();
-	private Drawing<?> drawing = null;
+	private Drawing drawing = null;
 	private boolean groupRowsByColumn = false;
 	private Map<Integer, GroupInfo> groupInfoMap = new HashMap<Integer, SpreadsheetOutput.GroupInfo>();
 	private String oddRowStyleName = null;
@@ -351,7 +351,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		return true;
 	}
 	
-	private Drawing<?> getDrawing() {
+	private Drawing getDrawing() {
 		if (drawing == null) {
 			drawing = sheet.createDrawingPatriarch();
 		}

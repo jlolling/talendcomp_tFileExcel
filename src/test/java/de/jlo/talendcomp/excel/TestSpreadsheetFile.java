@@ -11,10 +11,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.jlo.talendcomp.excel.SpreadsheetFile;
-import de.jlo.talendcomp.excel.SpreadsheetInput;
-import de.jlo.talendcomp.excel.SpreadsheetOutput;
-
 
 public class TestSpreadsheetFile {
 	
@@ -23,6 +19,26 @@ public class TestSpreadsheetFile {
 	@Before
 	public void setUp() throws Exception {
 		
+	}
+	
+	@Test
+	public void testReadXls() throws Exception {
+		SpreadsheetInput tFileExcelSheetInput_2 = new SpreadsheetInput();
+		tFileExcelSheetInput_2.setInputFile("/Data/Talend/testdata/excel/4803e947fa70cfcd828079fe857f8a1b.xls");
+		tFileExcelSheetInput_2.initializeWorkbook();
+		tFileExcelSheetInput_2.useSheet(0);
+		tFileExcelSheetInput_2.setStopAtMissingRow(false);
+		tFileExcelSheetInput_2.setRowStartIndex(3);
+		// configure cell positions
+		tFileExcelSheetInput_2.setDataColumnPosition(0, "A");
+		tFileExcelSheetInput_2.setFormatLocale("en", true);
+		tFileExcelSheetInput_2.setDefaultDateFormat("yyyy-MM-dd HH:mm:ss");
+		tFileExcelSheetInput_2.setReturnURLInsteadOfName(false);
+		tFileExcelSheetInput_2.setConcatenateLabelUrl(false);
+		while (tFileExcelSheetInput_2.readNextRow()) {
+			String agStr = tFileExcelSheetInput_2.getStringCellValue(0, true, true, false);
+			System.out.println(agStr);
+		}
 	}
 
 	@Test
