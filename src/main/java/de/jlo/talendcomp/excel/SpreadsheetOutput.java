@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 Jan Lolling jan.lolling@gmail.com
+ * Copyright 2018 Jan Lolling jan.lolling@gmail.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private boolean autoSizeAllColumns = false;
 	private List<Integer> listColumnsToWriteComment = new ArrayList<Integer>();
 	private List<Integer> listColumnsToWriteHyperlink = new ArrayList<Integer>();
-	private Drawing drawing = null;
+	private Drawing<?> drawing = null;
 	private boolean groupRowsByColumn = false;
 	private Map<Integer, GroupInfo> groupInfoMap = new HashMap<Integer, SpreadsheetOutput.GroupInfo>();
 	private String oddRowStyleName = null;
@@ -164,8 +164,21 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	}
 	
 	public void shiftCurrentRow() {
-		sheet.shiftRows(rowStartIndex + currentDatasetNumber, sheet.getLastRowNum(), 1, true, false); // move the rows one down
-		sheet.createRow(rowStartIndex + currentDatasetNumber); // create a new empty row
+		int start = rowStartIndex + currentDatasetNumber;
+		int end = sheet.getLastRowNum();
+		if (start < end) {
+			// only shift if there is a row after the row we are currently writing
+			Row shiftedRow = getRow(start);
+			sheet.shiftRows(start, end, 1, true, false); // move the rows one down
+			Row newRow = getRow(start); // create a new empty row if needed
+			newRow.setHeight(shiftedRow.getHeight());
+			newRow.setRowStyle(shiftedRow.getRowStyle());
+			// copy style from the shifted cells to the new created cells
+			for (Cell shiftedCell : shiftedRow) {
+				Cell newCell = getCell(newRow, shiftedCell.getColumnIndex());
+				newCell.setCellStyle(shiftedCell.getCellStyle());
+			}
+		}
 	}
 	
 	/**
@@ -351,7 +364,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		return true;
 	}
 	
-	private Drawing getDrawing() {
+	private Drawing<?> getDrawing() {
 		if (drawing == null) {
 			drawing = sheet.createDrawingPatriarch();
 		}
@@ -441,6 +454,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				} else {
 					cell.setCellValue(s);
 					cell.setCellType(CellType.STRING);
+					cellFormatMap.put(cell.getColumnIndex(), (short) org.apache.poi.ss.usermodel.BuiltinFormats.getBuiltinFormat("TEXT"));
 				}
 			}
 		} else if (value instanceof Integer) {
@@ -656,7 +670,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			cellFormatMap.put(columnIndex, formatIndex);
 		}
 	}
-
+	
 	public void setNumberPrecision(int columnIndex, int precision) {
 		short formatIndex = format.getFormat(createPrecisionPattern(precision));
 		cellFormatMap.put(columnIndex, formatIndex);
@@ -897,10 +911,13 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private boolean extendTable(XSSFTable table, int firstRow, int firstCol, int lastRow) throws Exception {
 		try {
 			AreaReference currentRef = null;
+			SpreadsheetVersion sv = null;
 			if (currentType == SpreadsheetTyp.XLS) {
-				currentRef = new AreaReference(table.getCTTable().getRef(), SpreadsheetVersion.EXCEL97);
+				sv = SpreadsheetVersion.EXCEL97;
+				currentRef = new AreaReference(table.getCTTable().getRef(), sv);
 			} else {
-				currentRef = new AreaReference(table.getCTTable().getRef(), SpreadsheetVersion.EXCEL2007);
+				sv = SpreadsheetVersion.EXCEL2007;
+				currentRef = new AreaReference(table.getCTTable().getRef(), sv);
 			}
 			CellReference topLeft = currentRef.getFirstCell();
 			CellReference buttomRight = currentRef.getLastCell();
@@ -908,7 +925,8 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				// this table is within our write area, we have to expand it
 				AreaReference newRef = new AreaReference(
 						topLeft, // left top including the header line
-						new CellReference(lastRow, buttomRight.getCol())); // bottom right
+						new CellReference(lastRow, buttomRight.getCol()), // bottom right
+						sv); // Excel Version
 				table.getCTTable().setRef(newRef.formatAsString());
 				return true;
 			} else {

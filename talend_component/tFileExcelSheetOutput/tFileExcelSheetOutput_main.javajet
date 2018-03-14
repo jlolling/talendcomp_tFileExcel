@@ -31,6 +31,7 @@
 		}
 	}
 	boolean writeColumns = "true".equals(ElementParameterParser.getValue(node, "__WRITE_IN_COLUMNS__"));
+	boolean shiftRows = "true".equals(ElementParameterParser.getValue(node, "__SHIFT_ROWS__"));
 %>
     // fill schema data into the object array
     Object[] dataset_<%=cid%> = new Object[<%=listColumns.size()%>];
@@ -45,6 +46,9 @@
 <%  if (writeColumns) { %>
     	<%=cid%>.writeColumn(dataset_<%=cid%>);
 <%  } else { %>
+<%		if (shiftRows) { %>
+		<%=cid%>.shiftCurrentRow();
+<%		} %>
     	<%=cid%>.writeRow(dataset_<%=cid%>);
 <%  } %>
     	nb_line_<%=cid%>++;
