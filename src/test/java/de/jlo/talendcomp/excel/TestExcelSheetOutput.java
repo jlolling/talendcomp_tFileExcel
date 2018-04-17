@@ -58,7 +58,6 @@ public class TestExcelSheetOutput {
 			throw e;
 		}
 		assertTrue(true);
-
 	}
 
 }

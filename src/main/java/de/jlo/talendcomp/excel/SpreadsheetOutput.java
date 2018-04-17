@@ -730,8 +730,11 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private boolean isDataRow(int row) {
 		if (firstRowIsHeader) {
 			return row > 0;
+		} else if (row >= 0) {
+			return true;
+		} else {
+			return false;
 		}
-		return true;
 	}
 
 	private boolean isSecondRow(int row) {
