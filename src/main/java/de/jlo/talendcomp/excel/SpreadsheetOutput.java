@@ -454,7 +454,10 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				} else {
 					cell.setCellValue(s);
 					cell.setCellType(CellType.STRING);
-					cellFormatMap.put(cell.getColumnIndex(), (short) org.apache.poi.ss.usermodel.BuiltinFormats.getBuiltinFormat("TEXT"));
+					if (firstRowIsHeader == false || dataRowIndex > 0) {
+						// do not mislead the cell format if we are in the header line
+						cellFormatMap.put(cell.getColumnIndex(), (short) org.apache.poi.ss.usermodel.BuiltinFormats.getBuiltinFormat("TEXT"));
+					}
 				}
 			}
 		} else if (value instanceof Integer) {
