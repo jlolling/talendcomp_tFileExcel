@@ -80,7 +80,9 @@ public class SpreadsheetFile {
 	protected String targetSheetName;
 	protected Row currentRow;
 	protected int currentDatasetNumber = 0;
-	protected String dateFormatPattern = "dd.MM.yyyy HH:mm:ss";
+	protected String dateFormatPattern = "yyyy-MM-dd HH:mm:ss";
+	protected String doubleFormatPattern = "#.##0,00000000";
+	protected String longFormatPattern = "#.##";
 	protected CreationHelper creationHelper;
 	protected CellStyle cellDateStyle;
 	protected int columnStartIndex = 0;

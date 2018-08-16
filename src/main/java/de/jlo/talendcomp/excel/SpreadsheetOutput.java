@@ -125,11 +125,6 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 	}
 	
-	public void writeRow(List<? extends Object> listValues) throws Exception {
-		Object[] oneRow = listValues.toArray();
-		writeRow(oneRow);
-	}
-
 	public void writeColumn(List<? extends Object> listValues) throws Exception {
 		Object[] oneRow = listValues.toArray();
 		writeColumn(oneRow);
@@ -178,6 +173,27 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				Cell newCell = getCell(newRow, shiftedCell.getColumnIndex());
 				newCell.setCellStyle(shiftedCell.getCellStyle());
 			}
+		}
+	}
+	
+	public void writeRow(List<? extends Object> listValues) throws Exception {
+		Object[] oneRow = listValues.toArray();
+		writeRow(oneRow);
+	}
+
+	public void writeRow(routines.system.Dynamic dynamicValues) throws Exception {
+		if (firstRowIsHeader && isDataRow(currentDatasetNumber) == false) {
+			Object[] headerRow = new Object[dynamicValues.getColumnCount()];
+			for (int c = 0; c < headerRow.length; c++) {
+				headerRow[c] = dynamicValues.getColumnMetadata(c).getName();
+			}
+			writeRow(headerRow);
+		} else {
+			Object[] dataRow = new Object[dynamicValues.getColumnCount()];
+			for (int c = 0; c < dataRow.length; c++) {
+				dataRow[c] = dynamicValues.getColumnValue(c);
+			}
+			writeRow(dataRow);
 		}
 	}
 	

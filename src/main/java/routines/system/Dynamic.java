@@ -96,24 +96,6 @@ public class Dynamic implements Cloneable, java.io.Serializable {
         values.clear();
     }
 
-    public void writeValuesToStream(java.io.OutputStream out, String delimiter) throws java.io.IOException {
-        for (int i = 0; i < metadatas.size(); i++) {
-            out.write((String.valueOf(values.get(i))).getBytes());
-            if (i != (metadatas.size() - 1))
-                out.write(delimiter.getBytes());
-        }
-        out.flush();
-    }
-
-    public void writeHeaderToStream(java.io.OutputStream out, String delimiter) throws java.io.IOException {
-        for (int i = 0; i < metadatas.size(); i++) {
-            out.write((String.valueOf(metadatas.get(i).getName())).getBytes());
-            if (i != (metadatas.size() - 1))
-                out.write(delimiter.getBytes());
-        }
-        out.flush();
-    }
-
     @Override
 	public int hashCode() {
         return this.values.hashCode();
