@@ -202,8 +202,25 @@ public class SpreadsheetFile {
 		}
 	}
 
-	public void setTargetSheetName(String name) throws IOException {
+	public void setTargetSheetName(String name) throws Exception {
+		if (workbook == null) {
+			throw new Exception("Workbook is not initialized!");
+		}
 		this.targetSheetName = ensureCorrectExcelSheetName(name);
+	}
+	
+	public void setTargetSheetName(Integer index) throws Exception {
+		if (workbook == null) {
+			throw new Exception("Workbook is not initialized!");
+		}
+		if (index == null) {
+			throw new Exception("Index cannot be null!");
+		}
+		sheet = workbook.getSheetAt(index);
+		if (sheet == null) {
+			throw new Exception("If the sheet is addressed with an index, the sheet must exists already. Sheet with index:" + index + " does not exists!");
+		}
+		targetSheetName = sheet.getSheetName();
 	}
 	
 	public String getTargetSheetName() {
