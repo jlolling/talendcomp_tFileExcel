@@ -211,9 +211,12 @@ public class SpreadsheetFile {
 		if (index == null) {
 			throw new Exception("Index cannot be null!");
 		}
+		if (index >= workbook.getNumberOfSheets()) {
+			throw new Exception("If the sheet is addressed by an index, the sheet must exists. Sheet with index:" + index + " does not exist!");
+		}
 		sheet = workbook.getSheetAt(index);
 		if (sheet == null) {
-			throw new Exception("If the sheet is addressed with an index, the sheet must exists already. Sheet with index:" + index + " does not exists!");
+			throw new Exception("Sheet with index:" + index + " does not exist!");
 		}
 		targetSheetName = sheet.getSheetName();
 	}
