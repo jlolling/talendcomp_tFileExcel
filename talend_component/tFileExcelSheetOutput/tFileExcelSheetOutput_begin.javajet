@@ -33,55 +33,55 @@
     String columnStartPosStr = ElementParameterParser.getValue(node, "__COLUMN_START_INDEX__");
     Map<Integer, String> fieldMap = new HashMap<Integer, String>();
     int columnIndex = 0;
-	if (useIndividualColumnPositions) {
+	 if (useIndividualColumnPositions) {
        List<Map<String, String>> mappingList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
 	 	 for (Map<String, String> entry : mappingList) {
-			String name = entry.get("POSITION");
-			if (name != null && name.trim().isEmpty() == false) {
-				fieldMap.put(columnIndex, name.trim());
-			}
-			columnIndex++;
-		}
-	}
+			 String name = entry.get("POSITION");
+			 if (name != null && name.trim().isEmpty() == false) {
+				 fieldMap.put(columnIndex, name.trim());
+			 }
+			 columnIndex++;
+		 }
+	 }
     IConnection conn = null;
     if (node.getIncomingConnections().size() > 0) {
-    	conn = node.getIncomingConnections().get(0);
+    	 conn = node.getIncomingConnections().get(0);
     }
-	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
-	List<IMetadataTable> metadatas = node.getMetadataList();
-	if (metadatas != null && metadatas.size() > 0) {
-    	IMetadataTable metadata = metadatas.get(0);
-    	if (metadata != null) {
-    		listColumns = metadata.getListColumns();
-		}
-	}
+	 List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
+	 List<IMetadataTable> metadatas = node.getMetadataList();
+	 if (metadatas != null && metadatas.size() > 0) {
+    	 IMetadataTable metadata = metadatas.get(0);
+    	 if (metadata != null) {
+    		 listColumns = metadata.getListColumns();
+		 }
+	 }
     List<Map<String, String>> formatList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
     Map<Integer, String> formatMap = new HashMap<Integer, String>();
-	columnIndex = 0;
-	for (Map<String, String> entry : formatList) {
-		String format = entry.get("FORMAT");
-		if (format != null && format.isEmpty() == false) {
-			formatMap.put(columnIndex, format);
-		}
-		columnIndex++;
-	}	
-	List<Map<String, String>> headerList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
-	Map<Integer, String> headerMap = new HashMap<Integer, String>();
-	columnIndex = 0;
-	for (Map<String, String> entry : headerList) {
-		String header = entry.get("HEADER");
-		if (header != null && header.isEmpty() == false) {
-			headerMap.put(columnIndex, header);
-		}
-		columnIndex++;
-	}
-	String reuseStyle = ElementParameterParser.getValue(node, "__REUSE_STYLE__");
-	String reuseStyleAlternating = ElementParameterParser.getValue(node, "__REUSE_STYLE_ALTERNATING__");
-	String reuseFirstRowHeight = ElementParameterParser.getValue(node, "__REUSE_FIRST_ROW_HEIGHT__");
-	String reuseStylesForAllCells = ElementParameterParser.getValue(node, "__REUSE_STYLES_FOR_ALL__");
-	boolean writeColumns = "true".equals(ElementParameterParser.getValue(node, "__WRITE_IN_COLUMNS__"));
-	String groupColumns = ElementParameterParser.getValue(node, "__GROUP_COLS__");
-	if (writeColumns) appendRows = false;
+	 columnIndex = 0;
+	 for (Map<String, String> entry : formatList) {
+		 String format = entry.get("FORMAT");
+		 if (format != null && format.isEmpty() == false) {
+			 formatMap.put(columnIndex, format);
+		 }
+		 columnIndex++;
+	 }	
+	 List<Map<String, String>> headerList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+	 Map<Integer, String> headerMap = new HashMap<Integer, String>();
+	 columnIndex = 0;
+	 for (Map<String, String> entry : headerList) {
+		 String header = entry.get("HEADER");
+		 if (header != null && header.isEmpty() == false) {
+			 headerMap.put(columnIndex, header);
+		 }
+		 columnIndex++;
+	 }
+	 String reuseStyle = ElementParameterParser.getValue(node, "__REUSE_STYLE__");
+	 String reuseStyleAlternating = ElementParameterParser.getValue(node, "__REUSE_STYLE_ALTERNATING__");
+	 String reuseFirstRowHeight = ElementParameterParser.getValue(node, "__REUSE_FIRST_ROW_HEIGHT__");
+	 String reuseStylesForAllCells = ElementParameterParser.getValue(node, "__REUSE_STYLES_FOR_ALL__");
+	 boolean writeColumns = "true".equals(ElementParameterParser.getValue(node, "__WRITE_IN_COLUMNS__"));
+	 String groupColumns = ElementParameterParser.getValue(node, "__GROUP_COLS__");
+	 if (writeColumns) appendRows = false;
 %>
     final de.jlo.talendcomp.excel.SpreadsheetOutput <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetOutput();
     <%=cid%>.setDebug(<%=debug%>);
