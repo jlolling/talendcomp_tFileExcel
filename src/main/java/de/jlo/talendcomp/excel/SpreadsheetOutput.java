@@ -148,7 +148,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					setAutoSizeColumn(dataColumnIndex);
 				}
 			}
-			writeCellValue(cell, value, dataColumnIndex, currentDatasetNumber);
+			writeCellValue(cell, value, dataColumnIndex, currentDatasetNumber, false);
 			dataColumnIndex++;
 		}
 		currentDatasetNumber++;
@@ -225,7 +225,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					}
 				}
 			}
-			writeCellValue(cell, value, dataColumnIndex, currentDatasetNumber);
+			writeCellValue(cell, value, dataColumnIndex, currentDatasetNumber, false);
 			if (groupRowsByColumn) {
 				GroupInfo gi = groupInfoMap.get(dataColumnIndex);
 				if (gi != null) {
@@ -291,7 +291,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	public boolean writeNamedCellValue(String cellName, Object value) throws Exception {
 		Cell cell = getNamedCell(cellName);
 		if (cell != null) {
-			writeCellValue(cell, value, -1, -1);
+			writeCellValue(cell, value, -1, -1, true);
 			return true;
 		} else {
 			return false;
@@ -351,7 +351,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 		Row row = getRow(rowIndex - 1);
 		Cell cell = getCell(row, columnIndex);
-		writeCellValue(cell, value, columnIndex, rowIndex - 1);
+		writeCellValue(cell, value, columnIndex, rowIndex - 1, false);
 		if (comment != null && comment.isEmpty() == false) {
 			setCellComment(cell, comment);
 		}
@@ -421,7 +421,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		return false;
 	}
 	
-	private void writeCellValue(Cell cell, Object value, int dataColumnIndex, int dataRowIndex) throws Exception {
+	private void writeCellValue(Cell cell, Object value, int dataColumnIndex, int dataRowIndex, boolean doNotSetCellStyle) throws Exception {
 		if (forbidWritingInProtectedCells) {
 			if (isCellProtected(cell)) {
 				throw new Exception("Not allowed to write into locked cells. The cell is locked: " + new CellReference(cell).formatAsString());
@@ -500,7 +500,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		} else if (writeNullValues && value == null) {
 			cell.setCellType(CellType.BLANK);
 		}
-		if (isDataRow(dataRowIndex)) {
+		if (isDataRow(dataRowIndex) && doNotSetCellStyle == false) {
 			setupStyle(cell, dataRowIndex);
 		}
 	}
