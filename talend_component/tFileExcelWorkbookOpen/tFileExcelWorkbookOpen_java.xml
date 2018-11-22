@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER AUTHOR="Jan Lolling" COMPATIBILITY="ALL" DATA_AUTO_PROPAGATE="false" PLATEFORM="ALL" RELEASE_DATE="20180902" SERIAL="" STARTABLE="true" STATUS="TEST" VERSION="10.3"> 
+  <HEADER AUTHOR="Jan Lolling" COMPATIBILITY="ALL" DATA_AUTO_PROPAGATE="false" PLATEFORM="ALL" RELEASE_DATE="20181122" SERIAL="" STARTABLE="true" STATUS="TEST" VERSION="10.4"> 
     <SIGNATURE/> 
   </HEADER>  
   <FAMILIES> 
@@ -66,13 +66,13 @@
         <ITEM NAME="FUNC_CLASS" FIELD="TEXT"/> 
       </ITEMS> 
     </PARAMETER>  
-    <PARAMETER NAME="RELEASE_LABEL_20180902" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
-      <DEFAULT>Release: 10.3 build at: 20180902</DEFAULT>
+    <PARAMETER NAME="RELEASE_LABEL_20181122" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 10.4 build at: 20181122</DEFAULT>
     </PARAMETER>
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS> 
-      <IMPORT NAME="jlo-talendcomp-excel" MODULE="jlo-talendcomp-excel-10.3.jar" REQUIRED="true"/>
+      <IMPORT NAME="jlo-talendcomp-excel" MODULE="jlo-talendcomp-excel-10.4.jar" REQUIRED="true"/>
       <IMPORT NAME="poi-ooxml" MODULE="poi-ooxml-3.17.jar" REQUIRED="true"/>
       <IMPORT NAME="poi" MODULE="poi-3.17.jar" REQUIRED="true"/>
       <IMPORT NAME="commons-codec" MODULE="commons-codec-1.10.jar" REQUIRED="true"/>

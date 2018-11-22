@@ -589,6 +589,8 @@ public class SpreadsheetFile {
         			fout.close();
         			if (workbook instanceof SXSSFWorkbook) {
         				((SXSSFWorkbook) workbook).dispose();
+        			} else {
+        				workbook.close();
         			}
         		} catch (Exception e1) {
         			// ignored
@@ -1029,6 +1031,16 @@ public class SpreadsheetFile {
 			return sb.toString();
 		} else {
 			return "";
+		}
+	}
+	
+	public void close() {
+		if (workbook != null) {
+			try {
+				workbook.close();
+			} catch (Exception e) {
+				// ignore
+			}
 		}
 	}
 

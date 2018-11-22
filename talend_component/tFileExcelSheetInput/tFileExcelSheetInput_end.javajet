@@ -1,15 +1,20 @@
 <%@ jet 
 	imports="
 		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
 		org.talend.designer.codegen.config.CodeGeneratorArgument
 	" 
 %>
 <% 
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode) codeGenArgument.getArgument();
-    String cid = node.getUniqueName();	
+    String cid = node.getUniqueName();
+    boolean close = "true".equals(ElementParameterParser.getValue(node, "__CLOSE_WORKBOOK__"));
 %>
     }
+<%	if (close) { %>
+	<%=cid%>.close();
+<%	} %>
     globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>);
     globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.getSheetLastRowIndex() + 1);
     globalMap.put("<%=cid%>_MAX_ROW_INDEX", <%=cid%>.getLastRowNum());

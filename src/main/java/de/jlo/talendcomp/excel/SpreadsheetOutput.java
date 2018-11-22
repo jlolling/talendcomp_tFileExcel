@@ -321,17 +321,17 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 	}
 	
-	public boolean writeReferencedCellValue(String cellRefStr, Object sheetRef, Integer rowIndex, Object columnRef, Object value, String comment) throws Exception {
+	public boolean writeReferencedCellValue(String cellRefStr, Object sheetRef, Integer rowIndex, Object columnRef, Object value, String comment, Boolean doNotSetCellStyle) throws Exception {
 		setupReferencedSheet(cellRefStr, sheetRef);
 		if (cellRefStr != null && cellRefStr.trim().isEmpty() == false) {
 			CellReference cellRef = new CellReference(cellRefStr.trim());
-			return writeReferencedCellValue(cellRef.getRow(), cellRef.getCol(), value, comment, null);
+			return writeReferencedCellValue(cellRef.getRow(), cellRef.getCol(), value, comment, null, doNotSetCellStyle);
 		} else {
-			return writeReferencedCellValue(rowIndex, columnRef, value, comment, null);
+			return writeReferencedCellValue(rowIndex, columnRef, value, comment, null, doNotSetCellStyle);
 		}
 	}
 	
-	public boolean writeReferencedCellValue(Integer rowIndex, Object column, Object value, String comment, String styleName) throws Exception {
+	public boolean writeReferencedCellValue(Integer rowIndex, Object column, Object value, String comment, String styleName, Boolean doNotSetCellStyle) throws Exception {
 		if ((rowIndex == null || rowIndex.intValue() < 1) || (column == null)) {
 			return false;
 		}
@@ -351,7 +351,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 		Row row = getRow(rowIndex - 1);
 		Cell cell = getCell(row, columnIndex);
-		writeCellValue(cell, value, columnIndex, rowIndex - 1, false);
+		writeCellValue(cell, value, columnIndex, rowIndex - 1, (doNotSetCellStyle != null ? doNotSetCellStyle.booleanValue() : false));
 		if (comment != null && comment.isEmpty() == false) {
 			setCellComment(cell, comment);
 		}
