@@ -721,7 +721,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	}
 
 	public boolean readNextRow() {
-		int rowIndex = rowStartIndex + currentDatasetNumber;
+		int rowIndex = rowStartIndex + currentRecordIndex;
 		if (isCreateStreamingXMLWorkbook()) {
 			currentRowIndex = rowIndex;
 			currentRow = sheet.getRow(rowIndex);
@@ -829,7 +829,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			throw new Exception("Sheet with name:" + targetSheetName + " does not exists!");
 		}
 		targetSheetName = sheetName;
-		currentDatasetNumber = 0;
+		currentRecordIndex = 0;
 		sheetLastRowIndex = 0;
 		lastValueMap = new HashMap<Integer, Object>();
 		maxRowIndex = sheet.getLastRowNum();
@@ -847,7 +847,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			throw new Exception("Sheet with index:" + index + " does not exists!");
 		}
 		targetSheetName = sheet.getSheetName();
-		currentDatasetNumber = 0;
+		currentRecordIndex = 0;
 		sheetLastRowIndex = 0;
 		lastValueMap = new HashMap<Integer, Object>();
 		maxRowIndex = sheet.getLastRowNum();

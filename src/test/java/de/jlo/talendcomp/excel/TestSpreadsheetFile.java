@@ -139,13 +139,13 @@ public class TestSpreadsheetFile {
 		out.setDebug(true);
 		out.setSetupCellStylesForAllColumns(true);
 		try {
-			out.setInputFile("/Volumes/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Template.xlsx", true);
+			out.setInputFile("/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Template.xlsx", true);
 			out.initializeWorkbook();
 			out.setTargetSheetName("Recommended Actions");
 			out.initializeSheet();
-			out.setOutputFile("/Volumes/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Result.xlsx");
+			out.setOutputFile("/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Result.xlsx");
 			out.setRowStartIndex(1);
-			out.setReuseExistingStyles(true);
+			out.setReuseExistingStylesFromFirstWrittenRow(true);
 			for (int r = 0; r < 9; r++) {
 				Object[] row = new Object[2];
 				for (int c = 0; c < 2; c++) {

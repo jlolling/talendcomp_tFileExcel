@@ -31,7 +31,7 @@ public class TestExcelSheetOutput {
 		tFileExcelSheetOutput_1.setFirstRowIsHeader(false);
 		// configure cell positions
 		tFileExcelSheetOutput_1.setColumnStart("A");
-		tFileExcelSheetOutput_1.setReuseExistingStyles(false);
+		tFileExcelSheetOutput_1.setReuseExistingStylesFromFirstWrittenRow(false);
 		tFileExcelSheetOutput_1.setSetupCellStylesForAllColumns(false);
 		tFileExcelSheetOutput_1.setReuseFirstRowHeight(false);
 		// configure cell formats
@@ -108,7 +108,7 @@ public class TestExcelSheetOutput {
 		tFileExcelSheetOutput_1.setDataColumnPosition(5, "F");
 		tFileExcelSheetOutput_1.setDataColumnPosition(6, "F");
 		tFileExcelSheetOutput_1.setDataColumnPosition(7, "A");
-		tFileExcelSheetOutput_1.setReuseExistingStyles(false);
+		tFileExcelSheetOutput_1.setReuseExistingStylesFromFirstWrittenRow(false);
 		tFileExcelSheetOutput_1.setSetupCellStylesForAllColumns(false);
 		tFileExcelSheetOutput_1.setReuseFirstRowHeight(false);
 		// configure cell formats

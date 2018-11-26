@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jlo.talendcomp</groupId>
 	<artifactId>jlo-talendcomp-excel</artifactId>
-	<version>10.4</version>
+	<version>11.0</version>
 	<name>Talend Excel Components</name>
 	<organization>
 		<name>Jan Lolling</name>

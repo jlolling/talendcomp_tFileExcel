@@ -79,7 +79,7 @@ public class SpreadsheetFile {
 	protected Sheet sheet;
 	protected String targetSheetName;
 	protected Row currentRow;
-	protected int currentDatasetNumber = 0;
+	protected int currentRecordIndex = 0;
 	protected String dateFormatPattern = "dd.MM.yyyy HH:mm:ss";
 	protected CreationHelper creationHelper;
 	protected CellStyle cellDateStyle;
@@ -512,7 +512,7 @@ public class SpreadsheetFile {
 	}
 	
 	public void resetDatasetNumber() {
-		currentDatasetNumber = 0;
+		currentRecordIndex = 0;
 	}
 	
 	public int getLastRowNum() {
@@ -564,7 +564,7 @@ public class SpreadsheetFile {
 	}
 	
 	public int getLineCount() {
-		return currentDatasetNumber;
+		return currentRecordIndex;
 	}
 
 	public void writeWorkbook() throws Exception {
@@ -719,7 +719,7 @@ public class SpreadsheetFile {
 			throw new IllegalArgumentException("Row index starts 1"); // message for the Talend users!
 		}
 		this.rowStartIndex = rowStartIndex;
-		currentDatasetNumber = 0;
+		currentRecordIndex = 0;
 	}
 	
     public static String ensureCorrectExcelSheetName(String desiredName) {

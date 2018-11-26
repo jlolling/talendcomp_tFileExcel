@@ -75,7 +75,8 @@
 		 }
 		 columnIndex++;
 	 }
-	 String reuseStyle = ElementParameterParser.getValue(node, "__REUSE_STYLE__");
+	 boolean reuseStyleFromFirstWrittenRow = "true".equals(ElementParameterParser.getValue(node, "__REUSE_STYLE__")) && (appendRows == false);
+	 boolean reuseStyleFromPreviousWrittenRow = "true".equals(ElementParameterParser.getValue(node, "__REUSE_STYLE_FROM_PREVIOUS_ROW__")) && appendRows;
 	 String reuseStyleAlternating = ElementParameterParser.getValue(node, "__REUSE_STYLE_ALTERNATING__");
 	 String reuseFirstRowHeight = ElementParameterParser.getValue(node, "__REUSE_FIRST_ROW_HEIGHT__");
 	 String reuseStylesForAllCells = ElementParameterParser.getValue(node, "__REUSE_STYLES_FOR_ALL__");
@@ -118,22 +119,28 @@
     } else if (columnStartPosStr != null && columnStartPosStr.isEmpty() == false) { %>
 	<%=cid%>.setColumnStart(<%=columnStartPosStr%>);
 <%  }
-    if (writeColumns == false) { %>
-	<%=cid%>.setReuseExistingStyles(<%=reuseStyle%>);
+    if (writeColumns == false) {
+    	if (appendRows) { %>
+	<%=cid%>.setReuseExistingStylesFromFirstWrittenRow(false);
+	<%=cid%>.setReuseExistingStylesFromPreviousWrittenRow(<%=reuseStyleFromPreviousWrittenRow%>);
+<%		} else { %>
+	<%=cid%>.setReuseExistingStylesFromFirstWrittenRow(<%=reuseStyleFromFirstWrittenRow%>);
+	<%=cid%>.setReuseExistingStylesFromPreviousWrittenRow(false);
+<%		} %>
 	<%=cid%>.setSetupCellStylesForAllColumns(<%=reuseStylesForAllCells%>);
 	<%=cid%>.setReuseFirstRowHeight(<%=reuseFirstRowHeight%>);
-<%  	if ("true".equals(reuseStyle)) { %>
+<%  	if (reuseStyleFromFirstWrittenRow) { %>
 	<%=cid%>.setReuseExistingStylesAlternating(<%=reuseStyleAlternating%>);
 <%  	} %>
 <%  } %>
     // configure cell formats
-<%	if ("true".equals(reuseStyle) == false) {
+<%	if (reuseStyleFromFirstWrittenRow == false && reuseStyleFromPreviousWrittenRow == false) {
 	    for (Map.Entry<Integer, String> entry : formatMap.entrySet()) { 
         	Integer schemaColumnIndex = entry.getKey();
         	String columnFormat = entry.getValue();
         	String talendType = null;
         	Integer precision = null;
-        	if (listColumns != null) { 
+        	if (listColumns != null) {
 	        	IMetadataColumn mc = listColumns.get(schemaColumnIndex);
 	        	precision = mc.getPrecision();
    	        	talendType = mc.getTalendType().substring(3);
@@ -154,7 +161,7 @@
 <%          	}
         	}
         } // for
-    }  // if (reuseStyle == false)
+    }  // if (reuseStyleFromFirstWrittenRow == false)
     if (freezeRowStr != null && freezeRowStr.isEmpty() == false) {
     	if (freezeColStr != null && freezeColStr.trim().isEmpty() == false) { %>
     // freeze pane with given row and column
@@ -231,5 +238,3 @@
 <%	} // include header %>	
 	// row counter
     int nb_line_<%=cid%> = 0;
-
-    
