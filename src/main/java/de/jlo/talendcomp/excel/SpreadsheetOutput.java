@@ -665,19 +665,29 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 
 	/**
 	 * set the number format for data row column
-	 * @param columnIndex index of column in data (cell index can differ: see setColumnMapping)
+	 * @param schemaColumnIndex index of column in data (cell index can differ: see setColumnMapping)
 	 * @param pattern #,##0.00 means thousand delimiter and precision 2
 	 */
-	public void setDataFormat(int columnIndex, String pattern) {
+	public void setDataFormat(int schemaColumnIndex, String pattern) {
 		if (pattern != null && pattern.trim().isEmpty() == false) {
 			short formatIndex = format.getFormat(pattern);
-			cellFormatMap.put(columnIndex, formatIndex);
+			Integer cellColumnPos = columnIndexes.get(schemaColumnIndex);
+			if (cellColumnPos != null) {
+				cellFormatMap.put(cellColumnPos, formatIndex);
+			} else {
+				cellFormatMap.put(schemaColumnIndex, formatIndex);
+			}
 		}
 	}
 	
-	public void setNumberPrecision(int columnIndex, int precision) {
+	public void setNumberPrecision(int schemaColumnIndex, int precision) {
 		short formatIndex = format.getFormat(createPrecisionPattern(precision));
-		cellFormatMap.put(columnIndex, formatIndex);
+		Integer cellColumnPos = columnIndexes.get(schemaColumnIndex);
+		if (cellColumnPos != null) {
+			cellFormatMap.put(cellColumnPos, formatIndex);
+		} else {
+			cellFormatMap.put(schemaColumnIndex, formatIndex);
+		}
 	}
 	
 	private String createPrecisionPattern(int precision) {
