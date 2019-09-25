@@ -232,12 +232,6 @@ public abstract class DetachedCellStyle implements CellStyle {
 	}
 
 	@Override
-	public short getFillPattern() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public FillPatternType getFillPatternEnum() {
 		// TODO Auto-generated method stub
 		return null;

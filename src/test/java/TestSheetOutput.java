@@ -172,11 +172,11 @@ public class TestSheetOutput extends TalendFakeJob {
 		e.setCommentAuthor("Jan Lolling");
 		e.setCommentHeight(4);
 		e.setCommentWidth(5);
-		e.writeReferencedCellValue(0, 1, "Jan", "Kommentar", null);
-		e.writeReferencedCellValue(1, 2, "Feb", "Kommentar", null);
-		e.writeReferencedCellValue(2, 0, 2, null, null);
-		e.writeReferencedCellValue(2, 1, 5, "toller Wert", null);
-		e.writeReferencedCellValue(2, 2, "=A{row}+B3", "Ergebnis", null);
+		e.writeReferencedCellValue(0, 1, "Jan", "Kommentar", null, false);
+		e.writeReferencedCellValue(1, 2, "Feb", "Kommentar", null, false);
+		e.writeReferencedCellValue(2, 0, 2, null, null, false);
+		e.writeReferencedCellValue(2, 1, 5, "toller Wert", null, false);
+		e.writeReferencedCellValue(2, 2, "=A{row}+B3", "Ergebnis", null, false);
 		e.setOutputFile("/private/var/testdata/excel/comments.xlsx");
 		e.writeWorkbook();
 	}

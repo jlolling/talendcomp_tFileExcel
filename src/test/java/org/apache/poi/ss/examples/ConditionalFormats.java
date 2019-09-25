@@ -19,18 +19,31 @@
 
 package org.apache.poi.ss.examples;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import de.jlo.talendcomp.excel.SpreadsheetOutput;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.BuiltinFormats;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.ComparisonOperator;
+import org.apache.poi.ss.usermodel.ConditionalFormatting;
+import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
+import org.apache.poi.ss.usermodel.FontFormatting;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.PatternFormatting;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import de.jlo.talendcomp.excel.SpreadsheetOutput;
 
 /**
  * Excel Conditional Formatting -- Examples
@@ -370,7 +383,7 @@ public class ConditionalFormats {
 				if (cell == null) {
 					cell = row.createCell(0);
 				}
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellType(CellType.NUMERIC);
 				if (r == 1) {
 					cs1 = cell.getCellStyle();
 				}
@@ -441,7 +454,7 @@ public class ConditionalFormats {
 	    	so.setRowStartIndex(1);
 	    	so.setColumnStart(0);
 			so.setDataFormat(1, "#,##0.0");
-	    	so.setReuseExistingStyles(true);
+	    	so.setReuseExistingStylesFromFirstWrittenRow(true);
 	    	so.setReuseExistingStylesAlternating(true);
 	    	Object[] dataset = new Object[2];
 	    	System.out.println("Fill data...");

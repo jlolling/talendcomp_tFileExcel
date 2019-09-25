@@ -410,7 +410,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			link.setAddress(url);
 			cell.setHyperlink(link);
 		}
-		if (cell.getCellTypeEnum() == CellType.BLANK) {
+		if (cell.getCellType() == CellType.BLANK) {
 			cell.setCellValue(url);
 		}
 	}
@@ -451,7 +451,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				if (s.startsWith("=")) {
 					int rowNum = cell.getRow().getRowNum();
 					cell.setCellFormula(getFormular(s, rowNum));
-					cell.setCellType(CellType.FORMULA);
+					//cell.setCellType(CellType.FORMULA);
 				} else {
 					cell.setCellValue(s);
 					cell.setCellType(CellType.STRING);
@@ -490,7 +490,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Date) {
 			if (writeZeroDateAsNull && GenericDateUtil.isZeroDate((Date) value)) {
-				cell.setCellType(CellType.BLANK);
+				cell.setBlank();
 			} else {
 				cell.setCellValue((Date) value);
 				cell.setCellType(CellType.NUMERIC);
@@ -499,7 +499,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			cell.setCellValue(value.toString());
 			cell.setCellType(CellType.STRING);
 		} else if (writeNullValues && value == null) {
-			cell.setCellType(CellType.BLANK);
+			cell.setBlank();
 		}
 		if (isDataRow(dataRowIndex) && doNotSetCellStyle == false) {
 			setupStyle(cell, dataRowIndex);

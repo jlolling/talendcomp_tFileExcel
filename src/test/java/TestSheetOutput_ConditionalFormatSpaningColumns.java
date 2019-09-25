@@ -212,8 +212,6 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 
 		currentComponent = "tFileExcelWorkbookOpen_1";
 
-		int tos_count_tFileExcelWorkbookOpen_1 = 0;
-
 		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		tFileExcelWorkbookOpen_1.setCreateStreamingXMLWorkbook(false);
 		try {
@@ -255,8 +253,6 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 			}
 		}
 
-		int tos_count_tFileExcelSheetOutput_1 = 0;
-
 		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setDebug(true);
 		tFileExcelSheetOutput_1
@@ -270,7 +266,7 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 		tFileExcelSheetOutput_1.setFirstRowIsHeader(false);
 		// configure cell positions
 		tFileExcelSheetOutput_1.setColumnStart("A");
-		tFileExcelSheetOutput_1.setReuseExistingStyles(true);
+		tFileExcelSheetOutput_1.setReuseExistingStylesFromFirstWrittenRow(true);
 		tFileExcelSheetOutput_1.setReuseFirstRowHeight(false);
 		tFileExcelSheetOutput_1
 				.setReuseExistingStylesAlternating(false);
@@ -476,8 +472,6 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 									+ ":" + e.getMessage());
 					throw e;
 				}
-
-				tos_count_tFileExcelSheetOutput_1++;
 
 				/**
 				 * [tFileExcelSheetOutput_1 main ] stop

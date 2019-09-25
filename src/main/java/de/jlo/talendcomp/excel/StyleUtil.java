@@ -39,7 +39,7 @@ public class StyleUtil {
 	
 	public String getFontCSS(CellStyle cellStyle) {
 		StringBuilder css = new StringBuilder();
-		short fontIndex = cellStyle.getFontIndex();
+		int fontIndex = cellStyle.getFontIndexAsInt();
 		Font font = workbook.getFontAt(fontIndex);
 		if (font != null) {
 			css.append("font-family:");
@@ -152,7 +152,7 @@ public class StyleUtil {
 
 	public String getAlignmentCSS(CellStyle cellStyle) {
 		StringBuilder css = new StringBuilder();
-		HorizontalAlignment align = cellStyle.getAlignmentEnum();
+		HorizontalAlignment align = cellStyle.getAlignment();
 		switch (align) {
 			case CENTER: css.append("text-align:center"); break;
 			case FILL: css.append("text-align:fill"); break;
@@ -183,18 +183,18 @@ public class StyleUtil {
 	}
 
 	public String getBorderCSS(CellStyle cellStyle) {
-		BorderStyle borderStyle = cellStyle.getBorderBottomEnum();
+		BorderStyle borderStyle = cellStyle.getBorderBottom();
 		StringBuilder css = new StringBuilder();
 		String side = "bottom";
 		css.append(getBorderStyleCSS(borderStyle, side));
 		side = "top";
-		borderStyle = cellStyle.getBorderTopEnum();
+		borderStyle = cellStyle.getBorderTop();
 		css.append(getBorderStyleCSS(borderStyle, side));
 		side = "left";
-		borderStyle = cellStyle.getBorderLeftEnum();
+		borderStyle = cellStyle.getBorderLeft();
 		css.append(getBorderStyleCSS(borderStyle, side));
 		side = "right";
-		borderStyle = cellStyle.getBorderRightEnum();
+		borderStyle = cellStyle.getBorderRight();
 		css.append(getBorderStyleCSS(borderStyle, side));
 		return css.toString();
 	}

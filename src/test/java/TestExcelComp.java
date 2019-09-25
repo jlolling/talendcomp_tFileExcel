@@ -256,11 +256,11 @@ public class TestExcelComp {
 		e.initializeWorkbook();
 		e.setTargetSheetName("with_comments");
 		e.initializeSheet();
-		e.writeReferencedCellValue(0, 1, "Jan", "Kommentar", null);
-		e.writeReferencedCellValue(1, 2, "Feb", "Kommentar", null);
-		e.writeReferencedCellValue(2, 0, 2, null, null);
-		e.writeReferencedCellValue(2, 1, 5, "toller Wert", null);
-		e.writeReferencedCellValue(2, 2, "=A{row}+B3", "Ergebnis", null);
+		e.writeReferencedCellValue(0, 1, "Jan", "Kommentar", null, false);
+		e.writeReferencedCellValue(1, 2, "Feb", "Kommentar", null, false);
+		e.writeReferencedCellValue(2, 0, 2, null, null, false);
+		e.writeReferencedCellValue(2, 1, 5, "toller Wert", null, false);
+		e.writeReferencedCellValue(2, 2, "=A{row}+B3", "Ergebnis", null, false);
 		e.setOutputFile("/private/var/testdata/excel/comments.xls");
 		e.writeWorkbook();
 	}
@@ -344,7 +344,6 @@ public class TestExcelComp {
 	private static final Pattern CELL_REF_PATTERN = Pattern.compile("\\$?([A-Za-z]+)\\$?([0-9]+)");
 	
 	public static void testNamedCellToRange() {
-		SpreadsheetFile sf = new SpreadsheetFile();
 		String cellFormula = /*"'sheet'!$A$1"*/ "'sheet'!$A$1:$C$4";
 	    String[] refParts = cellFormula.split("!");
 	    if (refParts.length == 2) {

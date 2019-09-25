@@ -151,13 +151,13 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private String getStringCellValue(Cell cell, int originalColumnIndex) throws Exception {
 		String value = null;
 		if (cell != null) {
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.FORMULA) {
 				try {
 					value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						cellType = cell.getCachedFormulaResultTypeEnum();
+						cellType = cell.getCachedFormulaResultType();
 						if (cellType == CellType.STRING) {
 							if (returnURLInsteadOfName) {
 								Hyperlink link = cell.getHyperlink();
@@ -317,7 +317,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		if (cell == null) {
 			return true;
 		} else { 
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.BLANK) {
 				return true;
 			} else if (cellType == CellType.FORMULA) {
@@ -386,7 +386,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Double getDoubleCellValue(Cell cell) throws Exception {
 		Double value = null;
 		if (cell != null) {
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
@@ -396,7 +396,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 					}
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						cellType = cell.getCachedFormulaResultTypeEnum();
+						cellType = cell.getCachedFormulaResultType();
 						if (cellType == CellType.STRING) {
 							String s = cell.getStringCellValue();
 							if (s != null && s.trim().isEmpty() == false) {
@@ -554,14 +554,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Boolean getBooleanCellValue(Cell cell) throws Exception {
 		Boolean value = null;
 		if (cell != null) {
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					value = toBool(s);
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						cellType = cell.getCachedFormulaResultTypeEnum();
+						cellType = cell.getCachedFormulaResultType();
 						if (cellType == CellType.STRING) {
 							String s = cell.getStringCellValue();
 							value = toBool(s);
@@ -648,14 +648,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Date getDateCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					return parseDate(s, pattern);
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						cellType = cell.getCachedFormulaResultTypeEnum();
+						cellType = cell.getCachedFormulaResultType();
 						if (cellType == CellType.STRING) {
 							String s = cell.getStringCellValue();
 							value = parseDate(s, pattern);
@@ -687,14 +687,14 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	private Date getDurationCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.FORMULA) {
 				try {
 					String s = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 					return parseDuration(s, pattern);
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
-						cellType = cell.getCachedFormulaResultTypeEnum();
+						cellType = cell.getCachedFormulaResultType();
 						if (cellType == CellType.STRING) {
 							String s = getDataFormatter().formatCellValue(cell);
 							value = parseDate(s, pattern);
@@ -764,7 +764,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		for (int i = firstCellNum; i <= lastCellNum; i++) {
 			Cell cell = headerRow.getCell(i);
 			if (cell != null) {
-				CellType cellType = cell.getCellTypeEnum();
+				CellType cellType = cell.getCellType();
 				if (cellType == CellType.STRING) {
 					String name = cell.getStringCellValue();
 					if (name != null && name.trim().isEmpty() == false) {

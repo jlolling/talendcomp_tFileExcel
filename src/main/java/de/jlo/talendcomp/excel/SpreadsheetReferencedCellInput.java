@@ -159,7 +159,7 @@ public class SpreadsheetReferencedCellInput extends SpreadsheetFile {
 				currentCellComment = comment.getString().getString();
 				currentCellCommentAuthor = comment.getAuthor();
 			}
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.BLANK) {
 				currentCellValueClassName = "Object";
 			} else if (cellType == CellType.STRING) {
@@ -289,7 +289,7 @@ public class SpreadsheetReferencedCellInput extends SpreadsheetFile {
 	private String getStringCellValue(Cell cell) {
 		String value = null;
 		if (cell != null) {
-			CellType cellType = cell.getCellTypeEnum();
+			CellType cellType = cell.getCellType();
 			if (cellType == CellType.FORMULA) {
 				value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
 			} else if (cellType == CellType.STRING) {

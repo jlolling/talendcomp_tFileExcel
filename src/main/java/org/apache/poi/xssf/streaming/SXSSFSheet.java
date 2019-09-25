@@ -1607,7 +1607,7 @@ public class SXSSFSheet implements Sheet, Cloneable
      * {@inheritDoc}
      */
     @Override
-    public Drawing getDrawingPatriarch()
+    public Drawing<?> getDrawingPatriarch()
     {
         return _sh.getDrawingPatriarch();
     }
@@ -1618,7 +1618,7 @@ public class SXSSFSheet implements Sheet, Cloneable
      * @return  The new drawing patriarch.
      */
     @Override
-    public Drawing createDrawingPatriarch()
+    public Drawing<?> createDrawingPatriarch()
     {
         return _sh.createDrawingPatriarch();
     }
@@ -1893,6 +1893,11 @@ public class SXSSFSheet implements Sheet, Cloneable
 	@Override
 	public Hyperlink getHyperlink(CellAddress addr) {
 		return _sh.getHyperlink(addr);
+	}
+
+	@Override
+	public void shiftColumns(int startColumn, int endColumn, int n) {
+		_sh.shiftColumns(startColumn, endColumn, n);
 	}
 	
 }

@@ -15,6 +15,9 @@
  */
 package de.jlo.talendcomp.excel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -29,20 +32,28 @@ public class SpreadsheetNamedCellInput extends SpreadsheetFile {
 	private Cell currentNamedCell = null;
 	private String valueClass;
 	private String cellName;
+	private List<? extends Name> names = null;
 
 	public void retrieveNamedCellCount() {
 		namedCellCount = workbook.getNumberOfNames();
+		names = workbook.getAllNames();
+		if (names == null) {
+			names = new ArrayList<Name>();
+		}
 	}
 	
 	public boolean readNextNamedCell() {
 		if (workbook ==  null) {
 			throw new IllegalStateException("workbook is not initialized");
 		}
+		if (names == null) {
+			throw new IllegalStateException("Names are not read from workbook. Call retrieveNamedCellCount before.");
+		}
 		if (namedCellCount == 0) {
 			return false;
 		} else {
 			if (currentNamedCellIndex < namedCellCount) {
-				Name name = workbook.getNameAt(currentNamedCellIndex);
+				Name name = names.get(currentNamedCellIndex);
 				cellName = name.getNameName();
 				currentNamedCell = getNamedCell(name);
 				currentNamedCellIndex++;
@@ -64,19 +75,19 @@ public class SpreadsheetNamedCellInput extends SpreadsheetFile {
 	
 	public Object getCellValue() {
 		if (currentNamedCell != null) { // cell.getCellTypeEnum() == CellType.BLANK
-			if (currentNamedCell.getCellTypeEnum() == CellType.BLANK) {
+			if (currentNamedCell.getCellType() == CellType.BLANK) {
 				valueClass = null;
 				return null;
-			} else if (currentNamedCell.getCellTypeEnum() == CellType.BOOLEAN) {
+			} else if (currentNamedCell.getCellType() == CellType.BOOLEAN) {
 				valueClass = "java.lang.Boolean";
 				return currentNamedCell.getBooleanCellValue();
-			} else if (currentNamedCell.getCellTypeEnum() == CellType.ERROR) {
+			} else if (currentNamedCell.getCellType() == CellType.ERROR) {
 				valueClass = null;
 				return null;
-			} else if (currentNamedCell.getCellTypeEnum() == CellType.FORMULA) {
+			} else if (currentNamedCell.getCellType() == CellType.FORMULA) {
 				valueClass = "java.lang.String";
 				return getDataFormatter().formatCellValue(currentNamedCell, getFormulaEvaluator());
-			} else if (currentNamedCell.getCellTypeEnum() == CellType.NUMERIC) {
+			} else if (currentNamedCell.getCellType() == CellType.NUMERIC) {
 				if (DateUtil.isCellDateFormatted(currentNamedCell)) {
 					valueClass = "java.util.Date";
 					return currentNamedCell.getDateCellValue();
@@ -84,7 +95,7 @@ public class SpreadsheetNamedCellInput extends SpreadsheetFile {
 					valueClass = "java.lang.Double";
 					return currentNamedCell.getNumericCellValue();
 				}
-			} else if (currentNamedCell.getCellTypeEnum() == CellType.STRING) {
+			} else if (currentNamedCell.getCellType() == CellType.STRING) {
 				valueClass = "java.lang.String";
 				return currentNamedCell.getStringCellValue();
 			} else {

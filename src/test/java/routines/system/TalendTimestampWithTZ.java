@@ -23,7 +23,12 @@ import java.util.TimeZone;
  */
 public class TalendTimestampWithTZ extends Date {
 
-    Timestamp ts;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	Timestamp ts;
 
     TimeZone tz;
 
