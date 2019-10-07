@@ -467,6 +467,8 @@ public class SpreadsheetFile {
 				} else {
 					workbook = new XSSFWorkbook();
 				}
+			} else {
+				throw new IllegalStateException("Create new workbook failed: Unknown workbook type: " + currentType + ". No workbook created!");
 			}
 		}
 		setupDataFormatStyle();

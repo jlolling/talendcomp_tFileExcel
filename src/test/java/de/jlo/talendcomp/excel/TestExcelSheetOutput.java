@@ -1,5 +1,6 @@
 package de.jlo.talendcomp.excel;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -213,6 +214,45 @@ public class TestExcelSheetOutput {
 			throw e;
 		}
 		assertTrue(true);
+	}
+	
+	@Test
+	public void testWriteReadFormulas() throws Exception {
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen = new de.jlo.talendcomp.excel.SpreadsheetFile();
+		tFileExcelWorkbookOpen.createEmptyXLSXWorkbook();
+		tFileExcelWorkbookOpen.initializeWorkbook();
+		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
+		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
+		tFileExcelSheetOutput_1.setTargetSheetName("test_formula");
+		tFileExcelSheetOutput_1.initializeSheet();
+		Object[] dataset_tFileExcelSheetOutput_1 = new Object[4];
+		dataset_tFileExcelSheetOutput_1[0] = 5;
+		dataset_tFileExcelSheetOutput_1[1] = "x";
+		dataset_tFileExcelSheetOutput_1[2] = "=A{row}*2";
+		dataset_tFileExcelSheetOutput_1[3] = "=CONCATENATE(B{row},A{row})"; // use , instead of ; 
+		tFileExcelSheetOutput_1.writeRow(dataset_tFileExcelSheetOutput_1);
+		de.jlo.talendcomp.excel.SpreadsheetInput tFileExcelSheetInput_1 = new de.jlo.talendcomp.excel.SpreadsheetInput();
+		tFileExcelSheetInput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
+		tFileExcelSheetInput_1.useSheet("test_formula");
+		int rowindex = 0;
+		int a = 0;
+		int b = 0;
+		String c = null;
+		while (tFileExcelSheetInput_1.readNextRow()) {
+			a = tFileExcelSheetInput_1.getIntegerCellValue(0, true, false);
+			System.out.println("a=" + a);
+			b = tFileExcelSheetInput_1.getIntegerCellValue(2, true, false);
+			System.out.println("b=" + b);
+			c = tFileExcelSheetInput_1.getStringCellValue(3, true, false, false);
+			System.out.println("c=" + c);
+			rowindex++;
+		}
+		tFileExcelWorkbookOpen.setOutputFile("/var/testdata/excel/excel_formula_in_out.xlsx");
+		tFileExcelWorkbookOpen.writeWorkbook();
+		assertEquals(1, rowindex);
+		assertEquals("a wrong", 5, a);
+		assertEquals("b wrong", 10, b);
+		assertEquals("c wrong", "x5", c);
 	}
 	
 }

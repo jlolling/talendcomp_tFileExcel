@@ -32,6 +32,7 @@ import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -154,7 +155,15 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			CellType cellType = cell.getCellType();
 			if (cellType == CellType.FORMULA) {
 				try {
-					value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+					CellType formulaResultType = getFormulaEvaluator().evaluateFormulaCell(cell);
+					if (formulaResultType == CellType.NUMERIC) {
+						value = getDataFormatter().formatCellValue(cell, getFormulaEvaluator());
+					} else {
+						CellValue cv = getFormulaEvaluator().evaluate(cell);
+						if (cv != null) {
+							value = cv.getStringValue();
+						}
+					}
 				} catch (Exception e) {
 					if (useCachedValuesForFailedEvaluations) {
 						cellType = cell.getCachedFormulaResultType();
