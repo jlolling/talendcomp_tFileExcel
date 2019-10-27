@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jlo.talendcomp</groupId>
 	<artifactId>jlo-talendcomp-excel</artifactId>
-	<version>11.2</version>
+	<version>11.3</version>
 	<name>Talend Excel Components</name>
 	<organization>
 		<name>Jan Lolling</name>
@@ -59,7 +59,11 @@
 			<plugin>
 				<groupId>de.cimt.talendcomp</groupId>
 				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
-				<version>1.8</version>
+				<version>2.1</version>
+				<configuration>
+					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
+					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
+				</configuration>
 				<executions>
 					<execution>
 						<id>tFileExcelWorkbookOpen</id>
