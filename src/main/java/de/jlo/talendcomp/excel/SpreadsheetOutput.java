@@ -527,10 +527,16 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 
 	public Sheet createCopy(String sourceSheetName, String targetSheetName) throws Exception {
 		int sourceSheetIndex = workbook.getSheetIndex(sourceSheetName);
+		if (sourceSheetIndex < 0) {
+			throw new Exception("Create a copy of sheet: " + sourceSheetName + " failed. This sheet does not exist in the current workbook.");
+		}
 		return createCopy(sourceSheetIndex, targetSheetName);
 	}
 
 	public Sheet createCopy(int sourceSheetIndex, String targetSheetName) throws Exception {
+		if (sourceSheetIndex < 0) {
+			throw new IllegalArgumentException("sourceSheetIndex (" + sourceSheetIndex + ") must be 0 or greater.");
+		}
 		try {
 			Sheet newSheet = workbook.cloneSheet(sourceSheetIndex);
 			setTargetSheetName(targetSheetName);
