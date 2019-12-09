@@ -254,7 +254,6 @@ public class TestSheetOutput_ConditionalFormatSpaningColumns extends TalendFakeJ
 		}
 
 		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
-		tFileExcelSheetOutput_1.setDebug(true);
 		tFileExcelSheetOutput_1
 				.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap
 						.get("workbook_tFileExcelWorkbookOpen_1"));

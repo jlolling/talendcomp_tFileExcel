@@ -454,7 +454,6 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					//cell.setCellType(CellType.FORMULA);
 				} else {
 					cell.setCellValue(s);
-					cell.setCellType(CellType.STRING);
 					if (firstRowIsHeader == false || dataRowIndex > 0) {
 						// do not mislead the cell format if we are in the header line
 						cellFormatMap.put(cell.getColumnIndex(), (short) org.apache.poi.ss.usermodel.BuiltinFormats.getBuiltinFormat("TEXT"));
@@ -463,41 +462,30 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			}
 		} else if (value instanceof Integer) {
 			cell.setCellValue((Integer) value);
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Boolean) {
 			cell.setCellValue((Boolean) value);
-			cell.setCellType(CellType.BOOLEAN);
 		} else if (value instanceof Long) {
 			cell.setCellValue((Long) value);
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof BigInteger) {
 			cell.setCellValue(((BigInteger) value).longValue());
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof BigDecimal) {
 			cell.setCellValue(((BigDecimal) value).doubleValue());
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Double) {
 			cell.setCellValue((Double) value);
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Float) {
 			cell.setCellValue((Float) value);
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Short) {
 			cell.setCellValue((Short) value);
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Number) {
 			cell.setCellValue(Double.valueOf(((Number) value).doubleValue()));
-			cell.setCellType(CellType.NUMERIC);
 		} else if (value instanceof Date) {
 			if (writeZeroDateAsNull && GenericDateUtil.isZeroDate((Date) value)) {
 				cell.setBlank();
 			} else {
 				cell.setCellValue((Date) value);
-				cell.setCellType(CellType.NUMERIC);
 			}
 		} else if (value != null) {
 			cell.setCellValue(value.toString());
-			cell.setCellType(CellType.STRING);
 		} else if (writeNullValues && value == null) {
 			cell.setBlank();
 		}

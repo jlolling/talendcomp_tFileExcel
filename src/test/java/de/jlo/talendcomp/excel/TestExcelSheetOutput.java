@@ -24,7 +24,6 @@ public class TestExcelSheetOutput {
 		tFileExcelWorkbookOpen_1.initializeWorkbook();
 		
 		final de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
-		tFileExcelSheetOutput_1.setDebug(false);
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName("out");
 		tFileExcelSheetOutput_1.initializeSheet();
@@ -90,7 +89,6 @@ public class TestExcelSheetOutput {
 						.getNumberOfSheets());
 
 		final de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
-		tFileExcelSheetOutput_1.setDebug(false);
 		tFileExcelSheetOutput_1
 				.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap
 						.get("workbook_tFileExcelWorkbookOpen_2"));

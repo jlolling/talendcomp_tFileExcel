@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
 import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
@@ -958,21 +957,6 @@ public class SpreadsheetFile {
 			if (logger == null) {
 				logger = Logger.getLogger(SpreadsheetFile.class);
 			}
-		}
-	}
-
-	public boolean isDebug() {
-		if (logger != null) {
-			return logger.isDebugEnabled();
-		} else {
-			return debug;
-		}
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-		if (logger != null) {
-			logger.setLevel(Level.DEBUG);
 		}
 	}
 

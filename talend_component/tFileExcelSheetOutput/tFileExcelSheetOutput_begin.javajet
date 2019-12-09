@@ -16,7 +16,6 @@
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode) codeGenArgument.getArgument();
     String cid = node.getUniqueName();
-    String debug = ElementParameterParser.getValue(node, "__DEBUG__");
     String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
     String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
     boolean createSheetAsCopy = "true".equals(ElementParameterParser.getValue(node, "__CREATE_SHEET_AS_COPY__"));
@@ -85,7 +84,6 @@
 	 if (writeColumns) appendRows = false;
 %>
     final de.jlo.talendcomp.excel.SpreadsheetOutput <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetOutput();
-    <%=cid%>.setDebug(<%=debug%>);
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
 <%  if (sheetName != null && sheetName.isEmpty() == false) {
         if (createSheetAsCopy) { %>

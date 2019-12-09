@@ -136,7 +136,6 @@ public class TestSpreadsheetFile {
 	@Test
 	public void testWithAppendDataValidations() {
 		SpreadsheetOutput out = new SpreadsheetOutput();
-		out.setDebug(true);
 		out.setSetupCellStylesForAllColumns(true);
 		try {
 			out.setInputFile("/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Template.xlsx", true);
