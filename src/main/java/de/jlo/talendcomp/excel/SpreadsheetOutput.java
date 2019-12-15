@@ -70,7 +70,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private Map<Integer, CellStyle> oddRowColumnStyleMap = new HashMap<Integer, CellStyle>();
 	private Map<Integer, CellStyle> evenRowColumnStyleMap = new HashMap<Integer, CellStyle>();
 	private boolean reuseExistingStylesFromFirstWrittenRow = false;
-	private boolean reuseExistingStylesFromPreviousWrittenRow = false;
+	private boolean appendData = false;
 	private boolean reuseExistingStylesAlternating = false;
 	private boolean reuseFirstRowHeight = false;
 	private short firstRowHeight = 800;
@@ -194,36 +194,28 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 		currentRow = getRow(rowStartIndex + currentRecordIndex);
 		if (isFirstRow(currentRecordIndex)) {
-			firstRowHeight = currentRow.getHeight();
+			if (appendData) {
+				Row pr = sheet.getRow(currentRow.getRowNum() - 1);
+				firstRowHeight = pr.getHeight();
+				if (reuseFirstRowHeight) {
+					currentRow.setHeight(firstRowHeight);
+				}
+			} else {
+				firstRowHeight = currentRow.getHeight();
+			}
 		} else if (isDataRow(currentRecordIndex)) {
 			if (reuseFirstRowHeight) {
 				currentRow.setHeight(firstRowHeight);
 			}
 		}
 		int dataColumnIndex = 0;
+		// setup named styles
 		for (Object value : record) {
 			int cellIndex = getCellIndex(dataColumnIndex);
 			Cell cell = getCell(currentRow, cellIndex);
 			if (currentRecordIndex == 0) {
 				if (autoSizeAllColumns) {
 					setAutoSizeColumn(dataColumnIndex);
-				}
-			}
-			if (isEvenDataRow(currentRecordIndex)) {
-				// even row
-				if (evenRowStyleName != null && evenRowStyleName.isEmpty() == false) {
-					CellStyle newStyle = namedStyles.get(evenRowStyleName);
-					if (newStyle != null) {
-						cell.setCellStyle(newStyle);
-					}
-				}
-			} else {
-				// odd row
-				if (oddRowStyleName != null && oddRowStyleName.isEmpty() == false) {
-					CellStyle newStyle = namedStyles.get(oddRowStyleName);
-					if (newStyle != null) {
-						cell.setCellStyle(newStyle);
-					}
 				}
 			}
 			writeCellValue(cell, value, dataColumnIndex, currentRecordIndex, false);
@@ -326,13 +318,13 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		setupReferencedSheet(cellRefStr, sheetRef);
 		if (cellRefStr != null && cellRefStr.trim().isEmpty() == false) {
 			CellReference cellRef = new CellReference(cellRefStr.trim());
-			return writeReferencedCellValue(cellRef.getRow(), cellRef.getCol(), value, comment, null, doNotSetCellStyle);
+			return writeReferencedCellValue(cellRef.getRow(), cellRef.getCol(), value, comment, doNotSetCellStyle);
 		} else {
-			return writeReferencedCellValue(rowIndex, columnRef, value, comment, null, doNotSetCellStyle);
+			return writeReferencedCellValue(rowIndex, columnRef, value, comment, doNotSetCellStyle);
 		}
 	}
 	
-	public boolean writeReferencedCellValue(Integer rowIndex, Object column, Object value, String comment, String styleName, Boolean doNotSetCellStyle) throws Exception {
+	private boolean writeReferencedCellValue(Integer rowIndex, Object column, Object value, String comment, Boolean doNotSetCellStyle) throws Exception {
 		if ((rowIndex == null || rowIndex.intValue() < 1) || (column == null)) {
 			return false;
 		}
@@ -355,12 +347,6 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		writeCellValue(cell, value, columnIndex, rowIndex - 1, (doNotSetCellStyle != null ? doNotSetCellStyle.booleanValue() : false));
 		if (comment != null && comment.isEmpty() == false) {
 			setCellComment(cell, comment);
-		}
-		if (styleName != null) {
-			CellStyle style = namedStyles.get(styleName);
-			if (style != null) {
-				cell.setCellStyle(style);
-			}
 		}
 		return true;
 	}
@@ -451,7 +437,6 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				if (s.startsWith("=")) {
 					int rowNum = cell.getRow().getRowNum();
 					cell.setCellFormula(getFormular(s, rowNum));
-					//cell.setCellType(CellType.FORMULA);
 				} else {
 					cell.setCellValue(s);
 					if (firstRowIsHeader == false || dataRowIndex > 0) {
@@ -761,122 +746,129 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 	}
 
-	private void setupStyle(Cell cell, int row) {
+	private void setupStyle(Cell cell, int dataRowIndex) {
 		// cell has its own style and not the default style
 		if (reuseExistingStylesFromFirstWrittenRow) {
-			// we have to reuse the existing style
-			if (reuseExistingStylesAlternating) {
-				CellStyle style = cell.getCellStyle();
-				// we have to reuse the style from the even/odd row
-				if (isFirstRow(row)) {
-					// we are in the first row, memorize the style
-					if (style.getIndex() > 0) {
-						// only if the cell does not use the default style
-						oddRowColumnStyleMap.put(cell.getColumnIndex(), style);
-					}
-				} else if (isSecondRow(row)) {
-					// we are in the first row, memorize the style
-					if (style.getIndex() > 0) {
-						// only if the cell does not use the default style
-						evenRowColumnStyleMap.put(cell.getColumnIndex(), style);
-					}
-				} else if (isEvenDataRow(row)) {
-					// reference to the previously memorized style for even rows
-					CellStyle s = evenRowColumnStyleMap.get(cell.getColumnIndex());
-					if (s != null) {
-						cell.setCellStyle(s);
-					}
-				} else {
-					// reference to the previously memorized style for even rows
-					CellStyle s = oddRowColumnStyleMap.get(cell.getColumnIndex());
-					if (s != null) {
-						cell.setCellStyle(s);
-					}
-				}
-			} else {
-				CellStyle style = cell.getCellStyle();
-				// we take the style from the last row
-				if (isFirstRow(row)) {
-					// memorize the style for reuse in all other rows
-					if (style.getIndex() > 0) {
-						// only if the cell does not use the default style
-						columnStyleMap.put(cell.getColumnIndex(), style);
-					}
-				} else {
-					// set the style from the previous row
-					CellStyle s = columnStyleMap.get(cell.getColumnIndex());
-					if (s != null) {
-						cell.setCellStyle(s);
-					}
-				}
-			}
-		} else if (reuseExistingStylesFromPreviousWrittenRow) {
-			if (reuseExistingStylesAlternating) {
-				CellStyle style = cell.getCellStyle();
-				// we have to reuse the style from the even/odd row
-				if (isFirstRow(row)) {
-					// get the cell from the pre-previous row
-					if (cell.getRowIndex() > 1) {
-						// we have 2 rows above from which we can take the styles
-						Row ppr = sheet.getRow(cell.getRowIndex() - 2);
-						Cell pprc = ppr.getCell(cell.getColumnIndex());
-						style = pprc.getCellStyle();
-					}
-					// we are in the first row, memorize the style
-					if (style.getIndex() > 0) {
-						// only if the cell does not use the default style
-						oddRowColumnStyleMap.put(cell.getColumnIndex(), style);
-						cell.setCellStyle(style);
-					}
-				} else if (isSecondRow(row)) {
-					// get the cell from the pre-previous row
-					if (cell.getRowIndex() > 1) {
-						// we have 2 rows above from which we can take the styles
-						Row ppr = sheet.getRow(cell.getRowIndex() - 2);
-						Cell pprc = ppr.getCell(cell.getColumnIndex());
-						style = pprc.getCellStyle();
-					}
-					// we are in the first row, memorize the style
-					if (style.getIndex() > 0) {
-						// only if the cell does not use the default style
-						evenRowColumnStyleMap.put(cell.getColumnIndex(), style);
-						cell.setCellStyle(style);
-					}
-				} else if (isEvenDataRow(row)) {
-					// reference to the previously memorized style for even rows
-					CellStyle s = evenRowColumnStyleMap.get(cell.getColumnIndex());
-					if (s != null) {
-						cell.setCellStyle(s);
-					}
-				} else {
-					// reference to the previously memorized style for even rows
-					CellStyle s = oddRowColumnStyleMap.get(cell.getColumnIndex());
-					if (s != null) {
-						cell.setCellStyle(s);
-					}
-				}
-			} else {
-				// we take the style from the last row
-				if (isFirstRow(row)) {
+			if (appendData == false) {
+				// we have to reuse the existing style
+				// from the first written wor
+				if (reuseExistingStylesAlternating) {
 					CellStyle style = cell.getCellStyle();
-					// get the cell from the previous row
-					if (cell.getRowIndex() > 0) {
-						// we have 1 rows above from which we can take the styles
-						Row pr = sheet.getRow(cell.getRowIndex() - 1);
-						Cell prc = pr.getCell(cell.getColumnIndex());
-						style = prc.getCellStyle();
-					}
-					// memorize the style for reuse in all other rows
-					if (style.getIndex() > 0) {
-						// only if the cell does not use the default style
-						columnStyleMap.put(cell.getColumnIndex(), style);
-						cell.setCellStyle(style);
+					// we have to reuse the style from the even/odd row
+					if (isFirstRow(dataRowIndex)) {
+						// we are in the first row, memorize the style
+						if (style.getIndex() > 0) {
+							// only if the cell does not use the default style
+							oddRowColumnStyleMap.put(cell.getColumnIndex(), style);
+						}
+					} else if (isSecondRow(dataRowIndex)) {
+						// we are in the first row, memorize the style
+						if (style.getIndex() > 0) {
+							// only if the cell does not use the default style
+							evenRowColumnStyleMap.put(cell.getColumnIndex(), style);
+						}
+					} else if (isEvenDataRow(dataRowIndex)) {
+						// reference to the previously memorized style for even rows
+						CellStyle s = evenRowColumnStyleMap.get(cell.getColumnIndex());
+						if (s != null) {
+							cell.setCellStyle(s);
+						}
+					} else {
+						// reference to the previously memorized style for even rows
+						CellStyle s = oddRowColumnStyleMap.get(cell.getColumnIndex());
+						if (s != null) {
+							cell.setCellStyle(s);
+						}
 					}
 				} else {
-					// set the style from the previous row
-					CellStyle s = columnStyleMap.get(cell.getColumnIndex());
-					if (s != null) {
-						cell.setCellStyle(s);
+					// here we go if we append data
+					// we have to take the styles from the previous rows
+					CellStyle style = cell.getCellStyle();
+					// we take the style from the last row
+					if (isFirstRow(dataRowIndex)) {
+						// memorize the style for reuse in all other rows
+						if (style.getIndex() > 0) {
+							// only if the cell does not use the default style
+							columnStyleMap.put(cell.getColumnIndex(), style);
+						}
+					} else {
+						// set the style from the previous row
+						CellStyle s = columnStyleMap.get(cell.getColumnIndex());
+						if (s != null) {
+							cell.setCellStyle(s);
+						}
+					}
+				}
+			} else {
+				// append mode
+				// we have to get the styles from the previous rows
+				if (reuseExistingStylesAlternating) {
+					CellStyle style = cell.getCellStyle();
+					// we have to reuse the style from the even/odd row
+					if (isFirstRow(dataRowIndex)) {
+						// get the cell from the pre-previous row
+						if (cell.getRowIndex() > 1) {
+							// we have 2 rows above from which we can take the styles
+							Row ppr = sheet.getRow(cell.getRowIndex() - 2);
+							Cell pprc = ppr.getCell(cell.getColumnIndex());
+							style = pprc.getCellStyle();
+						}
+						// we are in the first row, memorize the style
+						if (style.getIndex() > 0) {
+							// only if the cell does not use the default style
+							oddRowColumnStyleMap.put(cell.getColumnIndex(), style);
+							cell.setCellStyle(style);
+						}
+					} else if (isSecondRow(dataRowIndex)) {
+						// get the cell from the pre-previous row
+						if (cell.getRowIndex() > 1) {
+							// we have 2 rows above from which we can take the styles
+							Row ppr = sheet.getRow(cell.getRowIndex() - 2);
+							Cell pprc = ppr.getCell(cell.getColumnIndex());
+							style = pprc.getCellStyle();
+						}
+						// we are in the first row, memorize the style
+						if (style.getIndex() > 0) {
+							// only if the cell does not use the default style
+							evenRowColumnStyleMap.put(cell.getColumnIndex(), style);
+							cell.setCellStyle(style);
+						}
+					} else if (isEvenDataRow(dataRowIndex)) {
+						// reference to the previously memorized style for even rows
+						CellStyle s = evenRowColumnStyleMap.get(cell.getColumnIndex());
+						if (s != null) {
+							cell.setCellStyle(s);
+						}
+					} else {
+						// reference to the previously memorized style for even rows
+						CellStyle s = oddRowColumnStyleMap.get(cell.getColumnIndex());
+						if (s != null) {
+							cell.setCellStyle(s);
+						}
+					}
+				} else {
+					// we take the style from the last row
+					if (isFirstRow(dataRowIndex)) {
+						CellStyle style = cell.getCellStyle();
+						// get the cell from the previous row
+						if (cell.getRowIndex() > 0) {
+							// we have 1 rows above from which we can take the styles
+							Row pr = sheet.getRow(cell.getRowIndex() - 1);
+							Cell prc = pr.getCell(cell.getColumnIndex());
+							style = prc.getCellStyle();
+						}
+						// memorize the style for reuse in all other rows
+						if (style.getIndex() > 0) {
+							// only if the cell does not use the default style
+							columnStyleMap.put(cell.getColumnIndex(), style);
+							cell.setCellStyle(style);
+						}
+					} else {
+						// set the style from the previous row
+						CellStyle s = columnStyleMap.get(cell.getColumnIndex());
+						if (s != null) {
+							cell.setCellStyle(s);
+						}
 					}
 				}
 			}
@@ -907,12 +899,8 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		this.reuseExistingStylesFromFirstWrittenRow = reuseExistingStyles;
 	}
 
-	public boolean isReuseExistingStylesFromPreviousWrittenRow() {
-		return reuseExistingStylesFromPreviousWrittenRow;
-	}
-
-	public void setReuseExistingStylesFromPreviousWrittenRow(boolean reuseExistingStyles) {
-		this.reuseExistingStylesFromPreviousWrittenRow = reuseExistingStyles;
+	public void setAppend(boolean reuseExistingStyles) {
+		this.appendData = reuseExistingStyles;
 	}
 
 	public boolean isReuseExistingStylesAlternating() {
@@ -963,6 +951,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		info("Extending cell range for tables...");
 		if (sheet instanceof XSSFSheet) {
 			int firstDataRowIndex = firstRowIsHeader ? rowStartIndex + 1 : rowStartIndex;
+			// check if we are in the append mode and if we are really appending data to existing records
+			if (appendData) {
+				if (rowStartIndex > 1) {
+					firstDataRowIndex--;
+				}
+			}
 			List<XSSFTable> listTables =  ((XSSFSheet) sheet).getTables();
 			if (individualColumnMappingUsed) {
 				for (Integer col : columnIndexes.values()) {
@@ -1034,6 +1028,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 			warn("Cannot extend cell ranges for conditional formats in the memory the saving mode (use of the streaming-workbook).");
     	} else {
     		int firstDataRowIndex = firstRowIsHeader ? rowStartIndex + 1 : rowStartIndex;
+			// check if we are in the append mode and if we are really appending data to existing records
+			if (appendData) {
+				if (rowStartIndex > 1) {
+					firstDataRowIndex--;
+				}
+			}
         	info("Extending cell ranges for conditional formats. Use formats from row: " + firstDataRowIndex);
         	if (getLastRowNum() > 0 && getLastRowNum() > firstDataRowIndex) {
         		SheetConditionalFormatting scf = sheet.getSheetConditionalFormatting();
@@ -1250,6 +1250,9 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	}
 	
 	public Sheet getSheet() {
+		if (sheet == null) {
+			throw new IllegalStateException("Sheet is not intialized.");
+		}
 		return sheet;
 	}
 

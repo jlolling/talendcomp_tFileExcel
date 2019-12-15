@@ -253,4 +253,39 @@ public class TestExcelSheetOutput {
 		assertEquals("c wrong", "x5", c);
 	}
 	
+	@Test
+	public void testAppendDataAndReuseStyles() throws Exception {
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen = new de.jlo.talendcomp.excel.SpreadsheetFile();
+		tFileExcelWorkbookOpen.setInputFile("/Data/Talend/testdata/excel/CellOutput_test/sheet_with_styles.xlsx");
+		tFileExcelWorkbookOpen.initializeWorkbook();
+		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
+		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
+		tFileExcelSheetOutput_1.setTargetSheetName(0);
+		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.setRowStartIndex(tFileExcelSheetOutput_1.getSheet().getLastRowNum() + 1);
+		tFileExcelSheetOutput_1.setFirstRowIsHeader(false);
+		// configure cell positions
+		tFileExcelSheetOutput_1.setColumnStart(0);
+		tFileExcelSheetOutput_1.setAppend(true);
+		tFileExcelSheetOutput_1.setReuseExistingStylesFromFirstWrittenRow(true);
+		tFileExcelSheetOutput_1.setSetupCellStylesForAllColumns(true);
+		tFileExcelSheetOutput_1.setReuseFirstRowHeight(true);
+		// configure cell formats
+		tFileExcelSheetOutput_1.setWriteNullValues(false);
+		tFileExcelSheetOutput_1.setWriteZeroDateAsNull(true);
+		tFileExcelSheetOutput_1.setForbidWritingInProtectedCells(false);
+
+		Object[] dataset_tFileExcelSheetOutput_1 = new Object[2];
+		for (int i = 0; i < 10; i++) {
+			dataset_tFileExcelSheetOutput_1[0] = 100 + i;
+			dataset_tFileExcelSheetOutput_1[1] = 15 + i;
+			tFileExcelSheetOutput_1.writeRow(dataset_tFileExcelSheetOutput_1);
+		}
+		
+		tFileExcelSheetOutput_1.extendCellRangesForConditionalFormattings();
+		
+		tFileExcelWorkbookOpen.setOutputFile("/Data/Talend/testdata/excel/CellOutput_test/sheet_with_styles_appended.xlsx");
+		tFileExcelWorkbookOpen.writeWorkbook();
+	}
+	
 }

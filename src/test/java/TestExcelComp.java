@@ -35,32 +35,6 @@ public class TestExcelComp {
 		System.out.println(sdf.parse(s).getTime());
 	}
 	
-	public static void testOutputStyled() {
-		System.out.println("testOutputStyled - start");
-		SpreadsheetOutput out = new SpreadsheetOutput();
-		try {
-			out.createEmptyXLSWorkbook();
-			out.initializeWorkbook();
-			out.initializeSheet();
-			out.addStyle("odd", "Arial", "10", "", "8", "49", "left", false);
-			out.addStyle("even", "Arial", "10", "", "9", "12", "left", false);
-			out.setOddRowStyleName("odd");
-			out.setEvenRowStyleName("even");
-			out.setOutputFile("/var/testdata/excel/styled_excel.xls");
-			for (int r = 0; r < 9; r++) {
-				Object[] row = new Object[1];
-				for (int c = 0; c < 1; c++) {
-					row[c] = "value:" + r + "-" + c;
-				}
-				out.writeRow(row);
-			}
-			out.writeWorkbook();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println("testOutputStyled - end");
-	}
-	
 	public static void printHSSFColors() {
 		Map<Integer, HSSFColor> map = HSSFColor.getIndexHash();
 		TreeSet<String> set = new TreeSet<String>();
@@ -248,21 +222,6 @@ public class TestExcelComp {
 		while (e.readNextRow()) {
 			System.out.println(e.getStringCellValue(0, true, true, false));
 		}
-	}
-
-	public static void testXLSCreateComment() throws Exception {
-		SpreadsheetOutput e = new SpreadsheetOutput();
-		e.createEmptyXLSWorkbook();
-		e.initializeWorkbook();
-		e.setTargetSheetName("with_comments");
-		e.initializeSheet();
-		e.writeReferencedCellValue(0, 1, "Jan", "Kommentar", null, false);
-		e.writeReferencedCellValue(1, 2, "Feb", "Kommentar", null, false);
-		e.writeReferencedCellValue(2, 0, 2, null, null, false);
-		e.writeReferencedCellValue(2, 1, 5, "toller Wert", null, false);
-		e.writeReferencedCellValue(2, 2, "=A{row}+B3", "Ergebnis", null, false);
-		e.setOutputFile("/private/var/testdata/excel/comments.xls");
-		e.writeWorkbook();
 	}
 
 	public static void testEncryptFile() throws Exception {

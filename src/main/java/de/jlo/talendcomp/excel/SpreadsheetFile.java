@@ -45,16 +45,12 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
 import org.apache.poi.ss.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.functions.Function;
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -92,7 +88,6 @@ public class SpreadsheetFile {
 	private int rowAccessWindow = 100;
 	private String readPassword;
 	private FormulaEvaluator formulaEvaluator;
-	protected Map<String, CellStyle> namedStyles = new HashMap<String, CellStyle>();
 	private DataFormatter dataFormatter = null;
 	protected boolean debug = false;
 	private static final Pattern CELL_REF_PATTERN = Pattern.compile("\\$?([A-Za-z]+)\\$?([0-9]+)"); // max is XFD
@@ -873,66 +868,7 @@ public class SpreadsheetFile {
 			return null;
 		}
 	}
-	
-	/**
-	 * adds a font to the workbook
-	 * @param family like Arial
-	 * @param height like 8,9,10,12,14...
-	 * @param bui with "b"=bold, "u"=underlined, "i"=italic and all combinations as String
-	 * @param color color index
-	 */
-	public void addStyle(String styleName, String fontFamily, String fontHeight, String fontDecoration, String fontColor, String bgColor, String textAlign, boolean buttomBorder) {
-		if (styleName != null && styleName.isEmpty() == false) {
-			Font f = workbook.createFont();
-			if (fontFamily != null && fontFamily.isEmpty() == false) {
-				f.setFontName(fontFamily);
-			}
-			if (fontHeight != null && fontHeight.isEmpty() == false) {
-				short height = Short.parseShort(fontHeight);
-				if (height > 0) {
-					f.setFontHeightInPoints(height);
-				}
-			}
-			if (fontDecoration != null && fontDecoration.isEmpty() == false) {
-				if (fontDecoration.contains("b")) {
-					f.setBold(true);
-				}
-				if (fontDecoration.contains("i")) {
-					f.setItalic(true);
-				}
-				if (fontDecoration.contains("u")) {
-					f.setUnderline(Font.U_SINGLE);
-				}
-			}
-			if (fontColor != null && fontColor.isEmpty() == false) {
-				short color = Short.parseShort(fontColor);
-				f.setColor(color);
-			}
-			CellStyle style = workbook.createCellStyle();
-			style.setFont(f);
-			if (bgColor != null && bgColor.isEmpty() == false) {
-				short color = Short.parseShort(bgColor);
-				style.setFillForegroundColor(color);
-				//style.setFillBackgroundColor(color);
-				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-			}
-			if (textAlign != null && textAlign.isEmpty() == false) {
-				if ("center".equalsIgnoreCase(textAlign)) {
-					style.setAlignment(HorizontalAlignment.CENTER);
-				} else if ("left".equalsIgnoreCase(textAlign)) {
-					style.setAlignment(HorizontalAlignment.LEFT);
-				} else if ("right".equals(textAlign)) {
-					style.setAlignment(HorizontalAlignment.RIGHT);
-				}
-			}
-			if (buttomBorder) {
-				style.setBorderBottom(BorderStyle.MEDIUM);
-				style.setBottomBorderColor((short) 9);
-			}
-			namedStyles.put(styleName, style);
-		}
-	}
-		
+			
 	public boolean isEmpty() {
 		if (workbook == null) {
 			throw new IllegalStateException("workbook is not initialized");

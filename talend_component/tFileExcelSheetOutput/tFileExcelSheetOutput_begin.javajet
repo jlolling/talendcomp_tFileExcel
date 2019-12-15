@@ -74,8 +74,7 @@
 		 }
 		 columnIndex++;
 	 }
-	 boolean reuseStyleFromFirstWrittenRow = "true".equals(ElementParameterParser.getValue(node, "__REUSE_STYLE__")) && (appendRows == false);
-	 boolean reuseStyleFromPreviousWrittenRow = "true".equals(ElementParameterParser.getValue(node, "__REUSE_STYLE_FROM_PREVIOUS_ROW__")) && appendRows;
+	 boolean reuseStyleFromFirstWrittenRow = "true".equals(ElementParameterParser.getValue(node, "__REUSE_STYLE__"));
 	 String reuseStyleAlternating = ElementParameterParser.getValue(node, "__REUSE_STYLE_ALTERNATING__");
 	 String reuseFirstRowHeight = ElementParameterParser.getValue(node, "__REUSE_FIRST_ROW_HEIGHT__");
 	 String reuseStylesForAllCells = ElementParameterParser.getValue(node, "__REUSE_STYLES_FOR_ALL__");
@@ -117,14 +116,9 @@
     } else if (columnStartPosStr != null && columnStartPosStr.isEmpty() == false) { %>
 	<%=cid%>.setColumnStart(<%=columnStartPosStr%>);
 <%  }
-    if (writeColumns == false) {
-    	if (appendRows) { %>
-	<%=cid%>.setReuseExistingStylesFromFirstWrittenRow(false);
-	<%=cid%>.setReuseExistingStylesFromPreviousWrittenRow(<%=reuseStyleFromPreviousWrittenRow%>);
-<%		} else { %>
+    if (writeColumns == false) { %>
+	<%=cid%>.setAppend(<%=appendRows%>);
 	<%=cid%>.setReuseExistingStylesFromFirstWrittenRow(<%=reuseStyleFromFirstWrittenRow%>);
-	<%=cid%>.setReuseExistingStylesFromPreviousWrittenRow(false);
-<%		} %>
 	<%=cid%>.setSetupCellStylesForAllColumns(<%=reuseStylesForAllCells%>);
 	<%=cid%>.setReuseFirstRowHeight(<%=reuseFirstRowHeight%>);
 <%  	if (reuseStyleFromFirstWrittenRow) { %>
@@ -132,7 +126,7 @@
 <%  	} %>
 <%  } %>
     // configure cell formats
-<%	if (reuseStyleFromFirstWrittenRow == false && reuseStyleFromPreviousWrittenRow == false) {
+<%	if (reuseStyleFromFirstWrittenRow == false) {
 	    for (Map.Entry<Integer, String> entry : formatMap.entrySet()) { 
         	Integer schemaColumnIndex = entry.getKey();
         	String columnFormat = entry.getValue();
