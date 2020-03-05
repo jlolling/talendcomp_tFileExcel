@@ -288,4 +288,29 @@ public class TestExcelSheetOutput {
 		tFileExcelWorkbookOpen.writeWorkbook();
 	}
 	
+	@Test
+	public void testWriteReadEncrypted() throws Exception {
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen = new de.jlo.talendcomp.excel.SpreadsheetFile();
+		tFileExcelWorkbookOpen.createEmptyXLSXWorkbook();
+		tFileExcelWorkbookOpen.initializeWorkbook();
+		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
+		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
+		tFileExcelSheetOutput_1.setTargetSheetName("sheet");
+		tFileExcelSheetOutput_1.initializeSheet();
+		Object[] dataset_tFileExcelSheetOutput_1 = new Object[2];
+		for (int i = 0; i < 10; i++) {
+			dataset_tFileExcelSheetOutput_1[0] = 100 + i;
+			dataset_tFileExcelSheetOutput_1[1] = 15 + i;
+			tFileExcelSheetOutput_1.writeRow(dataset_tFileExcelSheetOutput_1);
+		}
+		String targetFile = "/Data/Talend/testdata/excel/test_emcrypted/test_encrypted.xlsx";
+		tFileExcelWorkbookOpen.setOutputFile(targetFile);
+		tFileExcelWorkbookOpen.writeWorkbookEncrypted("secret");
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen2 = new de.jlo.talendcomp.excel.SpreadsheetFile();
+		tFileExcelWorkbookOpen2.setInputFile(targetFile);
+		tFileExcelWorkbookOpen2.setPassword("secret");
+		tFileExcelWorkbookOpen2.initializeWorkbook();
+		assertTrue(true);
+	}
+	
 }

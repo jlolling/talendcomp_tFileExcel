@@ -39,7 +39,11 @@
 		<%=cid%>.createDirs();
 <%  }%>
 		globalMap.put("<%=cid%>_COUNT_SHEETS", <%=cid%>.getWorkbook().getNumberOfSheets());
+<% if (encrypt && password.trim().isEmpty() == false) { %>
+		<%=cid%>.writeWorkbookEncrypted(<%=password%>);
+<% } else { %>
 		<%=cid%>.writeWorkbook();
+<%	} %>
 		// release the memory
 		globalMap.put("<%=cid%>_FILENAME", <%=cid%>.getOutputFile());
 		globalMap.remove("workbook_<%=openCompName%>");
@@ -47,15 +51,3 @@
 		globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
 		throw e;
 	}
-<% if (encrypt && password.trim().isEmpty() == false) { %>
-   // renames the original file into a temp file and rewrite it again as encrypted file
-   try {
-   <%=cid%>.info("Encrypt file: " + <%=cid%>.getOutputFile());
-   de.jlo.talendcomp.excel.SpreadsheetFile.encrypt(<%=cid%>.getOutputFile(), <%=password%>);
-   <%=cid%>.info("Done.");
-   } catch (Exception e) {
-   		<%=cid%>.error("Exncryption of file failed: " + e.getMessage(), e);
-   		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Encryption of file failed: " + e.getMessage());
-   		throw e;
-   }
-<% } %>

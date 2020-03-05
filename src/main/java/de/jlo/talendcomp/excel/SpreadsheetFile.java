@@ -34,8 +34,6 @@ import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
 import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
@@ -599,6 +597,55 @@ public class SpreadsheetFile {
 		workbook = null;
 	}
 	
+	public void writeWorkbookEncrypted(String password) throws Exception {
+		if (password == null || password.trim().isEmpty()) {
+			throw new Exception("Unable to encrypt while writing excel file: " + outputFile.getName() + ": Password cannot be null or empty");
+		}
+        File pFile = outputFile.getParentFile();
+        if (pFile != null && pFile.exists() == false) {
+            pFile.mkdirs();
+            if (pFile.exists() == false) {
+            	throw new Exception("Unable to create directory: " + pFile.getAbsolutePath());
+            }
+        }
+        Exception ex = null;
+        try {
+            POIFSFileSystem fs = new POIFSFileSystem();
+            EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+            Encryptor enc = info.getEncryptor();
+            enc.confirmPassword(password);
+			// write the workbook into the encrypted OutputStream
+			OutputStream encos = enc.getDataStream(fs);
+			workbook.write(encos);
+			workbook.close();
+			encos.close(); // this is necessary before writing out the FileSystem
+			fout = new FileOutputStream(outputFile);
+			fs.writeFilesystem(fout);
+			fout.close();
+			fs.close();
+        } catch (Exception e) {
+        	ex = e;
+        	error("write workbook failed: " + e.getMessage(), e);
+        } finally {
+        	if (fout != null) {
+        		try {
+        			fout.close();
+        			if (workbook instanceof SXSSFWorkbook) {
+        				((SXSSFWorkbook) workbook).dispose();
+        			} else {
+        				workbook.close();
+        			}
+        		} catch (Exception e1) {
+        			// ignored
+        		}
+        	}
+        }
+        if (ex != null) {
+        	throw ex;
+        }
+		workbook = null;
+	}
+
 	public static void ensureDirExists(File file) throws Exception {
 		File dir = file.getParentFile();
 		if (dir.exists() == false) {
@@ -607,66 +654,6 @@ public class SpreadsheetFile {
 				throw new Exception("Directory: " + dir.getAbsolutePath() + " does not exists and cannot be created!");
 			}
 		}
-	}
-	
-	public static void encrypt(String filePath, String password) throws Exception {
-		if (filePath == null || filePath.trim().isEmpty()) {
-			throw new Exception("File path to encrypt cannot be null or empty!");
-		}
-		if (getSpreadsheetType(filePath) == SpreadsheetTyp.XLSX) {
-			File f = new File(filePath);
-			File tempFile = new File(f.getParentFile(), f.getName() + ".temp");
-			f.renameTo(tempFile);
-			encryptFile(tempFile.getAbsolutePath(), filePath, password);
-			tempFile.delete();
-		} else {
-			System.err.println("Encryping the old OLE format is not supported!");
-		}
-	}
-	
-	private static void encryptFile(String inFilePath, String outFilePath, String password) throws Exception {
-		if (password == null || password.trim().isEmpty()) {
-			throw new Exception("Password cannot be null or empty!");
-		}
-		if (inFilePath == null || inFilePath.trim().isEmpty()) {
-			throw new Exception("Input file cannot be null or empty!");
-		}
-		File inFile = new File(inFilePath);
-		if (outFilePath == null || outFilePath.trim().isEmpty()) {
-			throw new Exception("Output file cannot be null or empty!");
-		}
-		File outFile = new File(outFilePath);
-		if (inFile.exists() == false) {
-			throw new Exception("Excel file to encrypt: " + inFile.getAbsolutePath() + " does not exists!");
-		}
-		ensureDirExists(outFile);
-        POIFSFileSystem fs = new POIFSFileSystem();
-        EncryptionInfo info = new EncryptionInfo(EncryptionMode.standard);
-        Encryptor enc = info.getEncryptor();
-        enc.confirmPassword(password);
-        OPCPackage opc = OPCPackage.open(inFile, PackageAccess.READ_WRITE);
-        OutputStream os = enc.getDataStream(fs);
-        opc.save(os);
-        opc.close();
-        FileOutputStream fos = null;
-        Exception ex = null;
-        try {
-        	fos = new FileOutputStream(outFile);
-            fs.writeFilesystem(fos);
-        } catch (Exception e) {
-        	ex = e;
-        } finally {
-        	if (fos != null) {
-        		try {
-        			fos.close();
-        		} catch (Exception e1) {
-        			// ignore
-        		}
-        	}
-        }
-        if (ex != null) {
-        	throw ex;
-        }
 	}
 	
 	public void deleteSheet(int sheetIndex) throws Exception {

@@ -13,7 +13,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
-import de.jlo.talendcomp.excel.SpreadsheetFile;
 import de.jlo.talendcomp.excel.SpreadsheetInput;
 import de.jlo.talendcomp.excel.SpreadsheetNamedCellInput;
 import de.jlo.talendcomp.excel.SpreadsheetOutput;
@@ -224,12 +223,6 @@ public class TestExcelComp {
 		}
 	}
 
-	public static void testEncryptFile() throws Exception {
-		SpreadsheetFile.encrypt(
-				"/var/testdata/excel/largefile.xlsx",
-				"geheim");
-	}
-	
 	public static void testXLSXDecrypted() throws Exception {
 		SpreadsheetInput e = new SpreadsheetInput();
 		e.setInputFile("/private/var/testdata/excel/encrypted.xlsx", true);
