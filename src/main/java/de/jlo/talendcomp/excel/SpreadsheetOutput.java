@@ -61,9 +61,6 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private Drawing<?> drawing = null;
 	private boolean groupRowsByColumn = false;
 	private Map<Integer, GroupInfo> groupInfoMap = new HashMap<Integer, SpreadsheetOutput.GroupInfo>();
-	private String oddRowStyleName = null;
-	private String evenRowStyleName = null;
-	private String headerRowStyleName = null;
 	private boolean writeNullValues = false;
 	private Map<Integer, Short> cellFormatMap = new HashMap<Integer, Short>();
 	private Map<Integer, CellStyle> columnStyleMap = new HashMap<Integer, CellStyle>();
@@ -84,6 +81,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private int highestColumnIndex = 0;
 	private boolean writeZeroDateAsNull = true;
 	private boolean forbidWritingInProtectedCells = false;
+	private int templateRowIndexForStyles = -1;
 	
 	public void initializeSheet() {
 		if (workbook == null) {
@@ -195,7 +193,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		currentRow = getRow(rowStartIndex + currentRecordIndex);
 		if (isFirstRow(currentRecordIndex)) {
 			if (appendData) {
-				Row pr = sheet.getRow(currentRow.getRowNum() - 1);
+				Row pr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles : currentRow.getRowNum());
 				firstRowHeight = pr.getHeight();
 				if (reuseFirstRowHeight) {
 					currentRow.setHeight(firstRowHeight);
@@ -680,30 +678,6 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		return pattern.toString();
 	}
 
-	public String getOddRowStyleName() {
-		return oddRowStyleName;
-	}
-
-	public void setOddRowStyleName(String oddRowStyleName) {
-		this.oddRowStyleName = oddRowStyleName;
-	}
-
-	public String getEvenRowStyleName() {
-		return evenRowStyleName;
-	}
-
-	public void setEvenRowStyleName(String evenRowStyleName) {
-		this.evenRowStyleName = evenRowStyleName;
-	}
-
-	public String getHeaderRowStyleName() {
-		return headerRowStyleName;
-	}
-
-	public void setHeaderRowStyleName(String headerRowStyleName) {
-		this.headerRowStyleName = headerRowStyleName;
-	}
-
 	public boolean isWriteNullValues() {
 		return writeNullValues;
 	}
@@ -809,7 +783,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 						// get the cell from the pre-previous row
 						if (cell.getRowIndex() > 1) {
 							// we have 2 rows above from which we can take the styles
-							Row ppr = sheet.getRow(cell.getRowIndex() - 2);
+							Row ppr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles : cell.getRowIndex() - 2);
 							Cell pprc = ppr.getCell(cell.getColumnIndex());
 							style = pprc.getCellStyle();
 						}
@@ -823,7 +797,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 						// get the cell from the pre-previous row
 						if (cell.getRowIndex() > 1) {
 							// we have 2 rows above from which we can take the styles
-							Row ppr = sheet.getRow(cell.getRowIndex() - 2);
+							Row ppr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles + 1 : cell.getRowIndex() - 2);
 							Cell pprc = ppr.getCell(cell.getColumnIndex());
 							style = pprc.getCellStyle();
 						}
@@ -853,7 +827,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 						// get the cell from the previous row
 						if (cell.getRowIndex() > 0) {
 							// we have 1 rows above from which we can take the styles
-							Row pr = sheet.getRow(cell.getRowIndex() - 1);
+							Row pr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles : cell.getRowIndex() - 1);
 							Cell prc = pr.getCell(cell.getColumnIndex());
 							style = prc.getCellStyle();
 						}
@@ -1374,6 +1348,18 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 
 	public void setForbidWritingInProtectedCells(boolean forbidWritingInProtectedCells) {
 		this.forbidWritingInProtectedCells = forbidWritingInProtectedCells;
+	}
+
+	public int getTemplateRowIndexForStyles() {
+		return templateRowIndexForStyles;
+	}
+
+	public void setTemplateRowIndexForStyles(Integer templateRowIndexForStyles) {
+		if (templateRowIndexForStyles != null) {
+			this.templateRowIndexForStyles = templateRowIndexForStyles;
+		} else {
+			this.templateRowIndexForStyles = -1;
+		}
 	}
 	
 }

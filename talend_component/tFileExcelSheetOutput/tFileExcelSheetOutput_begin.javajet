@@ -25,6 +25,9 @@
     boolean writeZeroDateAsNull = "true".equals(ElementParameterParser.getValue(node, "__WRITE_ZERO_DATE_AS_NULL__"));
     boolean forbidWritingInLockedCells = "true".equals(ElementParameterParser.getValue(node, "__FORBID_WRITING_INTO_LOCKED_CELLS__"));
     String rowStartIndexStr = ElementParameterParser.getValue(node, "__ROW_START_INDEX__");
+    if (rowStartIndexStr == null || rowStartIndexStr.trim().isEmpty()) {
+    	rowStartIndexStr = "1";
+    }
     String allowWriteNull = ElementParameterParser.getValue(node, "__WRITE_NULL__");
     String freezeRowStr = ElementParameterParser.getValue(node, "__FREEZE_ROW__");
     String freezeColStr = ElementParameterParser.getValue(node, "__FREEZE_COL__");
@@ -90,13 +93,16 @@
     <%=cid%>.createCopy(<%=sourceSheetName%>, <%=sheetName%>);
 <%      } %>
     <%=cid%>.setTargetSheetName(<%=sheetName%>);
-    globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName()); 
+    globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName());
 <%  } %>
 	<%=cid%>.initializeSheet();
+    int startRowIndex_<%=cid%> = <%=rowStartIndexStr%> - 1;
 <%  if (appendRows) { %>
-    <%=cid%>.setRowStartIndex(<%=cid%>.getSheet().getLastRowNum() + 1);
-<%  } else if (rowStartIndexStr != null && rowStartIndexStr.isEmpty() == false) { %>
-	<%=cid%>.setRowStartIndex(<%=rowStartIndexStr%> - 1);
+    int currentSheetLastRowIndex_<%=cid%> = <%=cid%>.detectCurrentSheetLastNoneEmptyRowIndex() + 1;
+    <%=cid%>.setRowStartIndex(startRowIndex_<%=cid%> > currentSheetLastRowIndex_<%=cid%> ? startRowIndex_<%=cid%> : currentSheetLastRowIndex_<%=cid%>);
+    <%=cid%>.setTemplateRowIndexForStyles(startRowIndex_<%=cid%>);
+<%  } else { %>
+	<%=cid%>.setRowStartIndex(startRowIndex_<%=cid%>);
 <%  } %>
 <%  if (includeHeader) { %>
 	<%=cid%>.setFirstRowIsHeader(true);
@@ -110,7 +116,7 @@
             Integer schemaColumnIndex = entry.getKey();
             sheetColumn = entry.getValue();
             if (sheetColumn != null && sheetColumn.isEmpty() == false) { %>
-    <%=cid%>.setDataColumnPosition(<%=schemaColumnIndex%>, <%=sheetColumn%>);
+   <%=cid%>.setDataColumnPosition(<%=schemaColumnIndex%>, <%=sheetColumn%>);
 <%          }
         }
     } else if (columnStartPosStr != null && columnStartPosStr.isEmpty() == false) { %>

@@ -45,6 +45,7 @@ import org.apache.poi.ss.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.functions.Function;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -139,7 +140,7 @@ public class SpreadsheetFile {
 	
 	public static void registerBackportFunctions() {
 		try {
-			//registerFunction("IFERROR", "de.cimt.talendcomp.tfileexcelpoi.functions.IfError");
+			//registerFunction("IFERROR", "de.jlo.talendcomp.tfileexcelpoi.functions.IfError");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -699,7 +700,7 @@ public class SpreadsheetFile {
 	 */
 	public void setRowStartIndex(int rowStartIndex) {
 		if (rowStartIndex < 0) {
-			throw new IllegalArgumentException("Row index starts 1"); // message for the Talend users!
+			throw new IllegalArgumentException("Row index starts with 1"); // message for the Talend users!
 		}
 		this.rowStartIndex = rowStartIndex;
 		currentRecordIndex = 0;
@@ -723,12 +724,36 @@ public class SpreadsheetFile {
             return newName;
         }
     }
+    
+    public int getCurrentSheetLastPresentRowIndex() {
+    	if (sheet != null) {
+    		return sheet.getLastRowNum();
+    	} else {
+    		return -1;
+    	}
+    }
 
-	public int getSheetLastRowIndex() {
-		if (currentRow != null) {
-			return currentRow.getRowNum();
+	public int detectCurrentSheetLastNoneEmptyRowIndex() {
+		int lastRowNum = sheet.getLastRowNum() + 1;
+		while (lastRowNum > 0) {
+			Row row = sheet.getRow(lastRowNum);
+			if (row == null || isRowEmpty(row)) {
+				// we found a empty row, step to the previous row
+				lastRowNum = lastRowNum - 1;
+			} else {
+				break; // we found a none empty row, thats the last!
+			}
 		}
-		return sheetLastRowIndex;
+		return lastRowNum;
+	}
+	
+	protected boolean isRowEmpty(Row row) {
+		for (Cell c : row) {
+			if (c.getCellType() != CellType.BLANK) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public String getDateFormatPattern() {

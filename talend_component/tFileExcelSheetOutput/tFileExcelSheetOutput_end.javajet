@@ -30,4 +30,4 @@
 	<%=cid%>.createDataValidationsForAppendedRows();
 <%  } %>
     globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>);
-    globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.getSheetLastRowIndex() + 1);
+    globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.detectCurrentSheetLastNoneEmptyRowIndex() + 1);

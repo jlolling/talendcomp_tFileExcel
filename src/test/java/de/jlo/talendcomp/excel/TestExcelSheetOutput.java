@@ -15,6 +15,13 @@ public class TestExcelSheetOutput {
 	
 	private Map<String, Object> globalMap = new HashMap<>();
 	
+	public org.apache.poi.ss.usermodel.Workbook setupEmptyWorkbook() throws Exception {
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
+		tFileExcelWorkbookOpen_1.setCreateStreamingXMLWorkbook(false);
+		tFileExcelWorkbookOpen_1.initializeWorkbook();
+		return tFileExcelWorkbookOpen_1.getWorkbook();
+	}
+	
 	@Test
 	public void testWriteZeroDate() throws Exception {
 		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
@@ -46,11 +53,13 @@ public class TestExcelSheetOutput {
 		row[0] = zeroDate;
 		row[1] = new Date();
 		tFileExcelSheetOutput_1.writeRow(row);
+		tFileExcelSheetOutput_1.writeRow(row);
 
 		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookSave_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		// set the workbook
 		tFileExcelWorkbookSave_1.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
 		tFileExcelWorkbookSave_1.evaluateAllFormulars();
+		assertEquals(1, tFileExcelSheetOutput_1.detectCurrentSheetLastNoneEmptyRowIndex());
 		// delete template sheets if needed
 		// persist workbook
 		try {
@@ -186,7 +195,7 @@ public class TestExcelSheetOutput {
 							+ " failed: " + e.getMessage());
 			throw e;
 		}
-
+		
 		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookSave_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		// set the workbook
 		tFileExcelWorkbookSave_1
@@ -303,6 +312,10 @@ public class TestExcelSheetOutput {
 			dataset_tFileExcelSheetOutput_1[1] = 15 + i;
 			tFileExcelSheetOutput_1.writeRow(dataset_tFileExcelSheetOutput_1);
 		}
+		dataset_tFileExcelSheetOutput_1[0] = null;
+		dataset_tFileExcelSheetOutput_1[1] = null;
+		tFileExcelSheetOutput_1.writeRow(dataset_tFileExcelSheetOutput_1);
+		assertEquals(9, tFileExcelSheetOutput_1.detectCurrentSheetLastNoneEmptyRowIndex());
 		String targetFile = "/Data/Talend/testdata/excel/test_emcrypted/test_encrypted.xlsx";
 		tFileExcelWorkbookOpen.setOutputFile(targetFile);
 		tFileExcelWorkbookOpen.writeWorkbookEncrypted("secret");
