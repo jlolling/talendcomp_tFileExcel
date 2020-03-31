@@ -784,8 +784,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 						if (cell.getRowIndex() > 1) {
 							// we have 2 rows above from which we can take the styles
 							Row ppr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles : cell.getRowIndex() - 2);
-							Cell pprc = ppr.getCell(cell.getColumnIndex());
-							style = pprc.getCellStyle();
+							if (ppr != null) {
+								Cell pprc = ppr.getCell(cell.getColumnIndex());
+								if (pprc != null) {
+									style = pprc.getCellStyle();
+								}
+							}
 						}
 						// we are in the first row, memorize the style
 						if (style.getIndex() > 0) {
@@ -798,8 +802,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 						if (cell.getRowIndex() > 1) {
 							// we have 2 rows above from which we can take the styles
 							Row ppr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles + 1 : cell.getRowIndex() - 2);
-							Cell pprc = ppr.getCell(cell.getColumnIndex());
-							style = pprc.getCellStyle();
+							if (ppr != null) {
+								Cell pprc = ppr.getCell(cell.getColumnIndex());
+								if (pprc != null) {
+									style = pprc.getCellStyle();
+								}
+							}
 						}
 						// we are in the first row, memorize the style
 						if (style.getIndex() > 0) {
@@ -828,8 +836,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 						if (cell.getRowIndex() > 0) {
 							// we have 1 rows above from which we can take the styles
 							Row pr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles : cell.getRowIndex() - 1);
-							Cell prc = pr.getCell(cell.getColumnIndex());
-							style = prc.getCellStyle();
+							if (pr != null) {
+								Cell prc = pr.getCell(cell.getColumnIndex());
+								if (prc != null) {
+									style = prc.getCellStyle();
+								}
+							}
 						}
 						// memorize the style for reuse in all other rows
 						if (style.getIndex() > 0) {

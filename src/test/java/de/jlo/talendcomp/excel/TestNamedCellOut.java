@@ -65,8 +65,7 @@ public class TestNamedCellOut {
 			tFileExcelNamedCellOutput_1.error(
 					"Write flow failed:" + e.getMessage(),
 					e);
-			globalMap
-					.put("tFileExcelNamedCellOutput_1_ERROR_MESSAGE",
+			globalMap.put("tFileExcelNamedCellOutput_1_ERROR_MESSAGE",
 							"Write flow failed:"
 									+ e.getMessage());
 			throw e;
@@ -74,23 +73,17 @@ public class TestNamedCellOut {
 
 		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookSave_1 = new de.jlo.talendcomp.excel.SpreadsheetFile();
 		// set the workbook
-		tFileExcelWorkbookSave_1
-				.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap
-						.get("workbook_tFileExcelWorkbookOpen_1"));
+		tFileExcelWorkbookSave_1.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_tFileExcelWorkbookOpen_1"));
 		tFileExcelWorkbookSave_1.evaluateAllFormulars();
 		// delete template sheets if needed
 		// persist workbook
 		try {
-			tFileExcelWorkbookSave_1
-					.setOutputFile("/var/testdata/excel/test9/named_cell_tests/test_named_cells.xlsx");
+			tFileExcelWorkbookSave_1.setOutputFile("/var/testdata/excel/test9/named_cell_tests/test_named_cells.xlsx");
 			tFileExcelWorkbookSave_1.createDirs();
-			globalMap.put("tFileExcelWorkbookSave_1_COUNT_SHEETS",
-					tFileExcelWorkbookSave_1.getWorkbook()
-							.getNumberOfSheets());
+			globalMap.put("tFileExcelWorkbookSave_1_COUNT_SHEETS", tFileExcelWorkbookSave_1.getWorkbook().getNumberOfSheets());
 			tFileExcelWorkbookSave_1.writeWorkbook();
 			// release the memory
-			globalMap.put("tFileExcelWorkbookSave_1_FILENAME",
-					tFileExcelWorkbookSave_1.getOutputFile());
+			globalMap.put("tFileExcelWorkbookSave_1_FILENAME", tFileExcelWorkbookSave_1.getOutputFile());
 			globalMap.remove("workbook_tFileExcelWorkbookOpen_1");
 		} catch (Exception e) {
 			globalMap.put("tFileExcelWorkbookSave_1_ERROR_MESSAGE",

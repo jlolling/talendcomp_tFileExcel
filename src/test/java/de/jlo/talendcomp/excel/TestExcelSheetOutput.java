@@ -306,6 +306,7 @@ public class TestExcelSheetOutput {
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName("sheet");
 		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.setAppend(true);
 		Object[] dataset_tFileExcelSheetOutput_1 = new Object[2];
 		for (int i = 0; i < 10; i++) {
 			dataset_tFileExcelSheetOutput_1[0] = 100 + i;
@@ -316,7 +317,7 @@ public class TestExcelSheetOutput {
 		dataset_tFileExcelSheetOutput_1[1] = null;
 		tFileExcelSheetOutput_1.writeRow(dataset_tFileExcelSheetOutput_1);
 		assertEquals(9, tFileExcelSheetOutput_1.detectCurrentSheetLastNoneEmptyRowIndex());
-		String targetFile = "/Data/Talend/testdata/excel/test_emcrypted/test_encrypted.xlsx";
+		String targetFile = "/Data/Talend/testdata/excel/test_encrypted/test_encrypted.xlsx";
 		tFileExcelWorkbookOpen.setOutputFile(targetFile);
 		tFileExcelWorkbookOpen.writeWorkbookEncrypted("secret");
 		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen2 = new de.jlo.talendcomp.excel.SpreadsheetFile();
@@ -324,6 +325,22 @@ public class TestExcelSheetOutput {
 		tFileExcelWorkbookOpen2.setPassword("secret");
 		tFileExcelWorkbookOpen2.initializeWorkbook();
 		assertTrue(true);
+	}
+	
+	@Test
+	public void testDetectLastNoneEmptyRow() throws Exception {
+		de.jlo.talendcomp.excel.SpreadsheetFile tFileExcelWorkbookOpen = new de.jlo.talendcomp.excel.SpreadsheetFile();
+		tFileExcelWorkbookOpen.setInputFile("/var/testdata/excel/test1/cf-result.xlsx");
+		tFileExcelWorkbookOpen.initializeWorkbook();
+		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
+		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
+		tFileExcelSheetOutput_1.setTargetSheetName(0);
+		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.setRowStartIndex(2-1);
+		tFileExcelSheetOutput_1.setFirstRowIsHeader(false);
+		int lastRowIndex = tFileExcelSheetOutput_1.detectCurrentSheetLastNoneEmptyRowIndex();
+		System.out.println("lastRowIndex = " + lastRowIndex);
+		assertEquals(100, lastRowIndex);
 	}
 	
 }
