@@ -977,5 +977,11 @@ public class SpreadsheetFile {
 			}
 		}
 	}
+	
+	public void setZipBombWarningThreshold(Number ratio) {
+		if (ratio != null && ratio.doubleValue() <= 0.01d) {
+			ZipSecureFile.setMinInflateRatio(ratio.doubleValue());
+		}
+	}
 
 }

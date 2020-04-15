@@ -37,6 +37,8 @@ import org.apache.poi.ss.usermodel.ConditionType;
 import org.apache.poi.ss.usermodel.ConditionalFormatting;
 import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
 import org.apache.poi.ss.usermodel.DataValidation;
+import org.apache.poi.ss.usermodel.DataValidationConstraint;
+import org.apache.poi.ss.usermodel.DataValidationConstraint.ValidationType;
 import org.apache.poi.ss.usermodel.DataValidationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Hyperlink;
@@ -1290,6 +1292,20 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		newValidation.setShowPromptBox(originalDv.getShowPromptBox());
 		newValidation.setEmptyCellAllowed(originalDv.getEmptyCellAllowed());
 		newValidation.setErrorStyle(originalDv.getErrorStyle());
+		if (originalDv.getValidationConstraint().getValidationType() == ValidationType.LIST) {
+			// fix the problem for list constraints no formula will be applied in dvHelper.createValidation above
+			DataValidationConstraint originalConstraint = originalDv.getValidationConstraint();
+			DataValidationConstraint newConstraint = newValidation.getValidationConstraint();
+			if (originalConstraint != null && newConstraint != null) {
+				if (originalConstraint.getFormula1() != null) {
+					newConstraint.setFormula1(originalConstraint.getFormula1());
+				}
+				if (originalConstraint.getFormula2() != null) {
+					newConstraint.setFormula1(originalConstraint.getFormula2());
+				}
+				newConstraint.setOperator(originalConstraint.getOperator());
+			}
+		}
 		String promptBoxText = originalDv.getPromptBoxText();
 		String promptBoxTitle = originalDv.getPromptBoxTitle();
 		String errorBoxText = originalDv.getErrorBoxText();
@@ -1314,16 +1330,31 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private CellRangeAddress createAppendingCellRangeAddress(CellRangeAddress originalAdressRange, int newLastRowIndex) {
 		return new CellRangeAddress(originalAdressRange.getLastRow() + 1, newLastRowIndex, originalAdressRange.getFirstColumn(), originalAdressRange.getLastColumn());
 	}
+	
+	private String getDataValidationConstraintDebugString(DataValidationConstraint dvc) {
+		String constraint = "No constraint";
+		if (dvc != null) {
+			if (dvc.getValidationType() == ValidationType.LIST) {
+				constraint = "List values: " + printArray(dvc.getExplicitListValues());
+			} else if (dvc.getValidationType() == ValidationType.FORMULA) {
+				constraint = "Formulas: #1: " + dvc.getFormula1() + " | #2: " + dvc.getFormula2();
+			} else { 
+				constraint = "Type: " + dvc.getValidationType();
+			}
+		}
+		return constraint;
+	}
 
 	public void createDataValidationsForAppendedRows() {
 		List<? extends DataValidation> dvs = sheet.getDataValidations();
-		if (dvs != null) {
+		if (dvs != null && currentRow != null) {
+			// check if there are data validations and we have at least one row written
 			if (debug) {
 				debug("Original list of DataValidations:");
 				int i = 0;
 				for (DataValidation dv : dvs) {
 					debug("#" + i + " Adress range: " + dv.getRegions().getCellRangeAddresses()[0].formatAsString());
-					debug("#" + i + "   Constraint: " + printArray(dv.getValidationConstraint().getExplicitListValues()));
+					debug("#" + i + "   Constraint: " + getDataValidationConstraintDebugString(dv.getValidationConstraint()));
 					i++;
 				}
 			}
@@ -1339,7 +1370,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				int i = 0;
 				for (DataValidation dv : dvs) {
 					debug("#" + i + " Adress range: " + dv.getRegions().getCellRangeAddresses()[0].formatAsString());
-					debug("#" + i + "   Constraint: " + printArray(dv.getValidationConstraint().getExplicitListValues()));
+					debug("#" + i + "   Constraint: " + getDataValidationConstraintDebugString(dv.getValidationConstraint()));
 					i++;
 				}
 			}

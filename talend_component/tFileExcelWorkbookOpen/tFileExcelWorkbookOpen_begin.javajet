@@ -29,12 +29,17 @@
 <%		}
 	}
     boolean registerBackportFunctions = "true".equals(ElementParameterParser.getValue(node, "__REGISTER_BACKPORT_FUNCTIONS__"));
+    String zipBombWarningThreshold = ElementParameterParser.getValue(node, "__ZIP_BOMB_WARNING_THRESHOLD__");
+    if (zipBombWarningThreshold == null || zipBombWarningThreshold.trim().isEmpty()) {
+    	zipBombWarningThreshold = "null";
+    }
 %>
 	de.jlo.talendcomp.excel.SpreadsheetFile <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetFile();
 <%  if (registerBackportFunctions) { %>
         // register additional backported functions like IFERROR
         de.jlo.talendcomp.excel.SpreadsheetFile.registerBackportFunctions();
-<%  } %>	
+<%  } %>
+	<%=cid%>.setZipBombWarningThreshold(<%=zipBombWarningThreshold%>);
 	<%=cid%>.setCreateStreamingXMLWorkbook(<%=createStreamingWorkbook%>);
 <%  if (createEmptyWorkbook) {%>
         try {
