@@ -188,6 +188,14 @@ public class GenericDateUtil {
 		public Date parseDate(String text, String ... userPattern) throws ParseException {
 			return parseDate(text, null, userPattern);
 		}
+		
+		private boolean checkTextLength(String pattern, String content) {
+			if (pattern.contains("MMMM") == false && pattern.length() < content.length()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
 
 		public Date parseDate(String text, Locale locale, String ... userPattern) throws ParseException {
 			if (text != null && text.trim().isEmpty() == false) {
@@ -209,6 +217,9 @@ public class GenericDateUtil {
 					if (pattern != null) {
 						sdf.applyPattern(pattern.trim());
 						try {
+							if (lenient == false && checkTextLength(pattern, text) == false) {
+								continue;
+							}
 							dateValue = sdf.parse(text);
 							// if we continue here the pattern fits
 							// now we know the date is correct, lets try the time part:

@@ -10,6 +10,8 @@ import java.util.Locale;
 
 import org.junit.Test;
 
+import de.jlo.talendcomp.excel.GenericDateUtil.DateParser;
+
 public class TestGenericDateUtil {
 	
 	@Test
@@ -196,6 +198,21 @@ public class TestGenericDateUtil {
 		System.out.println("date1: " + date1);
 		System.out.println("date1 ms: " + date1.getTime());
 		assertTrue(GenericDateUtil.isZeroDate(date1));
+	}
+
+	@Test
+	public void testInvalidDate() throws ParseException {
+		String s = "2016-13-11 13:26:11";
+		DateParser p =  GenericDateUtil.getDateParser(false);
+		try {
+			p.setLenient(false);
+			Date actual = p.parseDate(s, "yyyy-MM-dd HH:mm:ss");
+			System.out.println(actual);
+			assertTrue(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(true);
+		}
 	}
 
 }

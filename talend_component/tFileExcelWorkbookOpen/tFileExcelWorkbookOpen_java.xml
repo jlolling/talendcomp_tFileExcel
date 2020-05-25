@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER AUTHOR="Jan Lolling" COMPATIBILITY="ALL" DATA_AUTO_PROPAGATE="false" PLATEFORM="ALL" RELEASE_DATE="20200415" SERIAL="" STARTABLE="true" STATUS="TEST" VERSION="12.2"> 
+  <HEADER AUTHOR="Jan Lolling" COMPATIBILITY="ALL" DATA_AUTO_PROPAGATE="false" PLATEFORM="ALL" RELEASE_DATE="20200525" SERIAL="" STARTABLE="true" STATUS="TEST" VERSION="12.3"> 
     <SIGNATURE/> 
   </HEADER>  
   <FAMILIES> 
@@ -68,13 +68,13 @@
     <PARAMETER FIELD="TEXT" NAME="ZIP_BOMB_WARNING_THRESHOLD" NUM_ROW="20"> 
       <DEFAULT>0.005d</DEFAULT> 
     </PARAMETER>  
-    <PARAMETER NAME="RELEASE_LABEL_20200415" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
-      <DEFAULT>Release: 12.2 build at: 20200415</DEFAULT>
+    <PARAMETER NAME="RELEASE_LABEL_20200525" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 12.3 build at: 20200525</DEFAULT>
     </PARAMETER>
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS> 
-      <IMPORT NAME="jlo-talendcomp-excel" MODULE="jlo-talendcomp-excel-12.2.jar" MVN="mvn:org.talend.libraries/jlo-talendcomp-excel-12.2/6.0.0-SNAPSHOT" REQUIRED="true"/>
+      <IMPORT NAME="jlo-talendcomp-excel" MODULE="jlo-talendcomp-excel-12.3.jar" MVN="mvn:org.talend.libraries/jlo-talendcomp-excel-12.3/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="poi-ooxml" MODULE="poi-ooxml-4.1.2.jar" MVN="mvn:org.talend.libraries/poi-ooxml-4.1.2/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="poi" MODULE="poi-4.1.2.jar" MVN="mvn:org.talend.libraries/poi-4.1.2/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="commons-codec" MODULE="commons-codec-1.13.jar" MVN="mvn:org.talend.libraries/commons-codec-1.13/6.0.0-SNAPSHOT" REQUIRED="true"/>
