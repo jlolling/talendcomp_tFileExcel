@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
 import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
@@ -60,7 +59,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SpreadsheetFile {
 	
-	private static Logger logger = null;
 	public static enum SpreadsheetTyp {XLS, XLSX};
 	protected SpreadsheetTyp currentType;
 	private File inputFile = null;
@@ -135,7 +133,6 @@ public class SpreadsheetFile {
 		if (functionsRegistered == false) {
 			functionsRegistered = true;
 		}
-		setupLogger();
 	}
 	
 	public static void registerBackportFunctions() {
@@ -898,52 +895,22 @@ public class SpreadsheetFile {
 		return false;
 	}
 	
-	private static void setupLogger() {
-		// Talend sets a System property if logging is enabled
-		String logName = System.getProperty("TalendJob.log");
-		if (logName != null && logName.trim().isEmpty() == false) {
-			if (logger == null) {
-				logger = Logger.getLogger(SpreadsheetFile.class);
-			}
-		}
-	}
-
 	public void info(String message) {
-		if (logger != null) {
-			logger.info(message);
-		} else {
-			System.out.println("INFO: " + message);
-		}
+		System.out.println("INFO: " + message);
 	}
 	
 	public void debug(String message) {
-		if (logger != null && logger.isDebugEnabled()) {
-			logger.debug(message);
-		} else if (debug) {
-			System.out.println("DEBUG: " + message);
-		}
+		System.out.println("DEBUG: " + message);
 	}
 
 	public void warn(String message) {
-		if (logger != null) {
-			logger.warn(message);
-		} else {
-			System.err.println("WARN: " + message);
-		}
+		System.err.println("WARN: " + message);
 	}
 
 	public void error(String message, Exception e) {
-		if (logger != null) {
-			if (e != null) {
-				logger.error(message, e);
-			} else {
-				logger.error(message);
-			}
-		} else {
-			System.err.println("ERROR: " + message);
-			if (e != null) {
-				e.printStackTrace();
-			}
+		System.err.println("ERROR: " + message);
+		if (e != null) {
+			e.printStackTrace();
 		}
 	}
 
