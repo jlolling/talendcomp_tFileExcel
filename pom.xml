@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jlo.talendcomp</groupId>
 	<artifactId>jlo-talendcomp-excel</artifactId>
-	<version>12.4</version>
+	<version>12.5</version>
 	<name>Talend Excel Components</name>
 	<organization>
 		<name>Jan Lolling</name>
@@ -45,7 +45,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
+				<version>3.8.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -58,7 +58,7 @@
 				<configuration>
 					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
 					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
-					<studioUserComponentFolder>/Data/Talend/Studio/talend_user_components</studioUserComponentFolder>
+					<studioUserComponentFolder>/Users/jan/development/talend_user_components</studioUserComponentFolder>
 				</configuration>
 				<executions>
 					<execution>
@@ -164,7 +164,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>/Data/Talend/Studio/talend_user_components/tFileArchive2</outputDirectory>
+							<outputDirectory>/Users/jan/development/talend_user_components/tFileArchive2</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${project.basedir}/talend_component/tFileArchive2</directory>
@@ -181,7 +181,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>/Data/Talend/Studio/talend_user_components/tFileUnarchive2</outputDirectory>
+							<outputDirectory>/Users/jan/development/talend_user_components/tFileUnarchive2</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${project.basedir}/talend_component/tFileUnarchive2</directory>

@@ -411,7 +411,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private void writeCellValue(Cell cell, Object value, int dataColumnIndex, int dataRowIndex, boolean doNotSetCellStyle) throws Exception {
 		if (forbidWritingInProtectedCells) {
 			if (isCellProtected(cell)) {
-				throw new Exception("Not allowed to write into locked cells. The cell is locked: " + new CellReference(cell).formatAsString());
+				throw new Exception("The cell: " + new CellReference(cell).formatAsString() + " is locked and option forbid writing in protected cells is enabled.");
 			}
 		}
 		if (value instanceof String) {
@@ -727,7 +727,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		if (reuseExistingStylesFromFirstWrittenRow) {
 			if (appendData == false) {
 				// we have to reuse the existing style
-				// from the first written wor
+				// from the first written row
 				if (reuseExistingStylesAlternating) {
 					CellStyle style = cell.getCellStyle();
 					// we have to reuse the style from the even/odd row
@@ -867,16 +867,24 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				if ((style.getIndex() == 0) || (style.getDataFormat() != formatIndex.shortValue())) {
 					// this is the default style or the current format differs from the given format
 					// we need our own style for this 
-					style = columnStyleMap.get(cell.getColumnIndex());
-					if (style == null) {
-						style = workbook.createCellStyle();
-						style.setDataFormat(formatIndex.shortValue());
+					CellStyle newstyle = columnStyleMap.get(cell.getColumnIndex());
+					if (newstyle == null) {
+						newstyle = createCellStyle(style);
+						newstyle.setDataFormat(formatIndex.shortValue());
 						columnStyleMap.put(cell.getColumnIndex(), style);
 					}
 					cell.setCellStyle(style);
 				}
 			}
 		}
+	}
+	
+	private CellStyle createCellStyle(CellStyle template) {
+		CellStyle newstyle = workbook.createCellStyle();
+		if (template != null) {
+			newstyle.cloneStyleFrom(template);
+		}
+		return newstyle;
 	}
 
 	public boolean isReuseExistingStylesFromFirstWrittenRow() {
