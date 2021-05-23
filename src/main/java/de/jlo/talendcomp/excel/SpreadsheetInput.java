@@ -444,7 +444,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Integer getIntegerCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Integer(d.intValue());
+			return Integer.valueOf(d.intValue());
 		} else {
 			return null;
 		}
@@ -453,7 +453,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Long getLongCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Long(d.longValue());
+			return Long.valueOf(d.longValue());
 		} else {
 			return null;
 		}
@@ -462,7 +462,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Short getShortCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Short(d.shortValue());
+			return Short.valueOf(d.shortValue());
 		} else {
 			return null;
 		}
@@ -471,7 +471,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Float getFloatCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Float(d.floatValue());
+			return Float.valueOf(d.floatValue());
 		} else {
 			return null;
 		}
@@ -494,26 +494,26 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			return Boolean.TRUE;
 		} else if ("y".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
-		} else if ("no".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
-		} else if ("n".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
 		} else if ("ja".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
 		} else if ("j".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
-		} else if ("nein".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
 		} else if ("oui".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
-		} else if ("non".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
 		} else if ("ok".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
 		} else if ("x".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
 		} else if ("wahr".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
+		} else if ("nein".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
+		} else if ("no".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
+		} else if ("n".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
+		} else if ("non".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
 		} else if ("falsch".equalsIgnoreCase(s)) {
 			return Boolean.FALSE;
 		} else if ("vrai".equalsIgnoreCase(s)) {
