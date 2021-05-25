@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jlo.talendcomp</groupId>
 	<artifactId>jlo-talendcomp-excel</artifactId>
-	<version>12.5</version>
+	<version>13.0</version>
 	<name>Talend Excel Components</name>
 	<organization>
 		<name>Jan Lolling</name>
@@ -87,6 +87,16 @@
 						</goals>
 						<configuration>
 							<componentName>tFileExcelSheetInput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelSheetInputUnpivot</id>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelSheetInputUnpivot</componentName>
 							<noJars>true</noJars>
 						</configuration>
 					</execution>

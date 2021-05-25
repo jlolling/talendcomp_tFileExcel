@@ -24,7 +24,7 @@ public class TestSpreadsheetFile {
 	@Test
 	public void testReadXls() throws Exception {
 		SpreadsheetInput tFileExcelSheetInput_2 = new SpreadsheetInput();
-		tFileExcelSheetInput_2.setInputFile("/Data/Talend/testdata/excel/4803e947fa70cfcd828079fe857f8a1b.xls");
+		tFileExcelSheetInput_2.setInputFile("/var/testdata/excel/4803e947fa70cfcd828079fe857f8a1b.xls");
 		tFileExcelSheetInput_2.initializeWorkbook();
 		tFileExcelSheetInput_2.useSheet(0);
 		tFileExcelSheetInput_2.setStopAtMissingRow(false);
@@ -72,7 +72,7 @@ public class TestSpreadsheetFile {
 	
 	@Test
 	public void testReadStreamingLastRowNum() {
-		String file = "/Volumes/Data/Talend/testdata/excel/test2/store_report.xlsx";
+		String file = "/var/Talend/testdata/excel/test2/store_report.xlsx";
 		SpreadsheetFile sf = new SpreadsheetFile();
 		sf.setCreateStreamingXMLWorkbook(true);
 		try {
@@ -138,11 +138,11 @@ public class TestSpreadsheetFile {
 		SpreadsheetOutput out = new SpreadsheetOutput();
 		out.setSetupCellStylesForAllColumns(true);
 		try {
-			out.setInputFile("/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Template.xlsx", true);
+			out.setInputFile("/var/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Template.xlsx", true);
 			out.initializeWorkbook();
 			out.setTargetSheetName("Recommended Actions");
 			out.initializeSheet();
-			out.setOutputFile("/Data/Talend/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Result.xlsx");
+			out.setOutputFile("/var/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Result.xlsx");
 			out.setRowStartIndex(1);
 			out.setReuseExistingStylesFromFirstWrittenRow(true);
 			for (int r = 0; r < 9; r++) {
@@ -229,7 +229,7 @@ public class TestSpreadsheetFile {
 			// this file file will not used as output file
 			tFileExcelWorkbookOpen_1
 					.setInputFile(
-							"/Volumes/Data/Talend/testdata/excel/test_double.xls",
+							"/var/testdata/excel/test_double.xls",
 							true);
 			tFileExcelWorkbookOpen_1.initializeWorkbook();
 		} catch (Exception e) {

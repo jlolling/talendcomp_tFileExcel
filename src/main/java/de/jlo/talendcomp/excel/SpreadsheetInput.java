@@ -149,7 +149,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private String getStringCellValue(Cell cell, int originalColumnIndex) throws Exception {
+	protected String getStringCellValue(Cell cell, int originalColumnIndex) throws Exception {
 		String value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -305,7 +305,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Cell getCell(int columnIndex) {
+	protected Cell getCell(int columnIndex) {
 		if (missingColumns.contains(columnIndex)) {
 			return null;
 		} else {
@@ -392,7 +392,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Double getDoubleCellValue(Cell cell) throws Exception {
+	protected Double getDoubleCellValue(Cell cell) throws Exception {
 		Double value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -560,7 +560,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Boolean getBooleanCellValue(Cell cell) throws Exception {
+	protected Boolean getBooleanCellValue(Cell cell) throws Exception {
 		Boolean value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -654,7 +654,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		}
 	}
 
-	private Date getDateCellValue(Cell cell, String pattern) throws Exception {
+	protected Date getDateCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -693,7 +693,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Date getDurationCellValue(Cell cell, String pattern) throws Exception {
+	protected Date getDurationCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();

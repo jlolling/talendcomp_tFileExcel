@@ -358,6 +358,7 @@ public class SpreadsheetFile {
 		}
 	}
 	
+	@SuppressWarnings("resource")
 	public void initializeWorkbook() throws Exception {
 		if (inputFile != null || inputBytes != null) {
 			// open existing files
