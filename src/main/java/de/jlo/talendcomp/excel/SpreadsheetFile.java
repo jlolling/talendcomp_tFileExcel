@@ -951,4 +951,8 @@ public class SpreadsheetFile {
 		}
 	}
 
+	public Row getCurrentRow() {
+		return currentRow;
+	}
+
 }

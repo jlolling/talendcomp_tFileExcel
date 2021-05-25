@@ -996,4 +996,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		}
 	}
 
+	public Row getHeaderRow() {
+		return headerRow;
+	}
+
 }
