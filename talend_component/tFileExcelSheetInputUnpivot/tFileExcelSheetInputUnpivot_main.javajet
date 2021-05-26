@@ -66,6 +66,8 @@
 %>
 	// check and initialize the unpivot component 
 	<%=cid%>.checkAndInitialize((de.jlo.talendcomp.excel.SpreadsheetInput) globalMap.get("<%=inputCompName%>"));
+	globalMap.put("<%=cid%>_INDEX_FIRST_NORMALIZED_COLUMN", <%=cid%>.getUnpivotColumnRangeStartIndex());
+	globalMap.put("<%=cid%>_NB_LINE_NORMALIZED_COLUMNS", <%=cid%>.getNormalizedColumnCount());
 	// normalize current row
 	<%=cid%>.normalizeValuesOfCurrentRow();
 <%	if (outconn != null) { %>
