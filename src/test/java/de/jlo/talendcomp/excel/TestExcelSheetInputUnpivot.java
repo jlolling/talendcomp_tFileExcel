@@ -11,8 +11,9 @@ public class TestExcelSheetInputUnpivot {
 	
 	@Before
 	public void testReadXls() throws Exception {
+		String path = "/home/jan-lolling/eclipse-workspace/talendcomp_tFileExcel/src/test/resources/test_unpivot.xlsx"; //TestUtil.writeResourceToFile("/test_unpivot.xslx", "/tmp/");
 		tFileExcelSheetInput_2 = new SpreadsheetInput();
-		tFileExcelSheetInput_2.setInputFile("/var/testdata/excel/test_unpivot.xlsx");
+		tFileExcelSheetInput_2.setInputFile(path);
 		tFileExcelSheetInput_2.initializeWorkbook();
 		tFileExcelSheetInput_2.useSheet(0);
 		tFileExcelSheetInput_2.setStopAtMissingRow(true);
@@ -28,8 +29,8 @@ public class TestExcelSheetInputUnpivot {
 	public void testUnpivot1() throws Exception {
 		tFileExcelSheetInput_2.setRowStartIndex(2);
 		SpreadsheetInputUnpivot up = new SpreadsheetInputUnpivot();
-		up.setHeaderRowIndex(1);
-		up.setUnpivotColumnRangeStartIndex(2);
+		up.setHeaderRowIndex(2-1);
+		up.setUnpivotColumnRangeStartIndex(0);
 		int count = 0;
 		while (tFileExcelSheetInput_2.readNextRow()) {
 			String agStr = tFileExcelSheetInput_2.getStringCellValue(0, true, true, false);
@@ -51,8 +52,9 @@ public class TestExcelSheetInputUnpivot {
 	public void testUnpivot2() throws Exception {
 		tFileExcelSheetInput_2.setRowStartIndex(9);
 		SpreadsheetInputUnpivot up = new SpreadsheetInputUnpivot();
-		up.setHeaderRowIndex(8);
-		up.setUnpivotColumnRangeStartIndex(2);
+		up.setHeaderRowIndex(9-1);
+		up.setUnpivotColumnRangeStartIndex("D");
+		up.setUnpivotColumnRangeEndIndex("E");
 		int count = 0;
 		while (tFileExcelSheetInput_2.readNextRow()) {
 			String agStr = tFileExcelSheetInput_2.getStringCellValue(0, true, true, false);
@@ -67,6 +69,6 @@ public class TestExcelSheetInputUnpivot {
 				count++;
 			}
 		}
-		assertEquals(12, count);
+		assertEquals(6, count);
 	}
 }

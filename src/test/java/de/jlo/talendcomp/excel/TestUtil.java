@@ -11,32 +11,31 @@ import java.nio.file.StandardCopyOption;
 
 public class TestUtil {
 	
-	public static String writeResourceToFile(String resourceName, String certPath) throws IOException {
+	public static String writeResourceToFile(String resourceName, String certPath) throws Exception {
 	    File outFile = new File(certPath + File.separator + resourceName);
 
-	    if (outFile.isFile()) {
+	    if (outFile.exists() && outFile.isFile()) {
 	        return outFile.getAbsolutePath();
 	    }
-	    InputStream resourceStream = null;
-	    
-	    // Java: In caso di JAR dentro il JAR applicativo 
-	    URLClassLoader urlClassLoader = (URLClassLoader) TestUtil.class.getClassLoader();
-	    URL url = urlClassLoader.findResource(resourceName);
-	    if (url != null) {
-	        URLConnection conn = url.openConnection();
-	        if (conn != null) {
-	            resourceStream = conn.getInputStream();
-	        }
+	    InputStream resourceStream = TestUtil.class.getResourceAsStream(resourceName);
+	    if (resourceStream == null) {
+		    URLClassLoader urlClassLoader = new URLClassLoader(new URL[0], TestUtil.class.getClassLoader());
+		    Thread.currentThread().setContextClassLoader(urlClassLoader);
+		    URL url = urlClassLoader.findResource(resourceName);
+		    if (url != null) {
+		        URLConnection conn = url.openConnection();
+		        if (conn != null) {
+		            resourceStream = conn.getInputStream();
+		        }
+		    }
+		    urlClassLoader.close();
 	    }
-	    
 	    if (resourceStream != null) {
 	        Files.copy(resourceStream, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	        return outFile.getAbsolutePath();
 	    } else {
-	        System.err.println("Embedded Resource " + resourceName + " not found.");
+	        throw new Exception("Embedded Resource " + resourceName + " not found.");
 	    }
-	    
-	    return null;
-	}   
+	}
 
 }

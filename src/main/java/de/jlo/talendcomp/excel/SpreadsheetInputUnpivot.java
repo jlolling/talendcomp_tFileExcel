@@ -117,7 +117,7 @@ public class SpreadsheetInputUnpivot {
 	 */
 	public void setUnpivotColumnRangeEndIndex(Integer unpivotColumnIndexRangeEnd) {
 		if (unpivotColumnIndexRangeEnd != null) {
-			this.unpivotColumnIndexRangeEnd = unpivotColumnIndexRangeEnd;
+			this.unpivotColumnIndexRangeEnd = unpivotColumnIndexRangeEnd + 1;
 		}
 	}
 
@@ -127,7 +127,7 @@ public class SpreadsheetInputUnpivot {
 	 */
 	public void setUnpivotColumnRangeEndIndex(String unpivotColumnNameRangeEnd) {
 		if (unpivotColumnNameRangeEnd != null) {
-			this.unpivotColumnIndexRangeEnd = CellReference.convertColStringToIndex(unpivotColumnNameRangeEnd);
+			this.unpivotColumnIndexRangeEnd = CellReference.convertColStringToIndex(unpivotColumnNameRangeEnd) + 1;
 		}
 	}
 
@@ -182,6 +182,14 @@ public class SpreadsheetInputUnpivot {
 		}
 	}
 	
+	public int getNormalizedColumnCount() {
+		return headers.size();
+	}
+	
+	public int getNormalizeStartColumnIndex() {
+		return unpivotColumnIndexRangeStart;
+	}
+
 	public void normalizeValuesOfCurrentRow() {
 		normalizedRows.clear();
 		currentNormalizedRowIndex = 0;
