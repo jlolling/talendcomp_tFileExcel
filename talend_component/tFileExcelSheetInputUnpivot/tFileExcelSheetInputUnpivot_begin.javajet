@@ -18,8 +18,8 @@
 	 }
 %>
     final de.jlo.talendcomp.excel.SpreadsheetInputUnpivot <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetInputUnpivot();
-	 <%=cid%>.setHeaderRowIndex((<%=headerRowIndex%>) - 1);
-    <%=cid%>.setUnpivotColumnRangeStartIndex(<%=unpivotStartColumn%>);
+	<%=cid%>.setHeaderRowIndex((<%=headerRowIndex%>) - 1); // the row index is in the API 0-based but in Excel visible 1-based
+    <%=cid%>.setUnpivotColumnRangeStartIndex(<%=unpivotStartColumn%>); // column index is always 0-based
     <%=cid%>.setUnpivotColumnRangeEndIndex(<%=unpivotStopColumn%>);
     int nb_line_<%=cid%> = 0;
 	 

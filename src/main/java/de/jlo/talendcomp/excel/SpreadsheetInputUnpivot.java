@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellReference;
 
 public class SpreadsheetInputUnpivot {
 	
@@ -74,8 +75,8 @@ public class SpreadsheetInputUnpivot {
 	}
 
 	private SpreadsheetInput spreadsheetInput = null;
-	private int unpivotColumnRangeStartIndex = 0;
-	private int unpivotColumnRangeEndIndex = 0;
+	private int unpivotColumnIndexRangeStart = -1;
+	private int unpivotColumnIndexRangeEnd = -1;
 	private int headerRowIndex = 0;
 	private List<Cell> headers = new ArrayList<>();
 	private List<NormalizedRow> normalizedRows = new ArrayList<>();
@@ -83,20 +84,50 @@ public class SpreadsheetInputUnpivot {
 	private NormalizedRow currentNormalizedRow = null;
 	
 	public int getUnpivotColumnRangeStartIndex() {
-		return unpivotColumnRangeStartIndex;
+		return unpivotColumnIndexRangeStart;
 	}
 
-	public void setUnpivotColumnRangeStartIndex(Integer unpivotColumnRangeStartIndex) {
-		this.unpivotColumnRangeStartIndex = unpivotColumnRangeStartIndex;
+	/**
+	 * Set the column index (0-based) at which the columns should be normalized
+	 * @param unpivotColumnIndexRangeStart 0-based index of the start column
+	 */
+	public void setUnpivotColumnRangeStartIndex(Integer unpivotColumnIndexRangeStart) {
+		if (unpivotColumnIndexRangeStart != null) {
+			this.unpivotColumnIndexRangeStart = unpivotColumnIndexRangeStart;
+		}
+	}
+
+	/**
+	 * Set the column index (starts with "A") at which the columns should be normalized
+	 * @param unpivotColumnIndexRangeStart 0-based index of the start column
+	 */
+	public void setUnpivotColumnRangeStartIndex(String unpivotColumnNameRangeStart) {
+		if (unpivotColumnNameRangeStart != null && unpivotColumnNameRangeStart.trim().isEmpty() == false) {
+			this.unpivotColumnIndexRangeStart = CellReference.convertColStringToIndex(unpivotColumnNameRangeStart);
+		}
 	}
 
 	public int getUnpivotColumnRangeEndIndex() {
-		return unpivotColumnRangeEndIndex;
+		return unpivotColumnIndexRangeEnd;
 	}
 
-	public void setUnpivotColumnRangeEndIndex(Integer unpivotColumnRangeEndIndex) {
-		if (unpivotColumnRangeEndIndex != null) {
-			this.unpivotColumnRangeEndIndex = unpivotColumnRangeEndIndex;
+	/**
+	 * Set the column index (0-based) until the columns should be normalized
+	 * @param unpivotColumnIndexRangeStart 0-based index of the start column
+	 */
+	public void setUnpivotColumnRangeEndIndex(Integer unpivotColumnIndexRangeEnd) {
+		if (unpivotColumnIndexRangeEnd != null) {
+			this.unpivotColumnIndexRangeEnd = unpivotColumnIndexRangeEnd;
+		}
+	}
+
+	/**
+	 * Set the column index (starts with "A") until the columns should be normalized
+	 * @param unpivotColumnIndexRangeStart 0-based index of the start column
+	 */
+	public void setUnpivotColumnRangeEndIndex(String unpivotColumnNameRangeEnd) {
+		if (unpivotColumnNameRangeEnd != null) {
+			this.unpivotColumnIndexRangeEnd = CellReference.convertColStringToIndex(unpivotColumnNameRangeEnd);
 		}
 	}
 
@@ -114,26 +145,38 @@ public class SpreadsheetInputUnpivot {
 			throw new IllegalArgumentException("The reference to the component tFileExcelSheetInput cannot be null");
 		}
 		this.spreadsheetInput = spreadsheetInput;
-		setupHeaderNames();
+		setupHeader();
 	}
 	
 	public boolean isInitialized() {
 		return this.spreadsheetInput != null;
 	}
 	
-	private void setupHeaderNames() throws Exception {
+	private void setupHeader() throws Exception {
 		Row headerRow = spreadsheetInput.getRow(headerRowIndex);
-		int cellIndex = unpivotColumnRangeStartIndex;
+		int cellIndex = 0;
+		if (unpivotColumnIndexRangeStart > 0) {
+			cellIndex = unpivotColumnIndexRangeStart;
+		}
+		boolean foundHeaderValue = false;
 		while (true) {
-			if (unpivotColumnRangeEndIndex > 0 && cellIndex >= unpivotColumnRangeEndIndex) {
+			if (unpivotColumnIndexRangeEnd > 0 && cellIndex >= unpivotColumnIndexRangeEnd) {
 				break;
 			}
 			Cell headerCell = headerRow.getCell(cellIndex);
 			if (spreadsheetInput.isCellValueEmpty(headerCell)) {
-				break;
+				if (foundHeaderValue) {
+					// we had found filled header and now we found an empty and stop here
+					break;
+				}
 			} else {
+				if (foundHeaderValue == false && unpivotColumnIndexRangeStart < 1) {
+					// if we do not have found a header previously
+					// we take the first filled header as start
+					unpivotColumnIndexRangeStart = cellIndex;
+				}
+				foundHeaderValue = true;
 				headers.add(headerCell);
-				//System.out.println(headerCell.getStringCellValue());
 			}
 			cellIndex++;
 		}
@@ -145,7 +188,7 @@ public class SpreadsheetInputUnpivot {
 		for (int i = 0, n = headers.size(); i < n; i++) {
 			Cell header = headers.get(i);
 			Row currentDataRow = spreadsheetInput.getCurrentRow();
-			int originalColumnIndex = unpivotColumnRangeStartIndex + i;
+			int originalColumnIndex = unpivotColumnIndexRangeStart + i;
 			Cell value = currentDataRow.getCell(originalColumnIndex);
 			NormalizedRow nr = new NormalizedRow();
 			nr.header = header;
@@ -300,7 +343,7 @@ public class SpreadsheetInputUnpivot {
 	/**
 	 * row index of the header row
 	 * 0-based
-	 * @param headerRowIndex
+	 * @param headerRowIndex (0-based, for the GUI please take keep in mind the GUI sends 1-based)
 	 */
 	public void setHeaderRowIndex(Integer headerRowIndex) {
 		if (headerRowIndex != null && headerRowIndex > 0) {

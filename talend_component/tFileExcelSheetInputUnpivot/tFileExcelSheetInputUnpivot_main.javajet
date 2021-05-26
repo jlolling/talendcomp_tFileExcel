@@ -84,7 +84,7 @@
 				boolean isNullable = mc.isNullable();
 			   if (isHeader) { %>
 		try {
-<%				   if (isDateValue) { 
+<%				   if (isDateValue) {
 					   String pattern = mc.getPattern(); 
 					   if (pattern == null || pattern.trim().isEmpty()) {
 						   pattern = "null";
