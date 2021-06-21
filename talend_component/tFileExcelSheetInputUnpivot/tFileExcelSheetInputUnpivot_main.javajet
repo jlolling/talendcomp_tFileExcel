@@ -22,6 +22,7 @@
     String valueSchemaColumn = ElementParameterParser.getValue(node, "__VALUE_COLUMN__");
     String valueRowIndexSchemaColumn = ElementParameterParser.getValue(node, "__VALUE_ROW_INDEX_COLUMN__");
     String valueColIndexSchemaColumn = ElementParameterParser.getValue(node, "__VALUE_COL_INDEX_COLUMN__");
+    boolean ignoreValueErrors = "true".equals(ElementParameterParser.getValue(node, "__IGNORE_VALUE_ERROR__"));
 	IConnection outconn = null;
 	List<? extends IConnection> outConns = NodeUtil.getOutgoingConnections(node, IConnectionCategory.DATA);
 	if (outConns.size() > 0) {
@@ -44,6 +45,8 @@
 		listIncomingColumns = metadata.getListColumns();
 	}
 %>
+	// cleanup previous values
+	<%=outconn.getName()%> = new <%=outconn.getName()%>Struct();
 	// transfer input to output
 <%	for (int i = 0; i < listColumns.size(); i++) {
 		IMetadataColumn mc = listColumns.get(i);
@@ -79,6 +82,7 @@
 <%		for (int i = 0; i < listColumns.size(); i++) {
 			IMetadataColumn mc = listColumns.get(i);
 			String name = mc.getLabel();
+			boolean nullable = mc.isNullable();
 			boolean isHeader = name.equals(headerSchemaColumn);
 			boolean isValue = name.equals(valueSchemaColumn);
 			if (isHeader || isValue) {
@@ -108,14 +112,32 @@
 					   if (pattern == null || pattern.trim().isEmpty()) {
 						   pattern = "null";
 					   } %>
-			<%=outconn.getName()%>.<%=mc.getLabel()%> = <%=cid%>.getCurrentValueAsDate(<%=pattern%>);
+		    {
+			   java.util.Date value = <%=cid%>.getCurrentValueAsDate(<%=pattern%>);
+			   if (<%=nullable == false%> && value == null) {
+				   throw new Exception("Value schema column: <%=mc.getLabel()%>  is configured as not nullable but value is null");
+			   } else {
+				   <%=outconn.getName()%>.<%=mc.getLabel()%> = value;
+			   }
+			}
 <%				   } else { %>
-			<%=outconn.getName()%>.<%=mc.getLabel()%> = <%=cid%>.getCurrentValueAs<%=javaClassName%>();
+		    {
+			   Object value = <%=cid%>.getCurrentValueAs<%=javaClassName%>();
+			   if (<%=nullable == false%> && value == null) {
+				   throw new Exception("Value schema column: <%=mc.getLabel()%> is configured as not nullable but value is null");
+			   } else {
+				   <%=outconn.getName()%>.<%=mc.getLabel()%> = <%=cid%>.getCurrentValueAs<%=javaClassName%>();
+			   }
+			}
 <%				   } %>
 		} catch (Exception ve) {
-			String message = ve.getMessage();
+			String message = "Fail to get value from original row: " + <%=cid%>.getCurrentOriginalRowIndex() + " col: " + <%=cid%>.getCurrentOriginalColumnIndex() + " Error: " + ve.getMessage();
 			globalMap.put("<%=cid%>_ERROR_MESSAGE", message);
+<%			if (ignoreValueErrors) { %>
+				
+<%          } else { %>
 			throw new Exception(message, ve);
+<%          } %>
 		}
 <%		      } // if (isHeader)
 		   } // if (isHeader || isValue)

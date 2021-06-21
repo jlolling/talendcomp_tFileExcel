@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 
 import de.jlo.talendcomp.excel.GenericDateUtil.DateParser;
 
@@ -826,34 +828,34 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		}
 	}
 	
-	public void useSheet(String sheetName) throws Exception {
+	public void useSheet(String expectedSheetName, boolean tolerant) throws Exception {
 		if (workbook == null) {
 			throw new Exception("Workbook is not initialized!");
 		}
-		if (sheetName == null || sheetName.trim().isEmpty()) {
+		if (expectedSheetName == null || expectedSheetName.trim().isEmpty()) {
 			throw new Exception("Name of sheet cannot be null or empty!");
 		}
-		sheet = workbook.getSheet(sheetName);
+		sheet = findSheet(expectedSheetName, tolerant);
 		if (sheet == null) {
-			throw new Exception("Sheet with name:" + targetSheetName + " does not exists!");
+			throw new Exception("Sheet with name:" + expectedSheetName + " does not exists!" + (tolerant == false ? " Try the option 'Find sheet tolerant'" : ""));
 		}
-		targetSheetName = sheetName;
+		targetSheetName = expectedSheetName;
 		currentRecordIndex = 0;
 		sheetLastRowIndex = 0;
 		lastValueMap = new HashMap<Integer, Object>();
 		maxRowIndex = sheet.getLastRowNum();
 	}
-	
-	public void useSheet(Integer index) throws Exception {
+
+	public void useSheet(Number index, boolean dummy) throws Exception {
 		if (workbook == null) {
 			throw new Exception("Workbook is not initialized!");
 		}
 		if (index == null) {
 			throw new Exception("Index cannot be null!");
 		}
-		sheet = workbook.getSheetAt(index);
+		sheet = workbook.getSheetAt(index.intValue());
 		if (sheet == null) {
-			throw new Exception("Sheet with index:" + index + " does not exists!");
+			throw new Exception("Sheet with index:" + index.intValue() + " does not exists!");
 		}
 		targetSheetName = sheet.getSheetName();
 		currentRecordIndex = 0;

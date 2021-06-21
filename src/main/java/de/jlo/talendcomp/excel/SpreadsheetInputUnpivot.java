@@ -232,7 +232,7 @@ public class SpreadsheetInputUnpivot {
 		try {
 			return spreadsheetInput.getStringCellValue(currentNormalizedRow.header, -1);
 		} catch (Exception e) {
-			throw new Exception("Failed to get normalized header value as String. row: " + currentNormalizedRow.rowIndex + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
+			throw new Exception("Failed to get normalized header as String. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
 		}
 	}
 
@@ -240,7 +240,7 @@ public class SpreadsheetInputUnpivot {
 		try {
 			return spreadsheetInput.getDateCellValue(currentNormalizedRow.header, pattern);
 		} catch (Exception e) {
-			throw new Exception("Failed to get normalized header value as Date. row: " + currentNormalizedRow.rowIndex + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
+			throw new Exception("Failed to get normalized header as Date. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
 		}
 	}
 
@@ -248,12 +248,12 @@ public class SpreadsheetInputUnpivot {
 		try {
 			return spreadsheetInput.getDoubleCellValue(currentNormalizedRow.header);
 		} catch (Exception e) {
-			throw new Exception("Failed to get normalized header value as Number. row: " + currentNormalizedRow.rowIndex + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
+			throw new Exception("Failed to get normalized header as Number. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
 		}
 	}
 
 	public Long getCurrentHeaderAsLong() throws Exception {
-		Double v = spreadsheetInput.getDoubleCellValue(currentNormalizedRow.header);
+		Double v = getCurrentHeaderAsDouble();
 		if (v != null) {
 			return v.longValue();
 		} else {
@@ -262,7 +262,7 @@ public class SpreadsheetInputUnpivot {
 	}
 
 	public Float getCurrentHeaderAsFloat() throws Exception {
-		Double v = spreadsheetInput.getDoubleCellValue(currentNormalizedRow.header);
+		Double v = getCurrentHeaderAsDouble();
 		if (v != null) {
 			return v.floatValue();
 		} else {
@@ -271,7 +271,7 @@ public class SpreadsheetInputUnpivot {
 	}
 
 	public Integer getCurrentHeaderAsInteger() throws Exception {
-		Double v = spreadsheetInput.getDoubleCellValue(currentNormalizedRow.header);
+		Double v = getCurrentHeaderAsDouble();
 		if (v != null) {
 			return v.intValue();
 		} else {
@@ -279,8 +279,25 @@ public class SpreadsheetInputUnpivot {
 		}
 	}
 
+	public Short getCurrentHeaderAsShort() throws Exception {
+		Double v = getCurrentHeaderAsDouble();
+		if (v != null) {
+			return v.shortValue();
+		} else {
+			return null;
+		}
+	}
+
+	public Boolean getCurrentHeaderAsBoolean() throws Exception {
+		try {
+			return spreadsheetInput.getBooleanCellValue(currentNormalizedRow.header);
+		} catch (Exception e) {
+			throw new Exception("Failed to get normalized header as Boolean. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
+		}
+	}
+
 	public BigDecimal getCurrentHeaderAsBigDecimal() throws Exception {
-		Double v = spreadsheetInput.getDoubleCellValue(currentNormalizedRow.header);
+		Double v = getCurrentHeaderAsDouble();
 		if (v != null) {
 			return new BigDecimal(v);
 		} else {
@@ -292,7 +309,7 @@ public class SpreadsheetInputUnpivot {
 		try {
 			return spreadsheetInput.getStringCellValue(currentNormalizedRow.value, -1);
 		} catch (Exception e) {
-			throw new Exception("Failed to get normalized value value as String. row: " + currentNormalizedRow.rowIndex + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
+			throw new Exception("Failed to get normalized value as String. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
 		}
 	}
 
@@ -300,7 +317,7 @@ public class SpreadsheetInputUnpivot {
 		try {
 			return spreadsheetInput.getDateCellValue(currentNormalizedRow.value, pattern);
 		} catch (Exception e) {
-			throw new Exception("Failed to get normalized value value as Date. row: " + currentNormalizedRow.rowIndex + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
+			throw new Exception("Failed to get normalized value as Date. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
 		}
 	}
 
@@ -308,12 +325,12 @@ public class SpreadsheetInputUnpivot {
 		try {
 			return spreadsheetInput.getDoubleCellValue(currentNormalizedRow.value);
 		} catch (Exception e) {
-			throw new Exception("Failed to get normalized value value as Number. row: " + currentNormalizedRow.rowIndex + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
+			throw new Exception("Failed to get normalized value as Number. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
 		}
 	}
 
 	public Long getCurrentValueAsLong() throws Exception {
-		Double v = spreadsheetInput.getDoubleCellValue(currentNormalizedRow.value);
+		Double v = getCurrentValueAsDouble();
 		if (v != null) {
 			return v.longValue();
 		} else {
@@ -322,7 +339,7 @@ public class SpreadsheetInputUnpivot {
 	}
 
 	public Integer getCurrentValueAsInteger() throws Exception {
-		Double v = spreadsheetInput.getDoubleCellValue(currentNormalizedRow.value);
+		Double v = getCurrentValueAsDouble();
 		if (v != null) {
 			return v.intValue();
 		} else {
@@ -330,12 +347,38 @@ public class SpreadsheetInputUnpivot {
 		}
 	}
 
+	public Short getCurrentValueAsShort() throws Exception {
+		Double v = getCurrentValueAsDouble();
+		if (v != null) {
+			return v.shortValue();
+		} else {
+			return null;
+		}
+	}
+
 	public BigDecimal getCurrentValueAsBigDecimal() throws Exception {
-		Double v = spreadsheetInput.getDoubleCellValue(currentNormalizedRow.value);
+		Double v = getCurrentValueAsDouble();
 		if (v != null) {
 			return new BigDecimal(v);
 		} else {
 			return null;
+		}
+	}
+
+	public Float getCurrentValueAsFloat() throws Exception {
+		Double v = getCurrentValueAsDouble();
+		if (v != null) {
+			return v.floatValue();
+		} else {
+			return null;
+		}
+	}
+
+	public Boolean getCurrentValueAsBoolean() throws Exception {
+		try {
+			return spreadsheetInput.getBooleanCellValue(currentNormalizedRow.value);
+		} catch (Exception e) {
+			throw new Exception("Failed to get normalized value value as Boolean. row: " + (currentNormalizedRow.rowIndex + 1) + " column: " + currentNormalizedRow.originalColumnIndex + " Error: " + e.getMessage(), e);
 		}
 	}
 

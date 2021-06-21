@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -284,6 +286,9 @@ public class SpreadsheetFile {
 	 * @throws Exception
 	 */
 	public void setInputFile(String inputFileName, boolean dieIfFileNotExists) throws Exception {
+		if (inputFileName == null || inputFileName.trim().isEmpty() || inputFileName.trim().length() < 5) {
+			throw new Exception("Input file name cannot be null or empty and must have at least 5 letters");
+		}
 		SpreadsheetTyp type = getSpreadsheetType(inputFileName);
 		if (currentType != null) {
 			if (currentType != type) {
@@ -955,5 +960,44 @@ public class SpreadsheetFile {
 	public Row getCurrentRow() {
 		return currentRow;
 	}
-
+	
+	public List<Sheet> getSheets() {
+		List<Sheet> sheets = new ArrayList<>();
+		int n = workbook.getNumberOfSheets();
+		for (int i = 0; i < n; i++) {
+			sheets.add(workbook.getSheetAt(i));
+		}
+		return sheets;
+	}
+	
+	private String crunchSheetName(String name) {
+		return name.toLowerCase().replace("_", "").replace(" ", "").trim();
+	}
+	
+	public Sheet findSheet(String expectedSheetName, boolean tolerant) throws Exception {
+		if (workbook == null) {
+			throw new Exception("Workbook is not initialized!");
+		}
+		if (expectedSheetName == null || expectedSheetName.trim().isEmpty()) {
+			throw new Exception("Name of sheet cannot be null or empty!");
+		}
+		Sheet expectedSheet = workbook.getSheet(expectedSheetName);
+		if (expectedSheet == null && tolerant) {
+			List<Sheet> sheets = getSheets();
+			String crunchedExpectedSheetName = crunchSheetName(expectedSheetName);
+			for (Sheet sheetInList : sheets) {
+				String name = sheetInList.getSheetName();
+				if (name != null) {
+					String crunchedSheetNameInList = crunchSheetName(name);
+					if (crunchedSheetNameInList.equals(crunchedExpectedSheetName)) {
+						targetSheetName = expectedSheetName;
+						expectedSheet = sheetInList;
+						System.out.println("Found with tolerance the actual existing sheet: " + sheetInList.getSheetName() + ". Given expected sheet name was: " + expectedSheetName);
+					}
+				}
+			}
+		}
+		return expectedSheet;
+	}
+	
 }
