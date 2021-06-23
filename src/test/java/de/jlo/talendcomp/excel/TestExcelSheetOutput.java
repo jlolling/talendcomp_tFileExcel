@@ -33,7 +33,7 @@ public class TestExcelSheetOutput {
 		final de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName("out");
-		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.resetCache();
 		tFileExcelSheetOutput_1.setRowStartIndex(1 - 1);
 		tFileExcelSheetOutput_1.setFirstRowIsHeader(false);
 		// configure cell positions
@@ -104,7 +104,7 @@ public class TestExcelSheetOutput {
 		tFileExcelSheetOutput_1.setTargetSheetName("test_out");
 		globalMap.put("tFileExcelSheetOutput_1_SHEET_NAME",
 				tFileExcelSheetOutput_1.getTargetSheetName());
-		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.resetCache();
 		tFileExcelSheetOutput_1.setRowStartIndex(1 - 1);
 		tFileExcelSheetOutput_1.setFirstRowIsHeader(true);
 		// configure cell positions
@@ -231,7 +231,7 @@ public class TestExcelSheetOutput {
 		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName("test_formula");
-		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.resetCache();
 		Object[] dataset_tFileExcelSheetOutput_1 = new Object[4];
 		dataset_tFileExcelSheetOutput_1[0] = 5;
 		dataset_tFileExcelSheetOutput_1[1] = "x";
@@ -240,7 +240,7 @@ public class TestExcelSheetOutput {
 		tFileExcelSheetOutput_1.writeRow(dataset_tFileExcelSheetOutput_1);
 		de.jlo.talendcomp.excel.SpreadsheetInput tFileExcelSheetInput_1 = new de.jlo.talendcomp.excel.SpreadsheetInput();
 		tFileExcelSheetInput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
-		tFileExcelSheetInput_1.useSheet("test_formula");
+		tFileExcelSheetInput_1.useSheet("test_formula", false);
 		int rowindex = 0;
 		int a = 0;
 		int b = 0;
@@ -270,7 +270,7 @@ public class TestExcelSheetOutput {
 		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName(0);
-		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.resetCache();
 		tFileExcelSheetOutput_1.setRowStartIndex(tFileExcelSheetOutput_1.getSheet().getLastRowNum() + 1);
 		tFileExcelSheetOutput_1.setFirstRowIsHeader(false);
 		// configure cell positions
@@ -305,7 +305,7 @@ public class TestExcelSheetOutput {
 		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName("sheet");
-		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.resetCache();
 		tFileExcelSheetOutput_1.setAppend(true);
 		Object[] dataset_tFileExcelSheetOutput_1 = new Object[2];
 		for (int i = 0; i < 10; i++) {
@@ -335,7 +335,7 @@ public class TestExcelSheetOutput {
 		de.jlo.talendcomp.excel.SpreadsheetOutput tFileExcelSheetOutput_1 = new de.jlo.talendcomp.excel.SpreadsheetOutput();
 		tFileExcelSheetOutput_1.setWorkbook(tFileExcelWorkbookOpen.getWorkbook());
 		tFileExcelSheetOutput_1.setTargetSheetName(0);
-		tFileExcelSheetOutput_1.initializeSheet();
+		tFileExcelSheetOutput_1.resetCache();
 		tFileExcelSheetOutput_1.setRowStartIndex(2-1);
 		tFileExcelSheetOutput_1.setFirstRowIsHeader(false);
 		int lastRowIndex = tFileExcelSheetOutput_1.detectCurrentSheetLastNoneEmptyRowIndex();

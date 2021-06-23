@@ -192,8 +192,20 @@ public class SpreadsheetFile {
 		}
 	}
 
-	public void setTargetSheetName(String name) throws IOException {
-		this.targetSheetName = ensureCorrectExcelSheetName(name);
+	public void setTargetSheetName(String name) throws Exception {
+		setTargetSheetName(name, false);
+	}
+	
+	public void setTargetSheetName(String name, boolean tolerant) throws Exception {
+		name = ensureCorrectExcelSheetName(name);
+		sheet = findSheet(name, tolerant);
+		if (sheet == null) {
+			// sheet not found, so create it just now
+			this.targetSheetName = name;
+			sheet = workbook.createSheet(name);
+		} else {
+			this.targetSheetName = sheet.getSheetName();
+		}
 	}
 	
 	public void setTargetSheetName(Integer index) throws Exception {
@@ -711,7 +723,7 @@ public class SpreadsheetFile {
 	
     public static String ensureCorrectExcelSheetName(String desiredName) {
         if (desiredName == null || desiredName.length() == 0) {
-            return "Tabelle";
+            return "Sheet 1";
         } else {
             StringReplacer sr = new StringReplacer(desiredName);
             sr.replace("/", " ");

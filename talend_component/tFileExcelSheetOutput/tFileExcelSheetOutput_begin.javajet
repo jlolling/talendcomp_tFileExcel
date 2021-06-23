@@ -95,7 +95,7 @@
     <%=cid%>.setTargetSheetName(<%=sheetName%>);
     globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName());
 <%  } %>
-	<%=cid%>.initializeSheet();
+	<%=cid%>.resetCache();
     int startRowIndex_<%=cid%> = <%=rowStartIndexStr%> - 1;
 <%  if (appendRows) { %>
     int currentSheetLastRowIndex_<%=cid%> = <%=cid%>.detectCurrentSheetLastNoneEmptyRowIndex() + 1;

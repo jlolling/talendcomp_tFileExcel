@@ -26,7 +26,7 @@ public class TestSpreadsheetFile {
 		SpreadsheetInput tFileExcelSheetInput_2 = new SpreadsheetInput();
 		tFileExcelSheetInput_2.setInputFile("/var/testdata/excel/4803e947fa70cfcd828079fe857f8a1b.xls");
 		tFileExcelSheetInput_2.initializeWorkbook();
-		tFileExcelSheetInput_2.useSheet(0);
+		tFileExcelSheetInput_2.useSheet(0, false);
 		tFileExcelSheetInput_2.setStopAtMissingRow(false);
 		tFileExcelSheetInput_2.setRowStartIndex(3);
 		// configure cell positions
@@ -55,7 +55,7 @@ public class TestSpreadsheetFile {
 		SpreadsheetInput si = new SpreadsheetInput();
 		si.setWorkbook(sf.getWorkbook());
 		try {
-			si.useSheet(0);
+			si.useSheet(0, false);
 		} catch (Exception e) {
 			fail("use sheet failed: " + e.getMessage());
 		}
@@ -85,7 +85,7 @@ public class TestSpreadsheetFile {
 		SpreadsheetInput si = new SpreadsheetInput();
 		si.setWorkbook(workbook);
 		try {
-			si.useSheet("Store 11");
+			si.useSheet("Store 11", false);
 		} catch (Exception e) {
 			fail("use sheet failed: " + e.getMessage());
 		}
@@ -98,7 +98,7 @@ public class TestSpreadsheetFile {
 		try {
 			out.createEmptyXLSXWorkbook();
 			out.initializeWorkbook();
-			out.initializeSheet();
+			out.resetCache();
 			out.setOutputFile("/var/testdata/excel/excel_shift_test.xlsx");
 			out.freezeAt(0, 1);
 			for (int r = 0; r < 9; r++) {
@@ -141,7 +141,7 @@ public class TestSpreadsheetFile {
 			out.setInputFile("/var/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Template.xlsx", true);
 			out.initializeWorkbook();
 			out.setTargetSheetName("Recommended Actions");
-			out.initializeSheet();
+			out.resetCache();
 			out.setOutputFile("/var/testdata/excel/copied_cells/Wiser_Pricing_Recommendations_Result.xlsx");
 			out.setRowStartIndex(1);
 			out.setReuseExistingStylesFromFirstWrittenRow(true);
@@ -169,7 +169,7 @@ public class TestSpreadsheetFile {
 		SpreadsheetInput tFileExcelSheetInput_2 = new SpreadsheetInput();
 		tFileExcelSheetInput_2.setInputFile("/var/testdata/excel/time.xls");
 		tFileExcelSheetInput_2.initializeWorkbook();
-		tFileExcelSheetInput_2.useSheet(0);
+		tFileExcelSheetInput_2.useSheet(0, false);
 		tFileExcelSheetInput_2.setStopAtMissingRow(false);
 		tFileExcelSheetInput_2.setRowStartIndex(0);
 		// configure cell positions
@@ -199,7 +199,7 @@ public class TestSpreadsheetFile {
 		SpreadsheetInput tFileExcelSheetInput_2 = new SpreadsheetInput();
 		tFileExcelSheetInput_2.setInputFile("/var/testdata/excel/time.xls");
 		tFileExcelSheetInput_2.initializeWorkbook();
-		tFileExcelSheetInput_2.useSheet(0);
+		tFileExcelSheetInput_2.useSheet(0, false);
 		tFileExcelSheetInput_2.setStopAtMissingRow(false);
 		tFileExcelSheetInput_2.setRowStartIndex(0);
 		// configure cell positions
@@ -242,7 +242,7 @@ public class TestSpreadsheetFile {
 		final de.jlo.talendcomp.excel.SpreadsheetInput tFileExcelSheetInput_1 = new de.jlo.talendcomp.excel.SpreadsheetInput();
 		tFileExcelSheetInput_1
 				.setWorkbook(tFileExcelWorkbookOpen_1.getWorkbook());
-		tFileExcelSheetInput_1.useSheet(0);
+		tFileExcelSheetInput_1.useSheet(0, false);
 		tFileExcelSheetInput_1.setStopAtMissingRow(false);
 		tFileExcelSheetInput_1.setRowStartIndex(1 - 1);
 		// configure cell positions

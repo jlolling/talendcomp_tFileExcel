@@ -11,11 +11,13 @@ public class TestExcelSheetInputUnpivot {
 	
 	@Before
 	public void testReadXls() throws Exception {
-		String path = "/home/jan-lolling/eclipse-workspace/talendcomp_tFileExcel/src/test/resources/test_unpivot.xlsx"; //TestUtil.writeResourceToFile("/test_unpivot.xslx", "/tmp/");
+		String path = TestUtil.writeResourceToFile("/test_unpivot.xlsx", "/tmp/");
+		System.out.println("Use test file: " + path);
+		System.out.println(System.getProperty("java.version"));
 		tFileExcelSheetInput_2 = new SpreadsheetInput();
 		tFileExcelSheetInput_2.setInputFile(path);
 		tFileExcelSheetInput_2.initializeWorkbook();
-		tFileExcelSheetInput_2.useSheet(0);
+		tFileExcelSheetInput_2.useSheet(0, false);
 		tFileExcelSheetInput_2.setStopAtMissingRow(true);
 		// configure cell positions
 		tFileExcelSheetInput_2.setDataColumnPosition(0, "A");
@@ -71,4 +73,5 @@ public class TestExcelSheetInputUnpivot {
 		}
 		assertEquals(6, count);
 	}
+	
 }

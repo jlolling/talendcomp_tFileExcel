@@ -55,7 +55,7 @@ public class TestExcelComp {
 		try {
 			e.setInputFile("/Volumes/Data/projects/vhv/Sonderthemen_20121018.xlsx", true);
 			e.initializeWorkbook();
-			e.useSheet(0);
+			e.useSheet(0, false);
 			e.setRowStartIndex(3);
 			while (e.readNextRow()) {
 				Double s = e.getDoubleCellValue(0, true, false);
@@ -81,7 +81,7 @@ public class TestExcelComp {
 		try {
 			e.setInputFile("/home/jlolling/test/excel/macro_test.xlsm", true);
 			e.initializeWorkbook();
-			e.useSheet(1);
+			e.useSheet(1, false);
 			e.setRowStartIndex(5);
 			e.setDataColumnPosition(0, "C");
 			e.setDataColumnPosition(1, "D");
@@ -140,7 +140,7 @@ public class TestExcelComp {
 		try {
 			e.setInputFile("/var/testdata/test/excel/excel_output_file.xls", true);
 			e.initializeWorkbook();
-			e.useSheet(0);
+			e.useSheet(0, false);
 			e.setRowStartIndex(1);
 			e.setDataColumnPosition(0, "A");
 			e.setDataColumnPosition(1, "B");
@@ -163,7 +163,7 @@ public class TestExcelComp {
 		try {
 			e.setInputFile("/Users/jan/test/excel/header_columns.xls", true);
 			e.initializeWorkbook();
-			e.useSheet(0);
+			e.useSheet(0, false);
 			e.setRowStartIndex(1);
 			e.setHeaderRowIndex(0);
 			e.setHeaderName(0, "F0", false);
@@ -190,7 +190,7 @@ public class TestExcelComp {
 		//out.setCreateStreamingXMLWorkbook(true);
 		out.createEmptyXLSWorkbook();
 		out.initializeWorkbook();
-		out.initializeSheet();
+		out.resetCache();
 		out.freezeAt(0, 1);
 		for (int r = 0; r < 9; r++) {
 			Object[] row = new Object[20];
@@ -207,7 +207,7 @@ public class TestExcelComp {
 		SpreadsheetOutput out = new SpreadsheetOutput();
 		out.createEmptyXLSXWorkbook();
 		out.initializeWorkbook();
-		out.initializeSheet();
+		out.resetCache();
 		System.out.println("is empty:" + out.isEmpty());
 	}
 
@@ -216,7 +216,7 @@ public class TestExcelComp {
 		e.setInputFile("/private/var/testdata/excel/encrypted.xls", true);
 		e.setPassword("lolli");
 		e.initializeWorkbook();
-		e.useSheet(0);
+		e.useSheet(0, false);
 		e.setRowStartIndex(0);
 		while (e.readNextRow()) {
 			System.out.println(e.getStringCellValue(0, true, true, false));
@@ -228,7 +228,7 @@ public class TestExcelComp {
 		e.setInputFile("/private/var/testdata/excel/encrypted.xlsx", true);
 		e.setPassword("lolli");
 		e.initializeWorkbook();
-		e.useSheet(0);
+		e.useSheet(0, false);
 		e.setRowStartIndex(0);
 		while (e.readNextRow()) {
 			System.out.println(e.getStringCellValue(0, true, true, false));
@@ -266,7 +266,7 @@ public class TestExcelComp {
 		SpreadsheetInput.registerFunction("IFERROR", "org.apache.poi.ss.formula.atp.IfError");
 		e.setInputFile("/private/var/testdata/excel/irerror_test.xlsx", true);
 		e.initializeWorkbook();
-		e.useSheet(0);
+		e.useSheet(0, false);
 		e.setRowStartIndex(0);
 		while (e.readNextRow()) {
 			System.out.println(e.getDoubleCellValue(0, true, false));
