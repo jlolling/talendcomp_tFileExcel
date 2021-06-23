@@ -153,7 +153,7 @@ public class SpreadsheetFile {
 	 */
 	public static void registerFunction(String name, String functionClassName) throws Exception {
 		try {
-			Object o = Class.forName(functionClassName).newInstance();
+			Object o = Class.forName(functionClassName).getDeclaredConstructor().newInstance();
 			if (o instanceof Function) {
 				Function f = (Function) o;
 				WorkbookEvaluator.registerFunction(name, f);
@@ -983,7 +983,7 @@ public class SpreadsheetFile {
 	}
 	
 	private String crunchSheetName(String name) {
-		return name.toLowerCase().replace("_", "").replace(" ", "").trim();
+		return name.toLowerCase().replace("_", "").replace(" ", "").replace("-", "").trim();
 	}
 	
 	public Sheet findSheet(String expectedSheetName, boolean tolerant) throws Exception {

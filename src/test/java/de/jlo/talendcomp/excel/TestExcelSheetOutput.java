@@ -43,15 +43,17 @@ public class TestExcelSheetOutput {
 		tFileExcelSheetOutput_1.setReuseFirstRowHeight(false);
 		// configure cell formats
 		// columnIndex: 0, format: "dd.MM.yyyy", talendType: Date
-		tFileExcelSheetOutput_1.setDataFormat(0, "dd.MM.yyyy");
+		tFileExcelSheetOutput_1.setDataFormat(0, "dd.mm.yyyy");
+		tFileExcelSheetOutput_1.setDataFormat(1, "m/d/yy h:mm");
 		tFileExcelSheetOutput_1.setWriteNullValues(false);
 		tFileExcelSheetOutput_1.setWriteZeroDateAsNull(true);
 		String dateStr = "0000-00-00";
+		String dateStr2 = "2021-06-23";
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date zeroDate = sdf.parse(dateStr);
 		Object[] row = new Object[2];
 		row[0] = zeroDate;
-		row[1] = new Date();
+		row[1] = sdf.parse(dateStr2);
 		tFileExcelSheetOutput_1.writeRow(row);
 		tFileExcelSheetOutput_1.writeRow(row);
 

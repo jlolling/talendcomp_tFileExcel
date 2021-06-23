@@ -508,7 +508,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 		try {
 			Sheet newSheet = workbook.cloneSheet(sourceSheetIndex);
-			setTargetSheetName(targetSheetName);
+			this.targetSheetName = ensureCorrectExcelSheetName(targetSheetName);
 			workbook.setSheetName(workbook.getSheetIndex(newSheet), targetSheetName);
 			return newSheet;
 		} catch (Throwable t) {
@@ -867,9 +867,9 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					if (newstyle == null) {
 						newstyle = createCellStyle(style);
 						newstyle.setDataFormat(formatIndex.shortValue());
-						columnStyleMap.put(cell.getColumnIndex(), style);
+						columnStyleMap.put(cell.getColumnIndex(), newstyle);
 					}
-					cell.setCellStyle(style);
+					cell.setCellStyle(newstyle);
 				}
 			}
 		}
