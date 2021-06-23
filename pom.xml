@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jlo.talendcomp</groupId>
 	<artifactId>jlo-talendcomp-excel</artifactId>
-	<version>12.5</version>
+	<version>13.1</version>
 	<name>Talend Excel Components</name>
 	<organization>
 		<name>Jan Lolling</name>
@@ -58,7 +58,7 @@
 				<configuration>
 					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
 					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
-					<studioUserComponentFolder>/Users/jan/development/talend_user_components</studioUserComponentFolder>
+					<studioUserComponentFolder>${custom_component_folder}</studioUserComponentFolder>
 				</configuration>
 				<executions>
 					<execution>
@@ -87,6 +87,16 @@
 						</goals>
 						<configuration>
 							<componentName>tFileExcelSheetInput</componentName>
+							<noJars>true</noJars>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tFileExcelSheetInputUnpivot</id>
+						<goals>
+							<goal>component</goal>
+						</goals>
+						<configuration>
+							<componentName>tFileExcelSheetInputUnpivot</componentName>
 							<noJars>true</noJars>
 						</configuration>
 					</execution>
@@ -148,46 +158,6 @@
 						<configuration>
 							<componentName>tFileExcelNamedCellOutput</componentName>
 							<noJars>true</noJars>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>copy-resources-archive2</id>
-						<!-- here the phase you need -->
-						<phase>install</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>/Users/jan/development/talend_user_components/tFileArchive2</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/talend_component/tFileArchive2</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-resources-unarchive2</id>
-						<!-- here the phase you need -->
-						<phase>install</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>/Users/jan/development/talend_user_components/tFileUnarchive2</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/talend_component/tFileUnarchive2</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
 						</configuration>
 					</execution>
 				</executions>

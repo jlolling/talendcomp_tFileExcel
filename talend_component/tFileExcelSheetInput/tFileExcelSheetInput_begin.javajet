@@ -28,6 +28,7 @@
     }
     boolean useIndividualColumnPositions = "true".equals(ElementParameterParser.getValue(node, "__USE_COLUMN_POSITIONING__"));
     boolean configColumnByHeader = useIndividualColumnPositions && "true".equals(ElementParameterParser.getValue(node, "__CONFIG_COLUMN_BY_HEADER__"));
+    boolean findSheetTolerant = "true".equals(ElementParameterParser.getValue(node, "__FIND_SHEET_TOLERANT__"));
     String useRegexToFindColumnInHeader = ElementParameterParser.getValue(node, "__CONFIG_HEADER_BY_REGEX__");
     String columnStartPosStr = ElementParameterParser.getValue(node, "__COLUMN_START_INDEX__");
     String numberFormatLocale = ElementParameterParser.getValue(node, "__NUMBERFORMAT_LOCALE__");
@@ -97,7 +98,8 @@
 %>
     final de.jlo.talendcomp.excel.SpreadsheetInput <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetInput();
     <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
-    <%=cid%>.useSheet(<%=sheetName%>);
+    <%=cid%>.useSheet(<%=sheetName%>, <%=findSheetTolerant%>);
+    globalMap.put("<%=cid%>", <%=cid%>);
     globalMap.put("<%=cid%>_SHEET_NAME", <%=cid%>.getTargetSheetName());
     <%=cid%>.setStopAtMissingRow(<%=stopAtEmptyRow%>);
 <%  if (rowStartIndexStr != null && rowStartIndexStr.isEmpty() == false) { %>
@@ -332,7 +334,7 @@
 <%  if (conn != null) { %>
     	<%=conn.getName()%> = new <%=conn.getName()%>Struct(); // to avoid cell value reusing in errors
     	try {
-		<%=cid%>_helper.fill(<%=conn.getName()%>, nb_line_<%=cid%>);
+		<%=cid%>_helper.fill(<%=conn.getName()%>, (<%=cid%>.getCurrentRowIndex() + 1));
 		} catch (Exception ex) {
 			globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
 			<%=cid%>.error(ex.getMessage(), ex);

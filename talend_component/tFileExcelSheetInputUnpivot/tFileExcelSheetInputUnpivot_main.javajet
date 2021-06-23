@@ -1,0 +1,147 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.core.model.utils.NodeUtil
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.metadata.types.JavaTypesManager
+		java.util.List 
+		java.util.ArrayList 	
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    String inputCompName = ElementParameterParser.getValue(node, "__SHEET_INPUT_COMP__");
+    String headerSchemaColumn = ElementParameterParser.getValue(node, "__HEADER_COLUMN__");
+    String valueSchemaColumn = ElementParameterParser.getValue(node, "__VALUE_COLUMN__");
+    String valueRowIndexSchemaColumn = ElementParameterParser.getValue(node, "__VALUE_ROW_INDEX_COLUMN__");
+    String valueColIndexSchemaColumn = ElementParameterParser.getValue(node, "__VALUE_COL_INDEX_COLUMN__");
+    boolean ignoreValueErrors = "true".equals(ElementParameterParser.getValue(node, "__IGNORE_VALUE_ERROR__"));
+	IConnection outconn = null;
+	List<? extends IConnection> outConns = NodeUtil.getOutgoingConnections(node, IConnectionCategory.DATA);
+	if (outConns.size() > 0) {
+		outconn = outConns.get(0);
+	}
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if (metadatas != null && metadatas.size() > 0) {
+    	IMetadataTable metadata = metadatas.get(0);
+    	if (metadata != null) {
+    		listColumns = metadata.getListColumns();
+		}
+	}
+	List<IMetadataColumn> listIncomingColumns = new ArrayList<IMetadataColumn>();
+	IConnection inconn = null;
+	List<? extends IConnection> inConns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+	if (inConns.size() > 0) {
+		inconn = inConns.get(0);
+		IMetadataTable metadata = node.getMetadataFromConnector(inconn.getConnectorName());
+		listIncomingColumns = metadata.getListColumns();
+	}
+%>
+	// cleanup previous values
+	<%=outconn.getName()%> = new <%=outconn.getName()%>Struct();
+	// transfer input to output
+<%	for (int i = 0; i < listColumns.size(); i++) {
+		IMetadataColumn mc = listColumns.get(i);
+		String name = mc.getLabel();
+  		boolean ignore = name.equals(headerSchemaColumn) ||
+		                 name.equals(valueSchemaColumn) ||
+		                 name.equals(valueRowIndexSchemaColumn) ||
+		                 name.equals(valueColIndexSchemaColumn);
+		if (inconn != null && outconn != null) {
+			for (IMetadataColumn incol : listIncomingColumns) {
+				if (incol.getLabel().equals(name)) {
+					if (outconn != null && ignore == false) { %>
+	<%=outconn.getName()%>.<%=name%> = <%=inconn.getName()%>.<%=incol.getLabel()%>;
+<%					}
+					break;
+				}
+			}
+		}
+	} 
+%>
+	// check and initialize the unpivot component 
+	<%=cid%>.checkAndInitialize((de.jlo.talendcomp.excel.SpreadsheetInput) globalMap.get("<%=inputCompName%>"));
+	globalMap.put("<%=cid%>_INDEX_FIRST_NORMALIZED_COLUMN", <%=cid%>.getUnpivotColumnRangeStartIndex());
+	globalMap.put("<%=cid%>_NB_LINE_NORMALIZED_COLUMNS", <%=cid%>.getNormalizedColumnCount());
+	// normalize current row
+	<%=cid%>.normalizeValuesOfCurrentRow();
+<%	if (outconn != null) { %>
+	nb_line_input<%=cid%>++;
+	while (<%=cid%>.nextNormalizedRow()) {
+	    <%=outconn.getName()%>.<%=valueRowIndexSchemaColumn%> = <%=cid%>.getCurrentOriginalRowIndex();
+		<%=outconn.getName()%>.<%=valueColIndexSchemaColumn%> = <%=cid%>.getCurrentOriginalColumnIndex();
+		nb_line_output<%=cid%>++;
+<%		for (int i = 0; i < listColumns.size(); i++) {
+			IMetadataColumn mc = listColumns.get(i);
+			String name = mc.getLabel();
+			boolean nullable = mc.isNullable();
+			boolean isHeader = name.equals(headerSchemaColumn);
+			boolean isValue = name.equals(valueSchemaColumn);
+			if (isHeader || isValue) {
+				String javaClassName = mc.getTalendType().substring(3);
+				boolean isDateValue = javaClassName.contains("Date");
+				boolean isNullable = mc.isNullable();
+			   if (isHeader) { %>
+		try {
+<%				   if (isDateValue) {
+					   String pattern = mc.getPattern(); 
+					   if (pattern == null || pattern.trim().isEmpty()) {
+						   pattern = "null";
+					   } %>
+			<%=outconn.getName()%>.<%=mc.getLabel()%> = <%=cid%>.getCurrentHeaderAsDate(<%=pattern%>);
+<%				   } else { %>
+			<%=outconn.getName()%>.<%=mc.getLabel()%> = <%=cid%>.getCurrentHeaderAs<%=javaClassName%>();
+<%				   } %>
+		} catch (Exception ve) {
+			String message = ve.getMessage();
+			globalMap.put("<%=cid%>_ERROR_MESSAGE", message);
+			throw new Exception(message, ve);
+		}
+<%			   } else if (isValue) { %>
+		try {
+<%				   if (isDateValue) { 
+					   String pattern = mc.getPattern(); 
+					   if (pattern == null || pattern.trim().isEmpty()) {
+						   pattern = "null";
+					   } %>
+		    {
+			   java.util.Date value = <%=cid%>.getCurrentValueAsDate(<%=pattern%>);
+			   if (<%=nullable == false%> && value == null) {
+				   throw new Exception("Value schema column: <%=mc.getLabel()%>  is configured as not nullable but value is null");
+			   } else {
+				   <%=outconn.getName()%>.<%=mc.getLabel()%> = value;
+			   }
+			}
+<%				   } else { %>
+		    {
+			   Object value = <%=cid%>.getCurrentValueAs<%=javaClassName%>();
+			   if (<%=nullable == false%> && value == null) {
+				   throw new Exception("Value schema column: <%=mc.getLabel()%> is configured as not nullable but value is null");
+			   } else {
+				   <%=outconn.getName()%>.<%=mc.getLabel()%> = <%=cid%>.getCurrentValueAs<%=javaClassName%>();
+			   }
+			}
+<%				   } %>
+		} catch (Exception ve) {
+			String message = "Fail to get value from original row: " + <%=cid%>.getCurrentOriginalRowIndex() + " col: " + <%=cid%>.getCurrentOriginalColumnIndex() + " Error: " + ve.getMessage();
+			globalMap.put("<%=cid%>_ERROR_MESSAGE", message);
+<%			if (ignoreValueErrors) { %>
+				
+<%          } else { %>
+			throw new Exception(message, ve);
+<%          } %>
+		}
+<%		      } // if (isHeader)
+		   } // if (isHeader || isValue)
+		} // for (int i = 0; i < listColumns.size(); i++)
+	} // if (outconn != null) %>
+	
+	

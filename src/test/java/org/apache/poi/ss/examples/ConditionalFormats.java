@@ -450,7 +450,7 @@ public class ConditionalFormats {
 	    	so.setOutputFile("/var/testdata/excel/cf-result.xlsx");
 	    	so.setWorkbook(workbook);
 	    	so.createCopy(0, "Jan");
-	    	so.initializeSheet();
+	    	so.resetCache();
 	    	so.setRowStartIndex(1);
 	    	so.setColumnStart(0);
 			so.setDataFormat(1, "#,##0.0");

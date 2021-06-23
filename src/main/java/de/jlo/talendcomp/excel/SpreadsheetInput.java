@@ -149,7 +149,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private String getStringCellValue(Cell cell, int originalColumnIndex) throws Exception {
+	protected String getStringCellValue(Cell cell, int originalColumnIndex) throws Exception {
 		String value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -305,7 +305,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Cell getCell(int columnIndex) {
+	protected Cell getCell(int columnIndex) {
 		if (missingColumns.contains(columnIndex)) {
 			return null;
 		} else {
@@ -392,7 +392,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Double getDoubleCellValue(Cell cell) throws Exception {
+	protected Double getDoubleCellValue(Cell cell) throws Exception {
 		Double value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -444,7 +444,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Integer getIntegerCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Integer(d.intValue());
+			return Integer.valueOf(d.intValue());
 		} else {
 			return null;
 		}
@@ -453,7 +453,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Long getLongCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Long(d.longValue());
+			return Long.valueOf(d.longValue());
 		} else {
 			return null;
 		}
@@ -462,7 +462,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Short getShortCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Short(d.shortValue());
+			return Short.valueOf(d.shortValue());
 		} else {
 			return null;
 		}
@@ -471,7 +471,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 	public Float getFloatCellValue(int columnIndex, boolean nullable, boolean useLast) throws Exception {
 		Double d = getDoubleCellValue(columnIndex, nullable, useLast);
 		if (d != null) {
-			return new Float(d.floatValue());
+			return Float.valueOf(d.floatValue());
 		} else {
 			return null;
 		}
@@ -494,26 +494,26 @@ public class SpreadsheetInput extends SpreadsheetFile {
 			return Boolean.TRUE;
 		} else if ("y".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
-		} else if ("no".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
-		} else if ("n".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
 		} else if ("ja".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
 		} else if ("j".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
-		} else if ("nein".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
 		} else if ("oui".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
-		} else if ("non".equalsIgnoreCase(s)) {
-			return Boolean.FALSE;
 		} else if ("ok".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
 		} else if ("x".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
 		} else if ("wahr".equalsIgnoreCase(s)) {
 			return Boolean.TRUE;
+		} else if ("nein".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
+		} else if ("no".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
+		} else if ("n".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
+		} else if ("non".equalsIgnoreCase(s)) {
+			return Boolean.FALSE;
 		} else if ("falsch".equalsIgnoreCase(s)) {
 			return Boolean.FALSE;
 		} else if ("vrai".equalsIgnoreCase(s)) {
@@ -560,7 +560,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Boolean getBooleanCellValue(Cell cell) throws Exception {
+	protected Boolean getBooleanCellValue(Cell cell) throws Exception {
 		Boolean value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -654,7 +654,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		}
 	}
 
-	private Date getDateCellValue(Cell cell, String pattern) throws Exception {
+	protected Date getDateCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -693,7 +693,7 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		return value;
 	}
 	
-	private Date getDurationCellValue(Cell cell, String pattern) throws Exception {
+	protected Date getDurationCellValue(Cell cell, String pattern) throws Exception {
 		Date value = null;
 		if (cell != null) {
 			CellType cellType = cell.getCellType();
@@ -826,34 +826,34 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		}
 	}
 	
-	public void useSheet(String sheetName) throws Exception {
+	public void useSheet(String expectedSheetName, boolean tolerant) throws Exception {
 		if (workbook == null) {
 			throw new Exception("Workbook is not initialized!");
 		}
-		if (sheetName == null || sheetName.trim().isEmpty()) {
+		if (expectedSheetName == null || expectedSheetName.trim().isEmpty()) {
 			throw new Exception("Name of sheet cannot be null or empty!");
 		}
-		sheet = workbook.getSheet(sheetName);
+		sheet = findSheet(expectedSheetName, tolerant);
 		if (sheet == null) {
-			throw new Exception("Sheet with name:" + targetSheetName + " does not exists!");
+			throw new Exception("Sheet with name:" + expectedSheetName + " does not exists!" + (tolerant == false ? " Try the option 'Find sheet tolerant'" : ""));
 		}
-		targetSheetName = sheetName;
+		targetSheetName = expectedSheetName;
 		currentRecordIndex = 0;
 		sheetLastRowIndex = 0;
 		lastValueMap = new HashMap<Integer, Object>();
 		maxRowIndex = sheet.getLastRowNum();
 	}
-	
-	public void useSheet(Integer index) throws Exception {
+
+	public void useSheet(Number index, boolean dummy) throws Exception {
 		if (workbook == null) {
 			throw new Exception("Workbook is not initialized!");
 		}
 		if (index == null) {
 			throw new Exception("Index cannot be null!");
 		}
-		sheet = workbook.getSheetAt(index);
+		sheet = workbook.getSheetAt(index.intValue());
 		if (sheet == null) {
-			throw new Exception("Sheet with index:" + index + " does not exists!");
+			throw new Exception("Sheet with index:" + index.intValue() + " does not exists!");
 		}
 		targetSheetName = sheet.getSheetName();
 		currentRecordIndex = 0;
@@ -994,6 +994,10 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		if (lenientDateParsing != null) {
 			this.lenientDateParsing = lenientDateParsing;
 		}
+	}
+
+	public Row getHeaderRow() {
+		return headerRow;
 	}
 
 }

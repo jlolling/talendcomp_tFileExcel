@@ -85,22 +85,14 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	private boolean forbidWritingInProtectedCells = false;
 	private int templateRowIndexForStyles = -1;
 	
-	public void initializeSheet() {
+	public void resetCache() {
 		if (workbook == null) {
 			throw new IllegalStateException("Workbook is not initialized!");
 		}
-		if (targetSheetName != null) {
-			sheet = workbook.getSheet(targetSheetName);
-			if (sheet == null) {
-				sheet = workbook.createSheet(targetSheetName);
-				sheetLastRowIndex = 0;
-			} else {
-				sheetLastRowIndex = sheet.getLastRowNum();
-			}
-		} else {
-			sheet = workbook.createSheet();
-			sheetLastRowIndex = 0;
+		if (sheet == null) {
+			throw new IllegalStateException("Sheet is null. Please take care the setTargetSheetName method is called before.");
 		}
+		sheetLastRowIndex = sheet.getLastRowNum();
 		currentRecordIndex = 0;
 		listColumnsToWriteComment.clear();
 		listColumnsToWriteHyperlink.clear();
@@ -196,9 +188,13 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		if (isFirstRow(currentRecordIndex)) {
 			if (appendData) {
 				Row pr = sheet.getRow(templateRowIndexForStyles >= 0 ? templateRowIndexForStyles : currentRow.getRowNum());
-				firstRowHeight = pr.getHeight();
-				if (reuseFirstRowHeight) {
-					currentRow.setHeight(firstRowHeight);
+				if (pr != null) {
+					firstRowHeight = pr.getHeight();
+					if (reuseFirstRowHeight) {
+						currentRow.setHeight(firstRowHeight);
+					}
+				} else {
+					firstRowHeight = currentRow.getHeight();
 				}
 			} else {
 				firstRowHeight = currentRow.getHeight();
@@ -512,7 +508,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 		try {
 			Sheet newSheet = workbook.cloneSheet(sourceSheetIndex);
-			setTargetSheetName(targetSheetName);
+			this.targetSheetName = ensureCorrectExcelSheetName(targetSheetName);
 			workbook.setSheetName(workbook.getSheetIndex(newSheet), targetSheetName);
 			return newSheet;
 		} catch (Throwable t) {
@@ -871,9 +867,9 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					if (newstyle == null) {
 						newstyle = createCellStyle(style);
 						newstyle.setDataFormat(formatIndex.shortValue());
-						columnStyleMap.put(cell.getColumnIndex(), style);
+						columnStyleMap.put(cell.getColumnIndex(), newstyle);
 					}
-					cell.setCellStyle(style);
+					cell.setCellStyle(newstyle);
 				}
 			}
 		}
