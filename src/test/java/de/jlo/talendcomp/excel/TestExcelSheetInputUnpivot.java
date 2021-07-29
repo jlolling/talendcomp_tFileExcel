@@ -17,7 +17,7 @@ public class TestExcelSheetInputUnpivot {
 		tFileExcelSheetInput_2 = new SpreadsheetInput();
 		tFileExcelSheetInput_2.setInputFile(path);
 		tFileExcelSheetInput_2.initializeWorkbook();
-		tFileExcelSheetInput_2.useSheet(0, false);
+		tFileExcelSheetInput_2.useSheet(0, true);
 		tFileExcelSheetInput_2.setStopAtMissingRow(true);
 		// configure cell positions
 		tFileExcelSheetInput_2.setDataColumnPosition(0, "A");
