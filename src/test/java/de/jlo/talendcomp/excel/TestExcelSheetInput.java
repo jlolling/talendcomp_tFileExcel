@@ -6,6 +6,7 @@ public class TestExcelSheetInput {
 	
 	@Test
 	public void testReadExcelFormula() throws Exception {
+		// TODO replace this test file, this file will not be public available
 		String file = "/home/jan-lolling/Desktop/OTK-UK_20210729_0938_Pricing Data V4 August 28.07.2021.xlsx";
 		SpreadsheetFile ssf = new SpreadsheetFile();
 		ssf.setInputFile(file);
@@ -25,6 +26,8 @@ public class TestExcelSheetInput {
 		if (tFileExcelSheetInput_1.readNextRow()) {
 			String value = tFileExcelSheetInput_1.getStringCellValue(8, false, false, false);
 			System.out.println(value);
+			Double dv = tFileExcelSheetInput_1.getDoubleCellValue(8, false, false);
+			System.out.println(dv);
 		}
 	}
 

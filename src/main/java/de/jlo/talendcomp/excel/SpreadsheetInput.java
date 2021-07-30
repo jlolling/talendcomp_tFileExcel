@@ -204,7 +204,8 @@ public class SpreadsheetInput extends SpreadsheetFile {
 								if (overrideExcelNumberFormat) {
 									value = getNumberFormat(originalColumnIndex).format(cell.getNumericCellValue());
 								} else {
-									value = getDataFormatter().formatCellValue(cell);
+									org.apache.poi.ss.formula.eval.NumberEval eval = new org.apache.poi.ss.formula.eval.NumberEval(cell.getNumericCellValue());
+									value = eval.getStringValue(); //getDataFormatter().formatCellValue(cell);
 								}
 							}
 						} else if (cellType == CellType.BOOLEAN) {
