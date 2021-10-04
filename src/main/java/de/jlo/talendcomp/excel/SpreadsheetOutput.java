@@ -490,11 +490,17 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	}
 
 	public Sheet createCopy(Sheet sourceSheet, String targetSheetName) throws Exception {
+		if (sourceSheet == null) {
+			throw new IllegalArgumentException("Create copy of sheet failed: Source sheet cannot be null");
+		}
 		int sourceSheetIndex = workbook.getSheetIndex(sourceSheet);
 		return createCopy(sourceSheetIndex, targetSheetName);
 	}
 
 	public Sheet createCopy(String sourceSheetName, String targetSheetName) throws Exception {
+		if (sourceSheetName == null || sourceSheetName.trim().isEmpty()) {
+			throw new IllegalArgumentException("Create copy of sheet failed: Source sheet name cannot be null or empty");
+		}
 		int sourceSheetIndex = workbook.getSheetIndex(sourceSheetName);
 		if (sourceSheetIndex < 0) {
 			throw new Exception("Create a copy of sheet: " + sourceSheetName + " failed. This sheet does not exist in the current workbook.");
@@ -502,9 +508,12 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		return createCopy(sourceSheetIndex, targetSheetName);
 	}
 
-	public Sheet createCopy(int sourceSheetIndex, String targetSheetName) throws Exception {
-		if (sourceSheetIndex < 0) {
-			throw new IllegalArgumentException("sourceSheetIndex (" + sourceSheetIndex + ") must be 0 or greater.");
+	public Sheet createCopy(Integer sourceSheetIndex, String targetSheetName) throws Exception {
+		if (sourceSheetIndex == null || sourceSheetIndex < 0) {
+			throw new IllegalArgumentException("Create copy of sheet failed. Source sheet index: " + sourceSheetIndex + " must be 0 or greater.");
+		}
+		if (targetSheetName == null || targetSheetName.trim().isEmpty()) {
+			throw new IllegalArgumentException("Create copy of sheet with index: " + sourceSheetIndex + " failed: Target sheet name cannot be null or empty");
 		}
 		try {
 			Sheet newSheet = workbook.cloneSheet(sourceSheetIndex);
@@ -856,7 +865,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 					}
 				}
 			}
-		} else {
+		} else { // reuseExistingStylesFromFirstWrittenRow == false
 			Short formatIndex = cellFormatMap.get(cell.getColumnIndex());
 			if (formatIndex != null) {
 				CellStyle style = cell.getCellStyle();

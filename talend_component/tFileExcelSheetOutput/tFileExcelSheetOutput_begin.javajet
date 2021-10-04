@@ -147,13 +147,9 @@
             	}
         	} %>
     // columnIndex: <%=schemaColumnIndex%>, format: <%=columnFormat%>, talendType: <%=talendType%>
-<%			if (columnFormat != null &&  columnFormat.isEmpty() == false) {
-				if ("Date".equalsIgnoreCase(talendType) || "Timestamp".equalsIgnoreCase(talendType)) { %>
+<%			if (columnFormat != null &&  columnFormat.trim().isEmpty() == false) { %>
     <%=cid%>.setDataFormat(<%=schemaColumnIndex%>, <%=columnFormat%>);
-<%				} else if ("Double".equals(talendType) || "Float".equals(talendType) || "BigDecimal".equals(talendType) || "Integer".equals(talendType) || "Long".equals(talendType) || "Short".equals(talendType) || "String".equals(talendType)) { %>
-    <%=cid%>.setDataFormat(<%=schemaColumnIndex%>, <%=columnFormat%>);
-<%          	}
-        	} else if (precision != null) {
+<%        	} else if (precision != null) {
             	if ("Double".equals(talendType) || "Float".equals(talendType) || "BigDecimal".equals(talendType) || "Integer".equals(talendType) || "Long".equals(talendType) || "Short".equals(talendType) || "String".equals(talendType)) { %>
     <%=cid%>.setNumberPrecision(<%=schemaColumnIndex%>, <%=precision%>);
 <%          	}
