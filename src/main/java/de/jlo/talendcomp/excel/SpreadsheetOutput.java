@@ -294,9 +294,13 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 				sheet = workbook.createSheet((String) sheetRef);
 			}
 		} else if (sheetRef instanceof Number) {
-			sheet = workbook.getSheetAt(((Number) sheetRef).intValue());
+			int sheetIndex = ((Number) sheetRef).intValue();
+			if (workbook.getNumberOfSheets() <= sheetIndex) {
+				throw new Exception("Sheet with index: " + ((Number) sheetRef).intValue() + " does not exists and can only be created if a sheet name is provided");
+			}
+			sheet = workbook.getSheetAt(sheetIndex);
 			if (sheet == null) {
-				throw new Exception("Sheet with index: " + ((Number) sheetRef).intValue() + " does not exists and can only be created if a name will be provided");
+				throw new Exception("Sheet with index: " + ((Number) sheetRef).intValue() + " does not exists and can only be created if a sheet name is provided");
 			}
 		} else if (cellRefStr != null && cellRefStr.trim().isEmpty() == false) {
 			CellReference cellRef = new CellReference(cellRefStr.trim());
@@ -310,19 +314,29 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		}
 	}
 	
-	public boolean writeReferencedCellValue(String cellRefStr, Object sheetRef, Integer rowIndex, Object columnRef, Object value, String comment, Boolean doNotSetCellStyle) throws Exception {
+	public void writeReferencedCellValue(String cellRefStr, Object sheetRef, Integer rowIndex, Object columnRef, Object value, String comment, Boolean doNotSetCellStyle) throws Exception {
 		setupReferencedSheet(cellRefStr, sheetRef);
 		if (cellRefStr != null && cellRefStr.trim().isEmpty() == false) {
 			CellReference cellRef = new CellReference(cellRefStr.trim());
-			return writeReferencedCellValue(cellRef.getRow(), cellRef.getCol(), value, comment, doNotSetCellStyle);
+			// cellRef is for row 0-based
+			writeReferencedCellValue(cellRef.getRow(), cellRef.getCol(), value, comment, doNotSetCellStyle);
 		} else {
-			return writeReferencedCellValue(rowIndex, columnRef, value, comment, doNotSetCellStyle);
+			if (rowIndex == null || rowIndex < 0) {
+				throw new Exception("row index cannot be null or lower 0");
+			}
+			if (columnRef == null) {
+				throw new Exception("column index cannot be null");
+			}
+			writeReferencedCellValue(rowIndex - 1, columnRef, value, comment, doNotSetCellStyle);
 		}
 	}
 	
-	private boolean writeReferencedCellValue(Integer rowIndex, Object column, Object value, String comment, Boolean doNotSetCellStyle) throws Exception {
-		if ((rowIndex == null || rowIndex.intValue() < 1) || (column == null)) {
-			return false;
+	private void writeReferencedCellValue(Integer rowIndex, Object column, Object value, String comment, Boolean doNotSetCellStyle) throws Exception {
+		if (rowIndex == null || rowIndex < 0) {
+			throw new Exception("row index cannot be null or lower 0");
+		}
+		if (column == null) {
+			throw new Exception("column index cannot be null");
 		}
 		int columnIndex = 0;
 		if (column instanceof String) {
@@ -330,21 +344,20 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 		} else if (column instanceof Number) {
 			columnIndex = ((Number) column).intValue();
 		} else {
-			throw new Exception("The value " + column + " in parameter column cannot be used as column index.");
+			throw new Exception("The value " + column + " in parameter column cannot be used as column index. Value must be a String (excel column name) or a number (column index 0-based)");
 		}
 		if (columnIndex < 0) {
-			return false;
+			throw new Exception("column index must be 0 or greater");
 		}
 		if (sheet == null) {
 			throw new IOException("Sheet is not initialized!");
 		}
-		Row row = getRow(rowIndex - 1);
+		Row row = getRow(rowIndex);
 		Cell cell = getCell(row, columnIndex);
-		writeCellValue(cell, value, columnIndex, rowIndex - 1, (doNotSetCellStyle != null ? doNotSetCellStyle.booleanValue() : false));
+		writeCellValue(cell, value, columnIndex, rowIndex, (doNotSetCellStyle != null ? doNotSetCellStyle.booleanValue() : false));
 		if (comment != null && comment.isEmpty() == false) {
 			setCellComment(cell, comment);
 		}
-		return true;
 	}
 	
 	private Drawing<?> getDrawing() {
