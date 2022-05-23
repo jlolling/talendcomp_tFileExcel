@@ -769,6 +769,9 @@ public class SpreadsheetInput extends SpreadsheetFile {
 
 	public void configColumnPositions() throws Exception {
 		headerRow = sheet.getRow(headerRowIndex);
+		if (headerRow == null) {
+			throw new Exception("Try to configure column config for sheet: " + getTargetSheetName() + " by header row but there is no row at row-index: " + (headerRowIndex + 1)); // in the gui the index is 1-based
+		}
 		int lastCellNum = headerRow.getLastCellNum();
 		int firstCellNum = headerRow.getFirstCellNum();
 		for (int i = firstCellNum; i <= lastCellNum; i++) {
@@ -995,10 +998,6 @@ public class SpreadsheetInput extends SpreadsheetFile {
 		if (lenientDateParsing != null) {
 			this.lenientDateParsing = lenientDateParsing;
 		}
-	}
-
-	public Row getHeaderRow() {
-		return headerRow;
 	}
 
 }
