@@ -367,7 +367,7 @@ public class SpreadsheetFile {
 		return type;
 	}
 	
-	private InputStream getInputStream() throws Exception{
+	private InputStream getInputStream() throws Exception {
 		if(this.isFileMode) {
 			return new FileInputStream(this.inputFile);
 		} else {

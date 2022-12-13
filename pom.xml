@@ -54,11 +54,12 @@
 			<plugin>
 				<groupId>de.cimt.talendcomp</groupId>
 				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
-				<version>2.1</version>
+				<version>3.0</version>
 				<configuration>
 					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
 					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
 					<studioUserComponentFolder>${custom_component_folder}</studioUserComponentFolder>
+					<useTalendLibrariesMavenLocation>false</useTalendLibrariesMavenLocation>
 				</configuration>
 				<executions>
 					<execution>
