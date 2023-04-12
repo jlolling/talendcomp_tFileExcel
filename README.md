@@ -6,6 +6,20 @@ There are a lot of features e.g:
 * formula support and 
 * building new excel workbooks based on templates
 
+List components:
+| Component                      | Purpose                                                                                                                  |
+|--------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| tFileExcelWorkobookOpen        | Central component to hold the excel workbook. Is alwqys needed.                                                          |
+| tFileExcelWorkbookSave         | Writes a workbook back to the local file system, only needed of the excel file is written.                               |
+| tFileExcelSheetList            | List all sheets in the workbook with filter                                                                              |
+| tFileExcelSheetInput           | Reads data from a sheet and allows to configure the columns according to a header line                                   |
+| tFileExcelSheetInputUnpivot    | Base on the outgoing flow of the tFileExcelSheetInput the component can unpivot (or normalize) the data in a generic way |
+| tFileExcelSheetOutput          | Create/copy a sheet and writes data into. Have lots of functions to reuse existing formats.                              |
+| tFileExcelSheetNamedCellInput  | Iterates through the named cells and provide name and value and data type                                                |
+| tFileExcelSheetNamedCellOutput | Writes into named cells                                                                                                  |
+| tFileExcelReferencedCellInput  | Use an incoming flow to address cells and provide the values as output flow                                              |
+| tFileExcelReferencedCellOutput | Writes cell values addressed directly with row+column information                                                        |
+
 These components can be get from thre Release section here on Github
 
 These Componentes usually does not work together with the build-in Excel-components because the build-in Excel-components uses outdated libraries.
