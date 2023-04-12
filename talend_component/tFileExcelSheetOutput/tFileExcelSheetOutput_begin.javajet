@@ -133,27 +133,24 @@
 <%  } %>
     // configure cell formats
 <%	if (reuseStyleFromFirstWrittenRow == false) {
-	    for (Map.Entry<Integer, String> entry : formatMap.entrySet()) { 
-        	Integer schemaColumnIndex = entry.getKey();
-        	String columnFormat = entry.getValue();
-        	String talendType = null;
-        	Integer precision = null;
-        	if (listColumns != null) {
-	        	IMetadataColumn mc = listColumns.get(schemaColumnIndex);
-	        	precision = mc.getPrecision();
-   	        	talendType = mc.getTalendType().substring(3);
- 		    	if (columnFormat == null || columnFormat.trim().isEmpty()) {
-               		columnFormat = mc.getPattern();
-            	}
+        columnIndex = 0;
+	    for (IMetadataColumn mc : listColumns) {
+        	String columnFormat = formatMap.get(columnIndex);
+        	String talendType = mc.getTalendType().substring(3);
+        	Integer precision = mc.getPrecision();
+        	String label = mc.getLabel();
+	    	if (columnFormat == null || columnFormat.trim().isEmpty()) {
+           		columnFormat = mc.getPattern();
         	} %>
-    // columnIndex: <%=schemaColumnIndex%>, format: <%=columnFormat%>, talendType: <%=talendType%>
+    // columnIndex: <%=columnIndex%>, name: <%=label%>, format: <%=columnFormat%>, talendType: <%=talendType%>
 <%			if (columnFormat != null &&  columnFormat.trim().isEmpty() == false) { %>
-    <%=cid%>.setDataFormat(<%=schemaColumnIndex%>, <%=columnFormat%>);
+    <%=cid%>.setDataFormat(<%=columnIndex%>, <%=columnFormat%>);
 <%        	} else if (precision != null) {
             	if ("Double".equals(talendType) || "Float".equals(talendType) || "BigDecimal".equals(talendType) || "Integer".equals(talendType) || "Long".equals(talendType) || "Short".equals(talendType) || "String".equals(talendType)) { %>
-    <%=cid%>.setNumberPrecision(<%=schemaColumnIndex%>, <%=precision%>);
+    <%=cid%>.setNumberPrecision(<%=columnIndex%>, <%=precision%>);
 <%          	}
         	}
+        	columnIndex++;
         } // for
     }  // if (reuseStyleFromFirstWrittenRow == false)
     if (freezeRowStr != null && freezeRowStr.isEmpty() == false) {
