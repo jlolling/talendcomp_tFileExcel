@@ -667,6 +667,7 @@ public class SpreadsheetOutput extends SpreadsheetFile {
 	 */
 	public void setDataFormat(int schemaColumnIndex, String pattern) {
 		if (pattern != null && pattern.trim().isEmpty() == false) {
+			pattern = pattern.replace("yy", "YY").replace("dd", "DD"); // converts Java to Excel format
 			short formatIndex = format.getFormat(pattern);
 			Integer cellColumnPos = columnIndexes.get(schemaColumnIndex);
 			if (cellColumnPos != null) {
