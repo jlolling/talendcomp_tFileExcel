@@ -13,4 +13,4 @@ You have to choose in Talend job between the usage of the build-in Excel compone
 
 [Documentation for the input components](https://github.com/jlolling/talendcomp_tFileExcel/blob/master/doc/tFileExcelSheetInput.pdf)
 
-[Documentation for the outpu components](https://github.com/jlolling/talendcomp_tFileExcel/blob/master/doc/tFileExcelSheetOutput.pdf)
+[Documentation for the output components](https://github.com/jlolling/talendcomp_tFileExcel/blob/master/doc/tFileExcelSheetOutput.pdf)
