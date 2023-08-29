@@ -38,6 +38,8 @@ import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.PageMargin;
+import org.apache.poi.ss.usermodel.PaneType;
 import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -788,6 +790,7 @@ public class SXSSFSheet implements Sheet, Cloneable
      * @return the size of the margin
      */
     @Override
+    @Deprecated
     public double getMargin(short margin)
     {
         return _sh.getMargin(margin);
@@ -800,6 +803,7 @@ public class SXSSFSheet implements Sheet, Cloneable
      * @param size the size of the margin
      */
     @Override
+    @Deprecated
     public void setMargin(short margin, double size)
     {
         _sh.setMargin(margin,size);
@@ -1004,6 +1008,7 @@ public class SXSSFSheet implements Sheet, Cloneable
      * @see #PANE_UPPER_RIGHT
      */
     @Override
+    @Deprecated
     public void createSplitPane(int xSplitPos, int ySplitPos, int leftmostColumn, int topRow, int activePane)
     {
         _sh.createSplitPane(xSplitPos, ySplitPos, leftmostColumn, topRow, activePane);
@@ -1898,6 +1903,21 @@ public class SXSSFSheet implements Sheet, Cloneable
 	@Override
 	public void shiftColumns(int startColumn, int endColumn, int n) {
 		_sh.shiftColumns(startColumn, endColumn, n);
+	}
+
+	@Override
+	public double getMargin(PageMargin margin) {
+		return _sh.getMargin(margin);
+	}
+
+	@Override
+	public void setMargin(PageMargin margin, double size) {
+		_sh.setMargin(margin, size);
+	}
+
+	@Override
+	public void createSplitPane(int xSplitPos, int ySplitPos, int leftmostColumn, int topRow, PaneType activePane) {
+		_sh.createSplitPane(xSplitPos, ySplitPos, leftmostColumn, topRow, activePane);
 	}
 	
 }
