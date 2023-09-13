@@ -143,7 +143,7 @@ public class SXSSFSheet implements Sheet, OoxmlSheetExtensions {
         if(_sh.getPhysicalNumberOfRows() > 0 && rownum <= _sh.getLastRowNum() ) {
             throw new IllegalArgumentException(
                     "Attempting to write a row["+rownum+"] " +
-                            "in the range [0," + _sh.getLastRowNum() + "] that is already written to disk.");
+                            "in the range [0," + _sh.getLastRowNum() + "] that is already written to disk. Eventually already existing rows are ignored?");
         }
 
         SXSSFRow newRow = new SXSSFRow(this);
@@ -231,7 +231,8 @@ public class SXSSFSheet implements Sheet, OoxmlSheetExtensions {
      */
     @Override
     public int getLastRowNum() {
-        return _rows.isEmpty() ? -1 : _rows.lastKey();
+    	// jlolling allow append
+        return _rows.isEmpty() ? _sh.getLastRowNum() : _rows.lastKey();
     }
 
     /**
