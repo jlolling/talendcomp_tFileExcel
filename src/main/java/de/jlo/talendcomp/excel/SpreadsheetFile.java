@@ -312,10 +312,12 @@ public class SpreadsheetFile {
 		File inputFile = new File(inputFileName);
 		if (inputFile.exists() == false || inputFile.canRead() == false) {
 			if (dieIfFileNotExists) {
-				throw new Exception("Excel file: " + inputFileName + " does not exists or canot be read!");
+				throw new Exception("Excel file: " + inputFile.getAbsolutePath() + " does not exists or canot be read!");
 			} else {
 				this.inputFile = null;
 			}
+		} else if (inputFile.length() == 0) {
+			throw new Exception("Excel file: " + inputFile.getAbsolutePath() + " is empty (has length of zero bytes)!");
 		} else {
 			this.inputFile = inputFile;
 			this.isFileMode = true;
