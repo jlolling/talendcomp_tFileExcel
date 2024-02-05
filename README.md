@@ -20,7 +20,7 @@ List components:
 | tFileExcelReferencedCellInput  | Use an incoming flow to address cells and provide the values as output flow                                              |
 | tFileExcelReferencedCellOutput | Writes cell values addressed directly with row+column information                                                        |
 
-These components can be get from thre Release section here on Github
+These components can be get from the Release section here on Github: [Download](https://github.com/jlolling/talendcomp_tFileExcel/releases)
 
 These Componentes usually does not work together with the build-in Excel-components because the build-in Excel-components uses outdated libraries.
 You have to choose in Talend job between the usage of the build-in Excel components or the these custome Excel components.
