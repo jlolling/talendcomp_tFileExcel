@@ -2,14 +2,14 @@
 These components are dedicated to work with Excel in Talend in a very comfortable and powerful way.
 There are a lot of features e.g: 
 * support for conditional formatting, 
-* data range validaetion, 
+* data range validation, 
 * formula support and 
 * building new excel workbooks based on templates
 
 List components:
 | Component                      | Purpose                                                                                                                  |
 |--------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| tFileExcelWorkobookOpen        | Central component to hold the excel workbook. Is alwqys needed.                                                          |
+| tFileExcelWorkobookOpen        | Central component to hold the excel workbook. Is always needed.                                                          |
 | tFileExcelWorkbookSave         | Writes a workbook back to the local file system, only needed of the excel file is written.                               |
 | tFileExcelSheetList            | List all sheets in the workbook with filter                                                                              |
 | tFileExcelSheetInput           | Reads data from a sheet and allows to configure the columns according to a header line                                   |
