@@ -8,7 +8,7 @@
     <FAMILY>File/Spreadsheet</FAMILY> 
   </FAMILIES>  
   <DOCUMENTATION> 
-    <URL/> 
+    <URL>https://github.com/jlolling/talendcomp_tFileExcel</URL> 
   </DOCUMENTATION>  
   <CONNECTORS> 
     <CONNECTOR CTYPE="FLOW" MAX_INPUT="0" MAX_OUTPUT="0"/>  

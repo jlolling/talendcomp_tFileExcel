@@ -8,7 +8,7 @@
     <FAMILY>File/Spreadsheet</FAMILY> 
   </FAMILIES>  
   <DOCUMENTATION> 
-    <URL>http://jan-lolling.de/talend/components/help/tFileExcelSheetInput.pdf</URL> 
+    <URL>https://github.com/jlolling/talendcomp_tFileExcel</URL> 
   </DOCUMENTATION>  
   <CONNECTORS> 
     <CONNECTOR CTYPE="FLOW" MAX_INPUT="0" MIN_OUTPUT="1" MAX_OUTPUT="1"/>  
