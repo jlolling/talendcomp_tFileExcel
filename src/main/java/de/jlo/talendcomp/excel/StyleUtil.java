@@ -39,7 +39,7 @@ public class StyleUtil {
 	
 	public String getFontCSS(CellStyle cellStyle) {
 		StringBuilder css = new StringBuilder();
-		int fontIndex = cellStyle.getFontIndexAsInt();
+		int fontIndex = cellStyle.getFontIndex();
 		Font font = workbook.getFontAt(fontIndex);
 		if (font != null) {
 			css.append("font-family:");

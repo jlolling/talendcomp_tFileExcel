@@ -1,0 +1,30 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+	"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode) codeGenArgument.getArgument();
+    String cid = node.getUniqueName();	
+    String openWorkbookCompName = ElementParameterParser.getValue(node, "__WORKBOOK__");
+    boolean forbidWritingInLockedCells = "true".equals(ElementParameterParser.getValue(node, "__FORBID_WRITING_INTO_LOCKED_CELLS__"));
+%>
+    de.jlo.talendcomp.excel.SpreadsheetOutput <%=cid%> = new de.jlo.talendcomp.excel.SpreadsheetOutput();
+    <%=cid%>.setWorkbook((org.apache.poi.ss.usermodel.Workbook) globalMap.get("workbook_<%=openWorkbookCompName%>"));
+    <%=cid%>.setForbidWritingInProtectedCells(<%=forbidWritingInLockedCells%>);
+    // configure cell positions
+	// row counter
+    int nb_cells_<%=cid%> = 0;
+	class NullCheck_<%=cid%> {
+		
+		public boolean isNotNull(Object o) {
+			return o != null;
+		}
+		
+	}
+	NullCheck_<%=cid%> nc_<%=cid%> = new NullCheck_<%=cid%>();
+
+    
