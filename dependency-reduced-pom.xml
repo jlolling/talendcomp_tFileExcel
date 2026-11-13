@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>de.cimt.talendcomp</groupId>
-  <artifactId>cimt-talendcomp-excel</artifactId>
-  <name>Excel Output POI</name>
-  <version>7.4</version>
+  <groupId>de.jlo.talendcomp</groupId>
+  <artifactId>jlo-talendcomp-excel</artifactId>
+  <name>Talend Excel Components</name>
+  <version>13.8</version>
   <organization>
     <name>Jan Lolling</name>
-    <url>http://www.jan-lolling.de</url>
   </organization>
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
+        <version>3.8.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -27,10 +26,122 @@
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <transformers>
+                <transformer />
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>de.cimt.talendcomp</groupId>
+        <artifactId>cimt-talendcomp-maven-plugin</artifactId>
+        <version>3.1</version>
+        <executions>
+          <execution>
+            <id>tFileExcelWorkbookOpen</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelWorkbookOpen</componentName>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelWorkbookSave</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelWorkbookSave</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelSheetInput</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelSheetInput</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelSheetInputUnpivot</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelSheetInputUnpivot</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelSheetOutput</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelSheetOutput</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelSheetList</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelSheetList</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelReferencedCellInput</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelReferencedCellInput</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelReferencedCellOutput</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelReferencedCellOutput</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelNamedCellInput</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelNamedCellInput</componentName>
+              <noJars>true</noJars>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tFileExcelNamedCellOutput</id>
+            <goals>
+              <goal>component</goal>
+            </goals>
+            <configuration>
+              <componentName>tFileExcelNamedCellOutput</componentName>
+              <noJars>true</noJars>
+            </configuration>
           </execution>
         </executions>
         <configuration>
-          <finalName>${artifactId}-${version}</finalName>
+          <studioUserComponentFolder>${custom_component_folder}</studioUserComponentFolder>
+          <useTalendLibrariesMavenLocation>false</useTalendLibrariesMavenLocation>
         </configuration>
       </plugin>
     </plugins>
@@ -39,7 +150,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>4.13.1</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -47,12 +158,6 @@
           <groupId>org.hamcrest</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>
